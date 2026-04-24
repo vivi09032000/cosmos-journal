@@ -164,6 +164,9 @@ export default function OrderDetail({
 
     try {
       await onUpdateOrderImage(imageFile);
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("圖片上傳失敗：" + error.message);
     } finally {
       setImageSaving(false);
       event.target.value = "";
