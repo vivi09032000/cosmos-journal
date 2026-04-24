@@ -40,28 +40,26 @@ export function getLifePathNumber(birthday) {
 
 // ── 2. 月相計算 ──────────────────────────────────────────────
 
+import SunCalc from "suncalc";
+
 /**
- * 計算指定日期的月相（0 = 新月，1 = 滿月，循環）
- * 使用簡化的天文演算法，誤差約 ±1 天，足夠 app 使用
+ * 取得精確的月齡 (天)
+ * @param {Date} date
+ * @returns {number}
+ */
+function getMoonAge(date) {
+  const phase = SunCalc.getMoonIllumination(date).phase;
+  // phase 是 0.0 ~ 1.0，朔望月大約是 29.53 天
+  return phase * 29.53058867;
+}
+
+/**
+ * 取得精確的月相比例
  * @param {Date} date
  * @returns {number} 0.0 ~ 1.0（0 = 新月，0.5 = 滿月）
  */
 function getMoonPhaseRatio(date) {
-  // 已知新月基準點：2000年1月6日 18:14 UTC
-  const knownNewMoon = new Date("2000-01-06T18:14:00Z");
-  const synodicMonth = 29.53058867; // 朔望月天數
-
-  const daysSince = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
-  const phase = ((daysSince % synodicMonth) + synodicMonth) % synodicMonth;
-
-  return phase / synodicMonth; // 0.0 ~ 1.0
-}
-
-function getMoonAge(date) {
-  const knownNewMoon = new Date("2000-01-06T18:14:00Z");
-  const synodicMonth = 29.53058867;
-  const daysSince = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
-  return ((daysSince % synodicMonth) + synodicMonth) % synodicMonth;
+  return SunCalc.getMoonIllumination(date).phase;
 }
 
 function getDailyMoonNumber(moonAge) {
