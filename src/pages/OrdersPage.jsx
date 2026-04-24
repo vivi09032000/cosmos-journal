@@ -75,9 +75,12 @@ function CreateOrderModal({ onClose, onCreate }) {
 
     try {
       await onCreate(form);
+      onClose();
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("儲存時發生錯誤：" + error.message);
     } finally {
       setSaving(false);
-      onClose();
     }
   };
 
