@@ -1,0 +1,203 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap');
+  .t-wrap { background:var(--color-background-secondary); border-radius:var(--border-radius-lg); padding:16px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .t-phone { width:320px; background:#f5efe6; border-radius:32px; overflow:hidden; border:1px solid rgba(181,120,58,0.2); font-family:'EB Garamond',Georgia,serif; position:relative; }
+  .t-sb { display:flex; justify-content:space-between; padding:10px 20px 0; font-family:system-ui; font-size:11px; color:#2e2318; }
+  .t-scroll { padding:0 0 80px; overflow:hidden; }
+
+  /* ── 헤더 ── */
+  .t-hero { padding:12px 20px 16px; position:relative; overflow:hidden; }
+  .t-hero-deco { position:absolute; right:-8px; top:0; opacity:0.12; }
+  .t-eyebrow { font-family:system-ui; font-size:8px; letter-spacing:4px; color:#a08870; margin-bottom:5px; }
+  .t-title { font-family:'Playfair Display',serif; font-size:26px; color:#2e2318; line-height:1.2; margin-bottom:3px; }
+  .t-date { font-family:system-ui; font-size:9px; color:#a08870; letter-spacing:1.5px; }
+
+  /* ── 월상 풀블리드 배너 ── */
+  .t-moon-banner { margin:0 14px; background:#2a3a4a; border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:14px; position:relative; overflow:hidden; }
+  .t-moon-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%, rgba(181,120,58,0.15) 0%, transparent 70%); }
+  .t-moon-svg { flex-shrink:0; position:relative; z-index:1; }
+  .t-moon-text { position:relative; z-index:1; flex:1; }
+  .t-moon-eyebrow { font-family:system-ui; font-size:8px; letter-spacing:3px; color:rgba(181,120,58,0.7); margin-bottom:4px; }
+  .t-moon-name { font-family:'Playfair Display',serif; font-size:18px; color:#f0ead8; margin-bottom:3px; }
+  .t-moon-desc { font-family:system-ui; font-size:9px; color:rgba(240,234,216,0.55); line-height:1.6; }
+  .t-moon-right { position:relative; z-index:1; text-align:right; flex-shrink:0; }
+  .t-moon-day { font-family:'Playfair Display',serif; font-size:22px; color:rgba(181,120,58,0.8); line-height:1; }
+  .t-moon-day-label { font-family:system-ui; font-size:7px; letter-spacing:2px; color:rgba(181,120,58,0.5); }
+
+  /* ── 오늘의 투영 (풀블리드 카드) ── */
+  .t-projection { margin:12px 14px 0; border-radius:14px; overflow:hidden; background:#faf6f0; border:0.5px solid rgba(181,120,58,0.22); }
+  .t-projection-img { width:100%; height:140px; position:relative; }
+  .t-projection-imgbg { width:100%; height:100%; background:linear-gradient(135deg, #1a3a5a 0%, #2d5580 40%, #1a4060 100%); position:relative; }
+  .t-projection-stars { position:absolute; inset:0; }
+  .t-projection-fade { position:absolute; bottom:0; left:0; right:0; height:70px; background:linear-gradient(to bottom, transparent, #faf6f0); }
+  .t-projection-badge { position:absolute; top:10px; left:12px; background:rgba(245,239,230,0.85); border:0.5px solid rgba(181,120,58,0.4); border-radius:20px; padding:3px 10px; font-family:system-ui; font-size:8px; letter-spacing:2px; color:#b5783a; }
+  .t-projection-days { position:absolute; top:10px; right:12px; font-family:system-ui; font-size:8px; color:rgba(240,234,216,0.6); letter-spacing:1px; }
+  .t-projection-body { padding:4px 16px 16px; }
+  .t-projection-sub { font-family:system-ui; font-size:8px; letter-spacing:2px; color:#a08870; margin-bottom:5px; }
+  .t-projection-title { font-family:'Playfair Display',serif; font-size:19px; color:#2e2318; margin-bottom:4px; line-height:1.3; }
+  .t-projection-hint { font-family:system-ui; font-size:9px; color:#6b5540; line-height:1.6; margin-bottom:12px; }
+  .t-projection-progress { height:1.5px; background:rgba(181,120,58,0.12); border-radius:1px; margin-bottom:12px; }
+  .t-projection-fill { height:100%; width:28%; background:linear-gradient(to right,#e8c99a,#b5783a); border-radius:1px; }
+  .t-btn-primary { width:100%; padding:12px; background:transparent; border:0.5px solid rgba(181,120,58,0.5); border-radius:8px; font-family:system-ui; font-size:9px; letter-spacing:3px; color:#b5783a; text-align:center; cursor:pointer; }
+
+  /* ── 하단 2열 카드 ── */
+  .t-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 14px 0; }
+  .t-mini-card { background:#faf6f0; border:0.5px solid rgba(181,120,58,0.18); border-radius:12px; padding:14px 12px; }
+  .t-mini-eyebrow { font-family:system-ui; font-size:7px; letter-spacing:2.5px; color:#a08870; margin-bottom:6px; }
+  .t-mini-content { font-family:'EB Garamond',serif; font-size:13px; font-style:italic; color:#2e2318; line-height:1.5; margin-bottom:10px; }
+  .t-mini-action { font-family:system-ui; font-size:8px; letter-spacing:1.5px; color:#b5783a; }
+  .t-mini-check { font-family:'Playfair Display',serif; font-size:13px; color:#2e2318; margin-bottom:6px; }
+  .t-mini-items { display:flex; flex-direction:column; gap:4px; }
+  .t-mini-item { font-family:'EB Garamond',serif; font-size:11px; font-style:italic; color:#6b5540; line-height:1.4; }
+
+  /* ── 실현 배너 ── */
+  .t-realized { margin:10px 14px 0; padding:12px 16px; background:rgba(181,120,58,0.06); border:0.5px solid rgba(181,120,58,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; }
+  .t-realized-left { font-family:'Playfair Display',serif; font-size:13px; color:#2e2318; }
+  .t-realized-right { font-family:system-ui; font-size:8px; letter-spacing:1.5px; color:#b5783a; }
+
+  /* ── 매일 한마디 ── */
+  .t-quote { margin:10px 14px 0; background:#faf6f0; border:0.5px solid rgba(181,120,58,0.18); border-radius:12px; padding:16px; text-align:center; }
+  .t-quote-mark { font-family:'Playfair Display',serif; font-size:28px; color:rgba(181,120,58,0.2); line-height:0.6; display:block; margin-bottom:10px; }
+  .t-quote-text { font-family:'EB Garamond',serif; font-size:14px; font-style:italic; color:#6b5540; line-height:1.7; margin-bottom:12px; }
+  .t-quote-btn { font-family:system-ui; font-size:8px; letter-spacing:2.5px; color:#a08870; border:0.5px solid rgba(181,120,58,0.25); border-radius:20px; padding:5px 14px; display:inline-block; cursor:pointer; }
+
+  /* ── nav ── */
+  .t-nav { position:sticky; bottom:0; background:rgba(245,239,230,0.95); border-top:0.5px solid rgba(181,120,58,0.18); display:flex; padding:10px 0 16px; backdrop-filter:blur(10px); }
+  .t-nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+  .t-nav-icon { font-size:15px; color:#a08870; }
+  .t-nav-icon.on { color:#b5783a; }
+  .t-nav-label { font-family:system-ui; font-size:8px; letter-spacing:1.5px; color:#a08870; }
+  .t-nav-label.on { color:#b5783a; }
+  .t-nav-line { width:14px; height:1px; background:#b5783a; margin:3px auto 0; border-radius:1px; }
+</style>
+
+<div class="t-wrap">
+<div class="t-phone">
+  <div class="t-sb"><span>9:41</span><span style="font-size:10px">▲▲ ■■■</span></div>
+
+  <div class="t-scroll">
+
+    <!-- 헤더 -->
+    <div class="t-hero">
+      <svg class="t-hero-deco" width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="30" fill="none" stroke="#b5783a" stroke-width="0.5"/>
+        <circle cx="40" cy="40" r="20" fill="none" stroke="#b5783a" stroke-width="0.3"/>
+        <line x1="40" y1="4" x2="40" y2="76" stroke="#b5783a" stroke-width="0.3"/>
+        <line x1="4" y1="40" x2="76" y2="40" stroke="#b5783a" stroke-width="0.3"/>
+        <line x1="11" y1="11" x2="69" y2="69" stroke="#b5783a" stroke-width="0.2"/>
+        <line x1="69" y1="11" x2="11" y2="69" stroke="#b5783a" stroke-width="0.2"/>
+        <circle cx="40" cy="40" r="3" fill="#b5783a" opacity="0.4"/>
+      </svg>
+      <div class="t-eyebrow">COSMOS JOURNAL</div>
+      <div class="t-title">今天宇宙<br>說什麼？</div>
+      <div class="t-date">2026年4月24日 · 星期五</div>
+    </div>
+
+    <!-- 월상 배너 (풀블리드, 어두운 배경) -->
+    <div class="t-moon-banner">
+      <div class="t-moon-bg"></div>
+      <svg class="t-moon-svg" width="46" height="46" viewBox="0 0 46 46">
+        <circle cx="23" cy="23" r="20" fill="none" stroke="rgba(181,120,58,0.3)" stroke-width="0.5"/>
+        <path d="M23,5 A18,18 0 0,1 23,41 A11,18 0 0,1 23,5" fill="rgba(181,120,58,0.25)"/>
+        <circle cx="23" cy="23" r="15" fill="none" stroke="rgba(181,120,58,0.4)" stroke-width="0.5"/>
+        <circle cx="17" cy="19" r="1.5" fill="rgba(181,120,58,0.3)"/>
+        <circle cx="28" cy="27" r="1" fill="rgba(181,120,58,0.2)"/>
+      </svg>
+      <div class="t-moon-text">
+        <div class="t-moon-eyebrow">今日月相</div>
+        <div class="t-moon-name">眉月</div>
+        <div class="t-moon-desc">能量正在積累<br>畫面愈清楚愈易被接住</div>
+      </div>
+      <div class="t-moon-right">
+        <div class="t-moon-day">Day 8</div>
+        <div class="t-moon-day-label">距滿月 22 天</div>
+      </div>
+    </div>
+
+    <!-- 오늘의 투영 -->
+    <div class="t-projection">
+      <div class="t-projection-img">
+        <div class="t-projection-imgbg">
+          <svg class="t-projection-stars" viewBox="0 0 290 140" preserveAspectRatio="xMidYMid slice">
+            <circle cx="30" cy="20" r="1" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="80" cy="12" r="1.5" fill="rgba(255,255,255,0.3)"/>
+            <circle cx="150" cy="25" r="1" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="220" cy="10" r="1.2" fill="rgba(255,255,255,0.35)"/>
+            <circle cx="260" cy="30" r="1" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="190" cy="45" r="1.3" fill="rgba(255,255,255,0.3)"/>
+            <circle cx="120" cy="60" r="0.9" fill="rgba(255,255,255,0.2)"/>
+            <circle cx="240" cy="55" r="1" fill="rgba(255,255,255,0.35)"/>
+            <ellipse cx="230" cy="55" rx="18" ry="18" fill="rgba(240,234,216,0.08)" stroke="rgba(240,234,216,0.06)" stroke-width="0.5"/>
+            <polygon points="90,100 110,60 130,100" fill="rgba(240,234,216,0.08)" stroke="none"/>
+            <polygon points="120,110 145,55 170,110" fill="rgba(240,234,216,0.07)" stroke="none"/>
+            <polygon points="155,105 175,70 195,105" fill="rgba(240,234,216,0.06)" stroke="none"/>
+          </svg>
+        </div>
+        <div class="t-projection-fade"></div>
+        <div class="t-projection-badge">今日投射</div>
+        <div class="t-projection-days">第 0 天</div>
+      </div>
+      <div class="t-projection-body">
+        <div class="t-projection-sub">MANIFEST · 打包中</div>
+        <div class="t-projection-title">加拿大露營</div>
+        <div class="t-projection-hint">眉月的能量正在推著這張訂單往前，很適合今天再投射一次。</div>
+        <div class="t-projection-progress"><div class="t-projection-fill"></div></div>
+        <div class="t-btn-primary">✦ &nbsp;今日投射</div>
+      </div>
+    </div>
+
+    <!-- 실현 배너 -->
+    <div class="t-realized">
+      <div class="t-realized-left">你已實現了 <span style="color:#b5783a">1</span> 個願望</div>
+      <div class="t-realized-right">前往戰績牆 →</div>
+    </div>
+
+    <!-- 2열 카드: 매일 한마디 + 감사 상태 -->
+    <div class="t-row">
+      <div class="t-mini-card">
+        <div class="t-mini-eyebrow">今日一問</div>
+        <div class="t-mini-content">如果把今天說成一句咒語，會是什麼？</div>
+        <div class="t-mini-action">寫下回答 →</div>
+      </div>
+      <div class="t-mini-card">
+        <div class="t-mini-eyebrow">今日感恩</div>
+        <div class="t-mini-check">✓ 已記錄</div>
+        <div class="t-mini-items">
+          <div class="t-mini-item">「早餐的咖啡剛剛好」</div>
+          <div class="t-mini-item">「朋友的一則訊息」</div>
+          <div class="t-mini-item">「今天的風」</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="t-nav">
+    <div class="t-nav-item">
+      <div class="t-nav-icon on">✦</div>
+      <div class="t-nav-label on">今日</div>
+      <div class="t-nav-line"></div>
+    </div>
+    <div class="t-nav-item">
+      <div class="t-nav-icon">⊡</div>
+      <div class="t-nav-label">訂單</div>
+    </div>
+    <div class="t-nav-item">
+      <div class="t-nav-icon">⟡</div>
+      <div class="t-nav-label">天使</div>
+    </div>
+    <div class="t-nav-item">
+      <div class="t-nav-icon">♡</div>
+      <div class="t-nav-label">感恩</div>
+    </div>
+  </div>
+</div>
+
+<div style="font-family:system-ui; font-size:10px; color:var(--color-text-secondary); text-align:center; line-height:1.9; max-width:320px; margin-top:4px">
+  主要改動 · 月相用深色橫幅拉開層次<br>
+  訂單卡全寬主視覺 · 底部兩欄並排減少滾動<br>
+  實現入口縮成一行橫幅不佔太多空間
+</div>
+</div>

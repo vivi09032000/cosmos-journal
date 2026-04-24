@@ -1,0 +1,218 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap');
+  .rw-wrap { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .rw-phone { width: 320px; background: #f5efe6; border-radius: 32px; overflow: hidden; border: 1px solid rgba(181,120,58,0.2); font-family: 'EB Garamond', Georgia, serif; position: relative; min-height: 620px; }
+  .rw-sb { display: flex; justify-content: space-between; padding: 10px 18px 4px; font-family: system-ui; font-size: 11px; color: #2e2318; }
+  .rw-header { padding: 6px 18px 0; }
+  .rw-eyebrow { font-family: system-ui; font-size: 9px; letter-spacing: 3px; color: #a08870; margin-bottom: 4px; }
+  .rw-title { font-family: 'Playfair Display', serif; font-size: 22px; color: #2e2318; line-height: 1.2; }
+  .rw-divider { height: 0.5px; background: linear-gradient(to right, transparent, rgba(181,120,58,0.4), transparent); margin: 12px 18px; }
+  .rw-scroll { padding: 0 14px 24px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* 頂部統計 */
+  .rw-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .rw-stat { background: #faf6f0; border: 0.5px solid rgba(181,120,58,0.22); border-radius: 8px; padding: 10px 8px; text-align: center; }
+  .rw-stat-num { font-family: 'Playfair Display', serif; font-size: 22px; color: #b5783a; line-height: 1; margin-bottom: 3px; }
+  .rw-stat-label { font-family: system-ui; font-size: 8px; letter-spacing: 1.5px; color: #a08870; }
+
+  /* 空狀態 */
+  .rw-empty { background: #faf6f0; border: 0.5px dashed rgba(181,120,58,0.3); border-radius: 12px; padding: 28px 20px; text-align: center; }
+  .rw-empty-icon { font-family: 'Playfair Display', serif; font-size: 36px; color: rgba(181,120,58,0.2); margin-bottom: 12px; }
+  .rw-empty-title { font-family: 'Playfair Display', serif; font-size: 15px; color: #6b5540; margin-bottom: 8px; }
+  .rw-empty-body { font-family: system-ui; font-size: 10px; color: #a08870; line-height: 1.7; letter-spacing: 0.3px; }
+  .rw-empty-stamp { display: inline-block; border: 1px solid rgba(181,120,58,0.3); border-radius: 4px; padding: 4px 10px; font-family: system-ui; font-size: 8px; letter-spacing: 2px; color: #b5783a; margin-top: 14px; transform: rotate(-2deg); }
+
+  /* 已實現卡片 */
+  .rw-card { background: #faf6f0; border: 0.5px solid rgba(181,120,58,0.22); border-radius: 12px; overflow: hidden; cursor: pointer; }
+  .rw-card-img { width: 100%; height: 110px; object-fit: cover; position: relative; display: block; }
+  .rw-card-imgwrap { position: relative; }
+  .rw-card-imgwrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(245,239,230,0) 40%, rgba(245,239,230,0.95) 100%); }
+  .rw-card-seal { position: absolute; top: 8px; right: 8px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(181,120,58,0.5); background: rgba(245,239,230,0.9); display: flex; align-items: center; justify-content: center; font-family: system-ui; font-size: 8px; color: #b5783a; text-align: center; letter-spacing: 0.5px; line-height: 1.2; }
+  .rw-card-body { padding: 8px 14px 14px; }
+  .rw-card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .rw-card-tag { font-family: system-ui; font-size: 8px; letter-spacing: 2px; color: #b5783a; border: 0.5px solid rgba(181,120,58,0.4); border-radius: 20px; padding: 2px 8px; }
+  .rw-card-days { font-family: system-ui; font-size: 9px; color: #a08870; }
+  .rw-card-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #2e2318; margin-bottom: 6px; line-height: 1.3; }
+  .rw-card-journal { font-family: 'EB Garamond', serif; font-size: 12px; font-style: italic; color: #6b5540; line-height: 1.6; border-left: 1.5px solid rgba(181,120,58,0.3); padding-left: 10px; }
+  .rw-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid rgba(181,120,58,0.15); }
+  .rw-card-date { font-family: system-ui; font-size: 8px; color: #a08870; letter-spacing: 1px; }
+  .rw-card-capsule { font-family: system-ui; font-size: 8px; color: #b5783a; letter-spacing: 1px; }
+
+  /* 展開的時光膠囊 */
+  .rw-capsule { background: #faf6f0; border: 0.5px solid rgba(181,120,58,0.4); border-radius: 12px; overflow: hidden; }
+  .rw-capsule-header { padding: 14px 16px 12px; border-bottom: 0.5px solid rgba(181,120,58,0.15); }
+  .rw-capsule-eyebrow { font-family: system-ui; font-size: 8px; letter-spacing: 3px; color: #a08870; margin-bottom: 4px; }
+  .rw-capsule-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #2e2318; }
+  .rw-capsule-subtitle { font-family: system-ui; font-size: 9px; color: #a08870; margin-top: 3px; }
+  .rw-capsule-body { padding: 14px 16px; }
+  .rw-capsule-quote { font-family: 'Playfair Display', serif; font-size: 13px; font-style: italic; color: #2e2318; text-align: center; line-height: 1.7; padding: 0 8px 14px; border-bottom: 0.5px solid rgba(181,120,58,0.15); margin-bottom: 14px; }
+  .rw-timeline-item { display: flex; gap: 10px; margin-bottom: 14px; }
+  .rw-timeline-dot { width: 7px; height: 7px; border-radius: 50%; background: #e8c99a; border: 1px solid #b5783a; flex-shrink: 0; margin-top: 4px; }
+  .rw-timeline-content { flex: 1; }
+  .rw-timeline-date { font-family: system-ui; font-size: 8px; color: #a08870; letter-spacing: 1px; margin-bottom: 4px; }
+  .rw-timeline-text { font-family: 'EB Garamond', serif; font-size: 12px; font-style: italic; color: #6b5540; line-height: 1.6; }
+  .rw-capsule-ending { text-align: center; padding-top: 10px; border-top: 0.5px solid rgba(181,120,58,0.15); }
+  .rw-capsule-ending-text { font-family: 'Playfair Display', serif; font-size: 11px; color: #b5783a; font-style: italic; }
+</style>
+
+<div class="rw-wrap">
+
+  <!-- 版本 A：空狀態 -->
+  <div style="width:320px">
+    <div style="font-family:system-ui; font-size:10px; letter-spacing:3px; color:var(--color-text-secondary); margin-bottom:8px">版本 A · 空狀態（尚未實現任何願望）</div>
+    <div class="rw-phone" style="min-height:auto">
+      <div class="rw-sb"><span>9:41</span><span>▲▲ ■■■</span></div>
+      <div class="rw-header">
+        <div class="rw-eyebrow">COSMOS JOURNAL</div>
+        <div class="rw-title">已實現的<br>顯化</div>
+      </div>
+      <div class="rw-divider"></div>
+      <div class="rw-scroll">
+        <div class="rw-stats">
+          <div class="rw-stat"><div class="rw-stat-num">0</div><div class="rw-stat-label">已實現</div></div>
+          <div class="rw-stat"><div class="rw-stat-num">3</div><div class="rw-stat-label">運送中</div></div>
+          <div class="rw-stat"><div class="rw-stat-num">47</div><div class="rw-stat-label">投射天數</div></div>
+        </div>
+        <div class="rw-empty">
+          <div class="rw-empty-icon">✦</div>
+          <div class="rw-empty-title">第一個顯化<br>正在路上</div>
+          <div class="rw-empty-body">
+            你的訂單已送出，<br>
+            宇宙正在打包。<br>
+            當願望落地的那一刻，<br>
+            它會永遠留在這裡。
+          </div>
+          <div class="rw-empty-stamp">AWAITING DELIVERY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 版本 B：有實現紀錄 -->
+  <div style="width:320px">
+    <div style="font-family:system-ui; font-size:10px; letter-spacing:3px; color:var(--color-text-secondary); margin-bottom:8px">版本 B · 有實現紀錄</div>
+    <div class="rw-phone" style="min-height:auto">
+      <div class="rw-sb"><span>9:41</span><span>▲▲ ■■■</span></div>
+      <div class="rw-header">
+        <div class="rw-eyebrow">COSMOS JOURNAL</div>
+        <div class="rw-title">已實現的<br>顯化</div>
+      </div>
+      <div class="rw-divider"></div>
+      <div class="rw-scroll">
+        <div class="rw-stats">
+          <div class="rw-stat"><div class="rw-stat-num">3</div><div class="rw-stat-label">已實現</div></div>
+          <div class="rw-stat"><div class="rw-stat-num">2</div><div class="rw-stat-label">運送中</div></div>
+          <div class="rw-stat"><div class="rw-stat-num">128</div><div class="rw-stat-label">投射天數</div></div>
+        </div>
+
+        <!-- 卡片 1 -->
+        <div class="rw-card">
+          <div class="rw-card-imgwrap" style="position:relative">
+            <div style="width:100%; height:100px; background:linear-gradient(135deg, #1a3a5a 0%, #2d5a8a 50%, #1a4a6a 100%); position:relative; overflow:hidden">
+              <div style="position:absolute;inset:0;opacity:0.3;background:radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15) 0%, transparent 60%)"></div>
+              <div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to bottom,transparent,#f5efe6)"></div>
+            </div>
+            <div class="rw-card-seal">✦<br>已<br>送達</div>
+          </div>
+          <div class="rw-card-body">
+            <div class="rw-card-meta">
+              <span class="rw-card-tag">✦ 已實現</span>
+              <span class="rw-card-days">23 天後實現</span>
+            </div>
+            <div class="rw-card-title">在日本吃壽司<br>參拜淺草寺</div>
+            <div class="rw-card-journal">「乾燥但清香的空氣，兒童嬉鬧的聲音，商家叫賣的聲音，美食帶來的期待感...」</div>
+            <div class="rw-card-footer">
+              <span class="rw-card-date">2025年12月23日實現</span>
+              <span class="rw-card-capsule">時光膠囊 →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 2 -->
+        <div class="rw-card">
+          <div class="rw-card-imgwrap" style="position:relative">
+            <div style="width:100%; height:100px; background:linear-gradient(135deg, #3a5a3a 0%, #5a8a4a 50%, #2a4a2a 100%); position:relative; overflow:hidden">
+              <div style="position:absolute;inset:0;opacity:0.3;background:radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 60%)"></div>
+              <div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to bottom,transparent,#f5efe6)"></div>
+            </div>
+            <div class="rw-card-seal">✦<br>已<br>送達</div>
+          </div>
+          <div class="rw-card-body">
+            <div class="rw-card-meta">
+              <span class="rw-card-tag">✦ 已實現</span>
+              <span class="rw-card-days">41 天後實現</span>
+            </div>
+            <div class="rw-card-title">中樂透 100 萬</div>
+            <div class="rw-card-journal">「看到數字的瞬間，手抖了，整個人愣住，然後笑出來...」</div>
+            <div class="rw-card-footer">
+              <span class="rw-card-date">2025年12月19日實現</span>
+              <span class="rw-card-capsule">時光膠囊 →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 版本 C：時光膠囊展開 -->
+  <div style="width:320px">
+    <div style="font-family:system-ui; font-size:10px; letter-spacing:3px; color:var(--color-text-secondary); margin-bottom:8px">版本 C · 點開「時光膠囊」後的詳情</div>
+    <div class="rw-phone" style="min-height:auto">
+      <div class="rw-sb"><span>9:41</span><span>▲▲ ■■■</span></div>
+      <div style="padding: 8px 18px 12px; display:flex; align-items:center; gap:10px">
+        <span style="font-family:system-ui; font-size:12px; color:#a08870">←</span>
+        <span style="font-family:'Playfair Display',serif; font-size:16px; color:#2e2318">時光膠囊</span>
+      </div>
+      <div class="rw-divider"></div>
+      <div class="rw-scroll">
+        <div class="rw-capsule">
+          <div class="rw-capsule-header">
+            <div class="rw-capsule-eyebrow">✦ 已實現 · 2025年12月23日</div>
+            <div class="rw-capsule-title">在日本吃壽司<br>參拜淺草寺</div>
+            <div class="rw-capsule-subtitle">從下單到實現：23 天</div>
+          </div>
+          <div class="rw-capsule-body">
+            <div class="rw-capsule-quote">
+              「你曾經反覆感受到的畫面，<br>現在成為現實的一部分。」
+            </div>
+            <div style="font-family:system-ui; font-size:8px; letter-spacing:3px; color:#a08870; margin-bottom:12px">投射日記回顧</div>
+            <div class="rw-timeline-item">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:0">
+                <div class="rw-timeline-dot"></div>
+                <div style="flex:1; width:0.5px; background:rgba(181,120,58,0.2); margin-top:4px"></div>
+              </div>
+              <div class="rw-timeline-content">
+                <div class="rw-timeline-date">2025年12月01日 · 第 1 次投射</div>
+                <div class="rw-timeline-text">「乾燥但清香的空氣，還有爽朗的天氣，兒童嬉鬧的聲音...」</div>
+              </div>
+            </div>
+            <div class="rw-timeline-item">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:0">
+                <div class="rw-timeline-dot"></div>
+                <div style="flex:1; width:0.5px; background:rgba(181,120,58,0.2); margin-top:4px"></div>
+              </div>
+              <div class="rw-timeline-content">
+                <div class="rw-timeline-date">2025年12月12日 · 第 5 次投射</div>
+                <div class="rw-timeline-text">「今天畫面更清晰了，我看到了淺草寺的燈籠，聞到了線香的味道...」</div>
+              </div>
+            </div>
+            <div class="rw-timeline-item">
+              <div style="display:flex; flex-direction:column; align-items:center">
+                <div class="rw-timeline-dot" style="background:#b5783a"></div>
+              </div>
+              <div class="rw-timeline-content">
+                <div class="rw-timeline-date">2025年12月23日 · 實現當天</div>
+                <div class="rw-timeline-text">「真的坐在壽司吧前面了，師傅問我要什麼，我愣了一秒，然後笑出來。」</div>
+              </div>
+            </div>
+            <div class="rw-capsule-ending">
+              <div class="rw-capsule-ending-text">正如你所預見。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
