@@ -216,7 +216,7 @@ export default function App() {
     <div className="cosmos-stage">
       <div className="cosmos-app-shell">
         <div className="cosmos-screen">
-          <main className="cosmos-main">
+          <main className="cosmos-main pb-24">
             <Routes>
               <Route
                 path="/"
