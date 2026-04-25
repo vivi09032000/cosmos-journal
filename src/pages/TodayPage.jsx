@@ -221,7 +221,12 @@ export default function TodayPage({
               className="relative h-32 overflow-hidden"
               style={{ background: featuredTheme?.background }}
             >
-              <OrderCoverArt order={featuredOrder} />
+              <OrderCoverArt
+                order={featuredOrder}
+                loading="eager"
+                fetchPriority="high"
+                sizes="(max-width: 768px) 100vw, 680px"
+              />
               <div className="absolute inset-0 opacity-80" style={{ backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" }} />
               <div className="absolute inset-x-0 bottom-0 h-16 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
               <span className="absolute left-4 top-3 text-[0.58rem] tracking-[0.16em] text-[rgba(255,247,230,0.72)]">

@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { detectOrderQuestionTheme } from "../lib/orderQuestions";
+
+const loadedImageUrls = new Set();
 
 function Illustration({ category }) {
   if (category === "travel") {
@@ -78,18 +81,54 @@ function Illustration({ category }) {
   );
 }
 
-export default function OrderCoverArt({ order, imageClassName = "h-full w-full object-cover" }) {
+export default function OrderCoverArt({
+  order,
+  imageClassName = "h-full w-full object-cover",
+  loading = "lazy",
+  fetchPriority = "auto",
+  sizes = "100vw",
+}) {
   const category = detectOrderQuestionTheme(order);
+  const [status, setStatus] = useState(() => {
+    if (!order.imageUrl) return "idle";
+    return loadedImageUrls.has(order.imageUrl) ? "loaded" : "loading";
+  });
 
-  if (order.imageUrl) {
-    return (
-      <img
-        src={order.imageUrl}
-        alt={order.title || "manifest cover"}
-        className={imageClassName}
-      />
-    );
-  }
+  useEffect(() => {
+    if (!order.imageUrl) {
+      setStatus("idle");
+      return;
+    }
 
-  return <Illustration category={category} />;
+    setStatus(loadedImageUrls.has(order.imageUrl) ? "loaded" : "loading");
+  }, [order.imageUrl]);
+
+  return (
+    <div className="relative h-full w-full overflow-hidden">
+      {order.imageUrl && status === "loading" ? (
+        <div className="absolute inset-0 animate-pulse bg-[linear-gradient(135deg,rgba(245,239,230,0.96),rgba(237,228,216,0.94))]" />
+      ) : null}
+
+      {order.imageUrl && status !== "error" ? (
+        <img
+          src={order.imageUrl}
+          alt={order.title || "manifest cover"}
+          className={`${imageClassName} absolute inset-0 transition-opacity duration-150 ${
+            status === "loaded" ? "opacity-100" : "opacity-0"
+          }`}
+          loading={loading}
+          decoding="async"
+          fetchPriority={fetchPriority}
+          sizes={sizes}
+          onLoad={() => {
+            loadedImageUrls.add(order.imageUrl);
+            setStatus("loaded");
+          }}
+          onError={() => setStatus("error")}
+        />
+      ) : null}
+
+      {!order.imageUrl || status === "error" ? <Illustration category={category} /> : null}
+    </div>
+  );
 }

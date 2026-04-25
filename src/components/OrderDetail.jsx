@@ -188,7 +188,13 @@ export default function OrderDetail({
         className="relative overflow-hidden rounded-[1.8rem] px-5 pb-6 pt-24 text-[#fff7e6]"
         style={{ background: theme.background }}
       >
-        <OrderCoverArt order={order} imageClassName="absolute inset-0 h-full w-full object-cover" />
+        <OrderCoverArt
+          order={order}
+          imageClassName="absolute inset-0 h-full w-full object-cover"
+          loading="eager"
+          fetchPriority="high"
+          sizes="(max-width: 768px) 100vw, 720px"
+        />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.55))]" />
         <div className="absolute -left-10 -top-12 h-32 w-32 rounded-full border border-[rgba(240,214,167,0.18)]" />
         <div className="absolute bottom-4 right-4 h-32 w-32 rounded-full border border-[rgba(240,214,167,0.16)]" />

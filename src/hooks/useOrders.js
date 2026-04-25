@@ -13,6 +13,48 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useMemo, useState } from "react";
 import { db, storage } from "../firebase";
+import { prepareImageForUpload } from "../lib/imageUpload";
+
+function getStorageErrorMessage(error) {
+  switch (error?.code) {
+    case "storage/unauthorized":
+      return "Firebase Storage 權限尚未開放，請先檢查 Storage 規則。";
+    case "storage/canceled":
+      return "圖片上傳已取消。";
+    case "storage/unknown":
+      return "Firebase Storage 發生未知錯誤，請確認 Storage 已啟用。";
+    case "storage/quota-exceeded":
+      return "Firebase Storage 配額已超過。";
+    default:
+      return error?.message || "圖片上傳失敗。";
+  }
+}
+
+async function uploadOrderImage(userId, orderId, imageFile) {
+  if (!storage) {
+    throw new Error("Firebase Storage 尚未完成設定，請先確認 storageBucket 和 Storage 服務。");
+  }
+
+  try {
+    const preparedImageFile = await prepareImageForUpload(imageFile);
+    const imageRef = ref(storage, `users/${userId}/orders/${orderId}.webp`);
+
+    await uploadBytes(imageRef, preparedImageFile, {
+      contentType: preparedImageFile.type,
+      cacheControl: "public,max-age=31536000,immutable",
+    });
+    const downloadUrl = await getDownloadURL(imageRef);
+    const separator = downloadUrl.includes("?") ? "&" : "?";
+
+    return `${downloadUrl}${separator}v=${Date.now()}`;
+  } catch (error) {
+    if (error instanceof Error && !error?.code) {
+      throw error;
+    }
+
+    throw new Error(getStorageErrorMessage(error));
+  }
+}
 
 export function useOrders(userId) {
   const [orders, setOrders] = useState([]);
@@ -63,44 +105,48 @@ export function useOrders(userId) {
     [orders],
   );
 
+  useEffect(() => {
+    const preloadUrls = orders
+      .map((order) => order.imageUrl)
+      .filter(Boolean)
+      .slice(0, 6);
+
+    preloadUrls.forEach((imageUrl) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.src = imageUrl;
+    });
+  }, [orders]);
+
   const createOrder = async ({ title, subtitle, angelNumber, imageFile }) => {
     if (!db) return;
     const ordersRef = collection(db, "users", userId, "orders");
     const orderRef = doc(ordersRef);
+    let imageUrl = "";
+
+    if (imageFile) {
+      imageUrl = await uploadOrderImage(userId, orderRef.id, imageFile);
+    }
 
     await setDoc(orderRef, {
       title,
       subtitle: subtitle || "",
       status: "packing",
       angelNumber: angelNumber || "",
-      imageUrl: "",
+      imageUrl,
       journal: [],
       actionItems: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       deliveredAt: null,
     });
-
-    if (imageFile && storage) {
-      const imageRef = ref(storage, `users/${userId}/orders/${orderRef.id}/cover-${Date.now()}-${imageFile.name}`);
-      await uploadBytes(imageRef, imageFile);
-      const imageUrl = await getDownloadURL(imageRef);
-
-      await updateDoc(orderRef, {
-        imageUrl,
-        updatedAt: serverTimestamp(),
-      });
-    }
   };
 
   const updateOrderImage = async (orderId, imageFile) => {
-    if (!db || !storage || !imageFile) return;
+    if (!db || !imageFile) return;
 
     const orderRef = doc(db, "users", userId, "orders", orderId);
-    const imageRef = ref(storage, `users/${userId}/orders/${orderId}/cover-${Date.now()}-${imageFile.name}`);
-
-    await uploadBytes(imageRef, imageFile);
-    const imageUrl = await getDownloadURL(imageRef);
+    const imageUrl = await uploadOrderImage(userId, orderId, imageFile);
 
     await updateDoc(orderRef, {
       imageUrl,

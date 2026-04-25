@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import OrdersModeToggle from "../components/OrdersModeToggle";
 import { WaveDivider } from "../components/CosmosDecor";
@@ -50,7 +51,6 @@ function CreateOrderModal({ onClose, onCreate }) {
     subtitle: "",
     imageFile: null,
   });
-  const [saving, setSaving] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
 
   const updateField = (key, value) => {
@@ -71,17 +71,19 @@ function CreateOrderModal({ onClose, onCreate }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSaving(true);
+    if (!form.title.trim()) return;
 
-    try {
-      await onCreate(form);
+    const payload = { ...form };
+
+    flushSync(() => {
       onClose();
-    } catch (error) {
-      console.error("Error creating order:", error);
-      alert("儲存時發生錯誤：" + error.message);
-    } finally {
-      setSaving(false);
-    }
+    });
+
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        onCreate(payload);
+      }, 0);
+    });
   };
 
   return (
@@ -134,7 +136,7 @@ function CreateOrderModal({ onClose, onCreate }) {
           </button>
           <button
             type="submit"
-            disabled={!form.title.trim() || saving}
+            disabled={!form.title.trim()}
             className="primary-button flex-1"
           >
             建立
@@ -300,6 +302,15 @@ export default function OrdersPage({
     setSelectedOrderId("");
   };
 
+  const handleCreateOrder = async (form) => {
+    try {
+      await onCreateOrder(form);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("儲存時發生錯誤：" + error.message);
+    }
+  };
+
   return (
     <div className="space-y-5">
       {selectedOrder ? (
@@ -369,7 +380,7 @@ export default function OrdersPage({
       ) : null}
 
       {showModal ? (
-        <CreateOrderModal onClose={() => setShowModal(false)} onCreate={onCreateOrder} />
+        <CreateOrderModal onClose={() => setShowModal(false)} onCreate={handleCreateOrder} />
       ) : null}
     </div>
   );
