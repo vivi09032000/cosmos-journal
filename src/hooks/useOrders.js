@@ -122,23 +122,27 @@ export function useOrders(userId) {
     if (!db) return;
     const ordersRef = collection(db, "users", userId, "orders");
     const orderRef = doc(ordersRef);
-    let imageUrl = "";
-
-    if (imageFile) {
-      imageUrl = await uploadOrderImage(userId, orderRef.id, imageFile);
-    }
 
     await setDoc(orderRef, {
       title,
       subtitle: subtitle || "",
       status: "packing",
       angelNumber: angelNumber || "",
-      imageUrl,
+      imageUrl: "",
       journal: [],
       actionItems: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       deliveredAt: null,
+    });
+
+    if (!imageFile) return;
+
+    const imageUrl = await uploadOrderImage(userId, orderRef.id, imageFile);
+
+    await updateDoc(orderRef, {
+      imageUrl,
+      updatedAt: serverTimestamp(),
     });
   };
 
