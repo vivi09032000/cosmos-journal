@@ -371,10 +371,10 @@ export default function TodayPage({
                 type="button"
                 onClick={() => handleMoodSelect(mood.value)}
                 disabled={Boolean(moodSaving)}
-                className={`shrink-0 rounded-full border px-4 py-2 text-sm tracking-[0.08em] transition ${
+                className={`soft-choice-button shrink-0 ${
                   isSelected
-                    ? "border-[rgba(181,120,58,0.5)] bg-[rgba(181,120,58,0.13)] text-[color:var(--gold)]"
-                    : "border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.62)] text-[color:var(--ink-soft)]"
+                    ? "soft-choice-button-selected"
+                    : ""
                 } ${moodSaving ? "opacity-60" : ""}`}
               >
                 {moodSaving === mood.value ? "..." : mood.labels[locale] || mood.labels["zh-TW"]}
@@ -383,7 +383,7 @@ export default function TodayPage({
           })}
         </div>
         {moodError ? (
-          <p className="mt-2 text-xs leading-6 text-[#b05b3b]">
+          <p className="mt-2 text-xs leading-6 text-[color:var(--danger)]">
             {moodError}
           </p>
         ) : null}
@@ -519,7 +519,7 @@ export default function TodayPage({
         )}
       </section>
 
-      <section className="grid grid-cols-2 gap-4">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <section className="paper-card px-5 py-5">
           <p className="section-label">{copy.dailyQuestion}</p>
           {!showQuestionForm && !savedQuestionAnswer ? (
@@ -530,7 +530,7 @@ export default function TodayPage({
               <button
                 type="button"
                 onClick={() => setShowQuestionForm(true)}
-                className="mt-5 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
+                className="text-action-button mt-3"
               >
                 {copy.writeAnswer}
               </button>
@@ -578,7 +578,7 @@ export default function TodayPage({
                   <button
                     type="button"
                     onClick={() => setShowQuestionForm(true)}
-                    className="mt-5 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
+                    className="text-action-button mt-3"
                   >
                     {copy.editAnswer}
                   </button>
@@ -613,7 +613,7 @@ export default function TodayPage({
               <button
                 type="button"
                 onClick={() => navigate("/gratitude")}
-                className="mt-5 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
+                className="text-action-button mt-3"
               >
                 {copy.goGratitude}
               </button>

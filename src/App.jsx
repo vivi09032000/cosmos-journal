@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import BottomNav from "./components/BottomNav";
 import { useAngelLogs } from "./hooks/useAngelLogs";
@@ -10,14 +10,15 @@ import { useGratitude } from "./hooks/useGratitude";
 import { useOrders } from "./hooks/useOrders";
 import { firebaseErrorMessage, missingFirebaseKeys } from "./firebase";
 import { I18nProvider, useI18n } from "./lib/i18n";
-import AngelPage from "./pages/AngelPage";
-import GratitudePage from "./pages/GratitudePage";
-import JournalPage from "./pages/JournalPage";
-import OrdersPage from "./pages/OrdersPage";
-import ProfilePage from "./pages/ProfilePage";
-import TimeCapsulePage from "./pages/TimeCapsulePage";
-import TodayPage from "./pages/TodayPage";
-import WallPage from "./pages/WallPage";
+
+const AngelPage = lazy(() => import("./pages/AngelPage"));
+const GratitudePage = lazy(() => import("./pages/GratitudePage"));
+const JournalPage = lazy(() => import("./pages/JournalPage"));
+const OrdersPage = lazy(() => import("./pages/OrdersPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const TimeCapsulePage = lazy(() => import("./pages/TimeCapsulePage"));
+const TodayPage = lazy(() => import("./pages/TodayPage"));
+const WallPage = lazy(() => import("./pages/WallPage"));
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 121 }, (_, index) => CURRENT_YEAR - index);
@@ -178,7 +179,7 @@ function BirthdayOnboarding({ onConfirm }) {
         <h1 className="section-title mt-3 text-[1.8rem] leading-[1.35]">
           {copy.title}
         </h1>
-        <div className="mt-6 grid grid-cols-3 gap-3">
+        <div className="mt-6 grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
           <select
             value={year}
             onChange={(event) => {
@@ -308,6 +309,7 @@ function AppContent() {
   }
 
   const hideBottomNav = location.pathname.startsWith("/capsule/");
+  const routeLoadingLabel = locale === "en" ? "Opening page..." : "正在打開頁面...";
 
   return (
     <div className="cosmos-stage">
@@ -315,88 +317,96 @@ function AppContent() {
         {!hideBottomNav ? <LanguageSwitch className="absolute right-4 top-4 z-30" /> : null}
         <div className="cosmos-screen">
           <main className="cosmos-main pb-24">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <TodayPage
-                    orders={orders}
-                    todayEntry={todayEntry}
-                    dailyLogEntry={dailyLogEntry}
-                    onSaveDailyMood={saveDailyMood}
-                    onSaveQuestionAnswer={saveDailyQuestionAnswer}
-                    onCreateAngelLog={createAngelLog}
-                    onSaveNumberSignal={saveDailyNumberSignal}
-                    userId={user?.uid || ""}
-                  />
-                }
-              />
-              <Route
-                path="/orders"
-                element={
-                  <OrdersPage
-                    orders={orders}
-                    loading={ordersLoading}
-                    onCreateOrder={createOrder}
-                    onUpdateStatus={updateOrderStatus}
-                    onAddJournalEntry={addJournalEntry}
-                    onSaveActionItems={saveActionItems}
-                    onUpdateOrderImage={updateOrderImage}
-                  />
-                }
-              />
-              <Route path="/wall" element={<WallPage orders={orders} />} />
-              <Route path="/capsule/:orderId" element={<TimeCapsulePage orders={orders} />} />
-              <Route
-                path="/journal"
-                element={
-                  <JournalPage
-                    allDailyLogs={allDailyLogs}
-                    gratitudeEntries={gratitudeEntries}
-                    orders={orders}
-                    angelLogs={angelLogs}
-                    dailyLogEntry={dailyLogEntry}
-                    onSaveQuestionAnswer={saveDailyQuestionAnswer}
-                    onCreateAngelLog={createAngelLog}
-                    onSaveNumberSignal={saveDailyNumberSignal}
-                  />
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProfilePage
-                    profile={profile}
-                    orders={orders}
-                    allDailyLogs={allDailyLogs}
-                    angelLogs={angelLogs}
-                    checkinStreak={checkinStreak}
-                  />
-                }
-              />
-              {/* Keep legacy routes for bookmarks */}
-              <Route
-                path="/angel"
-                element={
-                  <AngelPage
-                    orders={orders}
-                    angelLogs={angelLogs}
-                    onCreateAngelLog={createAngelLog}
-                  />
-                }
-              />
-              <Route
-                path="/gratitude"
-                element={
-                  <GratitudePage
-                    todayEntry={todayEntry}
-                    entries={gratitudeEntries}
-                    streak={streak}
-                    onSave={saveGratitude}
-                  />
-                }
-              />
-            </Routes>
+            <Suspense
+              fallback={
+                <section className="paper-card px-5 py-6 text-sm leading-7 text-[color:var(--ink-soft)]">
+                  {routeLoadingLabel}
+                </section>
+              }
+            >
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <TodayPage
+                      orders={orders}
+                      todayEntry={todayEntry}
+                      dailyLogEntry={dailyLogEntry}
+                      onSaveDailyMood={saveDailyMood}
+                      onSaveQuestionAnswer={saveDailyQuestionAnswer}
+                      onCreateAngelLog={createAngelLog}
+                      onSaveNumberSignal={saveDailyNumberSignal}
+                      userId={user?.uid || ""}
+                    />
+                  }
+                />
+                <Route
+                  path="/orders"
+                  element={
+                    <OrdersPage
+                      orders={orders}
+                      loading={ordersLoading}
+                      onCreateOrder={createOrder}
+                      onUpdateStatus={updateOrderStatus}
+                      onAddJournalEntry={addJournalEntry}
+                      onSaveActionItems={saveActionItems}
+                      onUpdateOrderImage={updateOrderImage}
+                    />
+                  }
+                />
+                <Route path="/wall" element={<WallPage orders={orders} />} />
+                <Route path="/capsule/:orderId" element={<TimeCapsulePage orders={orders} />} />
+                <Route
+                  path="/journal"
+                  element={
+                    <JournalPage
+                      allDailyLogs={allDailyLogs}
+                      gratitudeEntries={gratitudeEntries}
+                      orders={orders}
+                      angelLogs={angelLogs}
+                      dailyLogEntry={dailyLogEntry}
+                      onSaveQuestionAnswer={saveDailyQuestionAnswer}
+                      onCreateAngelLog={createAngelLog}
+                      onSaveNumberSignal={saveDailyNumberSignal}
+                    />
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProfilePage
+                      profile={profile}
+                      orders={orders}
+                      allDailyLogs={allDailyLogs}
+                      angelLogs={angelLogs}
+                      checkinStreak={checkinStreak}
+                    />
+                  }
+                />
+                {/* Keep legacy routes for bookmarks */}
+                <Route
+                  path="/angel"
+                  element={
+                    <AngelPage
+                      orders={orders}
+                      angelLogs={angelLogs}
+                      onCreateAngelLog={createAngelLog}
+                    />
+                  }
+                />
+                <Route
+                  path="/gratitude"
+                  element={
+                    <GratitudePage
+                      todayEntry={todayEntry}
+                      entries={gratitudeEntries}
+                      streak={streak}
+                      onSave={saveGratitude}
+                    />
+                  }
+                />
+              </Routes>
+            </Suspense>
           </main>
           {!hideBottomNav ? <BottomNav /> : null}
         </div>

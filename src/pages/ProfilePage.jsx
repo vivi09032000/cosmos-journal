@@ -234,7 +234,7 @@ export default function ProfilePage({
       </section>
 
       {/* Stats (2 columns) */}
-      <section className="grid grid-cols-2 gap-3">
+      <section className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
         <div className="profile-stat-card">
           <p className="profile-stat-value">{checkinStreak}</p>
           <p className="profile-stat-label">{copy.streakUnit}</p>
@@ -285,7 +285,7 @@ export default function ProfilePage({
               <button
                 type="button"
                 onClick={() => navigate("/wall")}
-                className="mt-3 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
+                className="text-action-button mt-2"
               >
                 {copy.goWall}
               </button>
@@ -299,7 +299,7 @@ export default function ProfilePage({
             <button
               type="button"
               onClick={() => navigate("/wall")}
-              className="mt-3 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
+              className="text-action-button mt-2"
             >
               {copy.goWall}
             </button>

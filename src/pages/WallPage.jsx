@@ -61,7 +61,7 @@ function WallStats({ deliveredCount, activeCount, projectionDays }) {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-3">
       {items.map((item) => (
         <div key={item.label} className="paper-card-soft px-4 py-5 text-center">
           <p className="font-[var(--font-display)] text-[2.2rem] leading-none text-[color:var(--gold)]">

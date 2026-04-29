@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useI18n } from "../lib/i18n";
 
 const QUICK_NUMBERS = [
@@ -22,6 +22,8 @@ export default function NumberSignalSheet({
   onSaveNumberSignal,
 }) {
   const { locale } = useI18n();
+  const sheetRef = useRef(null);
+  const titleId = "number-signal-sheet-title";
   const [closing, setClosing] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState("");
   const [customNumber, setCustomNumber] = useState("");
@@ -29,23 +31,28 @@ export default function NumberSignalSheet({
   const [selectedMood, setSelectedMood] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const copy = locale === "en"
     ? {
       title: "What number did you see today?",
+      close: "Close",
       customPlaceholder: "Enter a number...",
       moodTitle: "How did it feel?",
       notePlaceholder: "What were you thinking?",
       save: "Record this moment",
       saving: "Saving...",
+      error: "This moment could not be saved. Please try again.",
     }
     : {
       title: "今天看到什麼數字？",
+      close: "關閉",
       customPlaceholder: "自己輸入數字...",
       moodTitle: "當下的感覺？",
       notePlaceholder: "當下在想什麼？",
       save: "記錄這個時刻",
       saving: "儲存中...",
+      error: "這個時刻儲存失敗，請再試一次。",
     };
 
   useEffect(() => {
@@ -56,6 +63,7 @@ export default function NumberSignalSheet({
       setSelectedMood("");
       setNote("");
       setSaving(false);
+      setError("");
       setClosing(false);
     }
   }, [open]);
@@ -73,6 +81,7 @@ export default function NumberSignalSheet({
     if (!number) return;
 
     setSaving(true);
+    setError("");
     try {
       // Save to angelLogs
       if (onSave) {
@@ -93,9 +102,60 @@ export default function NumberSignalSheet({
       handleClose();
     } catch (err) {
       console.error("NumberSignalSheet save error:", err);
+      setError(err?.message || copy.error);
       setSaving(false);
     }
   };
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => {
+      const firstFocusable = sheetRef.current?.querySelector(
+        'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])',
+      );
+      firstFocusable?.focus();
+    }, 0);
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !sheetRef.current) return;
+
+      const focusable = [...sheetRef.current.querySelectorAll(
+        'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )];
+
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus?.();
+    };
+  }, [handleClose, open]);
 
   if (!open) return null;
 
@@ -107,10 +167,24 @@ export default function NumberSignalSheet({
         className={`bottom-sheet-overlay ${closing ? "closing" : ""}`}
         onClick={handleClose}
       />
-      <div className={`bottom-sheet ${closing ? "closing" : ""}`}>
+      <div
+        ref={sheetRef}
+        className={`bottom-sheet ${closing ? "closing" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
         <div className="bottom-sheet-handle" />
+        <button
+          type="button"
+          onClick={handleClose}
+          className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(181,120,58,0.16)] bg-[rgba(250,246,240,0.76)] text-[1.1rem] text-[color:var(--ink-soft)]"
+          aria-label={copy.close}
+        >
+          ×
+        </button>
 
-        <h2 className="font-[var(--font-display)] text-[1.55rem] leading-[1.3] text-[color:var(--navy-deep)]">
+        <h2 id={titleId} className="pr-12 font-[var(--font-display)] text-[1.55rem] leading-[1.3] text-[color:var(--navy-deep)]">
           {copy.title}
         </h2>
 
@@ -125,10 +199,10 @@ export default function NumberSignalSheet({
                 setShowCustomInput(false);
                 setCustomNumber("");
               }}
-              className={`rounded-full border px-4 py-2 text-sm tracking-[0.08em] transition ${
+              className={`soft-choice-button ${
                 selectedNumber === num && !showCustomInput
-                  ? "border-[rgba(181,120,58,0.5)] bg-[rgba(181,120,58,0.13)] text-[color:var(--gold)]"
-                  : "border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.62)] text-[color:var(--ink-soft)]"
+                  ? "soft-choice-button-selected"
+                  : ""
               }`}
             >
               {num}
@@ -140,10 +214,10 @@ export default function NumberSignalSheet({
               setShowCustomInput(true);
               setSelectedNumber("");
             }}
-            className={`rounded-full border px-4 py-2 text-sm tracking-[0.08em] transition ${
+            className={`soft-choice-button ${
               showCustomInput
-                ? "border-[rgba(181,120,58,0.5)] bg-[rgba(181,120,58,0.13)] text-[color:var(--gold)]"
-                : "border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.62)] text-[color:var(--ink-soft)]"
+                ? "soft-choice-button-selected"
+                : ""
             }`}
           >
             {locale === "en" ? "Custom" : "自己輸入"}
@@ -170,10 +244,10 @@ export default function NumberSignalSheet({
               key={mood.value}
               type="button"
               onClick={() => setSelectedMood(mood.value)}
-              className={`shrink-0 rounded-full border px-4 py-2 text-sm tracking-[0.08em] transition ${
+              className={`soft-choice-button shrink-0 ${
                 selectedMood === mood.value
-                  ? "border-[rgba(181,120,58,0.5)] bg-[rgba(181,120,58,0.13)] text-[color:var(--gold)]"
-                  : "border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.62)] text-[color:var(--ink-soft)]"
+                  ? "soft-choice-button-selected"
+                  : ""
               }`}
             >
               {mood.labels[locale] || mood.labels["zh-TW"]}
@@ -189,6 +263,12 @@ export default function NumberSignalSheet({
           rows={3}
           className="cosmos-textarea mt-4"
         />
+
+        {error ? (
+          <p className="mt-3 text-sm leading-6 text-[color:var(--danger)]" role="alert">
+            {error}
+          </p>
+        ) : null}
 
         {/* Save */}
         <button

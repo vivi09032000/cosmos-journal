@@ -239,7 +239,7 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
   const { locale } = useI18n();
   return (
     <section className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-3">
         <div className="paper-card-soft px-4 py-5 text-center">
           <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
             {deliveredCount}
