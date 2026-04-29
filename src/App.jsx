@@ -249,6 +249,7 @@ function BirthdayOnboarding({ onConfirm }) {
 function AppContent() {
   const { locale } = useI18n();
   const location = useLocation();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const {
     user,
     profile,
@@ -287,6 +288,11 @@ function AppContent() {
 
   const checkinStreak = useCheckinStreak(allDailyLogs, gratitudeEntries, orders);
 
+  const deliveredCount = useMemo(
+    () => orders.filter((o) => o.status === "delivered").length,
+    [orders],
+  );
+
   const firebaseLabel = missingFirebaseKeys.length > 0
     ? (locale === "en"
       ? `Missing Firebase configuration: ${missingFirebaseKeys.join(", ")}`
@@ -311,12 +317,6 @@ function AppContent() {
 
   const hideBottomNav = location.pathname.startsWith("/capsule/");
   const routeLoadingLabel = locale === "en" ? "Opening page..." : "正在打開頁面...";
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const deliveredCount = useMemo(
-    () => orders.filter((o) => o.status === "delivered").length,
-    [orders],
-  );
 
   return (
     <div className="cosmos-stage">
