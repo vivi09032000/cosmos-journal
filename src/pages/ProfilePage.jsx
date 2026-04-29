@@ -123,19 +123,12 @@ function TopSignals({ angelLogs, locale }) {
 
   return (
     <div className="mt-3 flex gap-3">
-      {top3.map(([number, count], i) => (
-        <div key={number} className="flex flex-col items-center gap-1">
-          <span className="font-[var(--font-display)] text-[1.8rem] leading-none text-[color:var(--gold)]">
-            {number}
-          </span>
-          <span className="text-[0.68rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
+      {top3.map(([number, count]) => (
+        <div key={number} className="signal-badge">
+          <span className="signal-badge-number">{number}</span>
+          <span className="signal-badge-count">
             {locale === "en" ? `${count}x` : `${count}次`}
           </span>
-          {i === 0 ? (
-            <span className="text-[0.58rem] tracking-[0.18em] text-[color:var(--gold)]">
-              ✦
-            </span>
-          ) : null}
         </div>
       ))}
     </div>
@@ -176,51 +169,57 @@ export default function ProfilePage({
 
   const copy = locale === "en"
     ? {
-      title: "My Space",
-      traveler: "Cosmos Traveler",
+      title: "Cosmos Me",
+      kicker: "✦ COSMOS PROFILE",
       lifePath: "Life path number",
       joined: "days since joining",
       streakLabel: "Check-in streak",
+      streakUnit: "days",
       fulfilledLabel: "Wishes fulfilled",
-      moodTitle: "Mood (7 days)",
-      signalTitle: "Top signals",
-      wallTitle: "Fulfilled goals",
+      fulfilledUnit: "wishes",
+      moodTitle: "Mood · 7 days",
+      signalTitle: "Top · Soul codes",
+      wallTitle: "Recently fulfilled",
       goWall: "View all →",
       noWall: "Your first fulfilled wish will be displayed here.",
     }
     : {
-      title: "我的",
-      traveler: "宇宙旅人",
+      title: "宇宙的我",
+      kicker: "✦ 宇宙檔案 · COSMOS PROFILE",
       lifePath: "生命靈數",
-      joined: "天加入",
-      streakLabel: "連續打卡",
-      fulfilledLabel: "已實現願望",
-      moodTitle: "情緒分布（近 7 天）",
-      signalTitle: "數字訊號頻率",
-      wallTitle: "戰績牆",
+      joined: "天",
+      streakLabel: "持續打卡",
+      streakUnit: "天",
+      fulfilledLabel: "實現願望",
+      fulfilledUnit: "個",
+      moodTitle: "情緒分佈 · 近 7 天",
+      signalTitle: "最常出現 · 心靈密碼",
+      wallTitle: "最近實現的願望",
       goWall: "查看所有戰績 →",
       noWall: "你的第一個實現的願望，會在這裡出現。",
     };
 
+  const displayName = profile?.displayName || (locale === "en" ? "Cosmos Traveler" : "宇宙旅人");
+  const initial = displayName.charAt(0).toUpperCase();
   const latestTheme = latestDelivered ? getOrderTheme(latestDelivered) : null;
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <section>
-        <p className="gold-kicker">Cosmos Journal</p>
+        <p className="gold-kicker">{copy.kicker}</p>
         <h1 className="page-title mt-2">{copy.title}</h1>
       </section>
 
       {/* Profile card */}
       <section className="paper-card px-5 py-5">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[rgba(181,120,58,0.3)] bg-[rgba(232,201,154,0.18)]">
-            <span className="text-2xl">✦</span>
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[rgba(181,120,58,0.35)] bg-[rgba(232,201,154,0.18)]">
+            <span className="font-[var(--font-display)] text-[1.4rem] text-[color:var(--gold)]">{initial}</span>
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="font-[var(--font-display)] text-[1.55rem] leading-[1.2] text-[color:var(--navy-deep)]">
-              {copy.traveler}
+              {displayName}
             </h2>
             {lifePathInfo ? (
               <p className="mt-1 text-[0.82rem] tracking-[0.08em] text-[color:var(--ink-soft)]">
@@ -228,7 +227,7 @@ export default function ProfilePage({
               </p>
             ) : null}
             <p className="mt-1 text-[0.72rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
-              {locale === "en" ? `${daysJoined} ${copy.joined}` : `加入 ${daysJoined} 天`}
+              {locale === "en" ? `${daysJoined} ${copy.joined}` : `加入 ${daysJoined} ${copy.joined}`}
             </p>
           </div>
         </div>
@@ -238,18 +237,14 @@ export default function ProfilePage({
       <section className="grid grid-cols-2 gap-3">
         <div className="profile-stat-card">
           <p className="profile-stat-value">{checkinStreak}</p>
-          <p className="profile-stat-label">
-            {locale === "en" ? `days` : "天"}
-          </p>
+          <p className="profile-stat-label">{copy.streakUnit}</p>
           <p className="mt-1 text-[0.66rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
             {copy.streakLabel}
           </p>
         </div>
         <div className="profile-stat-card">
           <p className="profile-stat-value">{deliveredCount}</p>
-          <p className="profile-stat-label">
-            {locale === "en" ? `wishes` : "個"}
-          </p>
+          <p className="profile-stat-label">{copy.fulfilledUnit}</p>
           <p className="mt-1 text-[0.66rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
             {copy.fulfilledLabel}
           </p>

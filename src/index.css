@@ -565,8 +565,11 @@ body::after {
   left: 0;
   right: 0;
   z-index: 101;
+  max-width: min(100%, 52rem);
+  margin-inline: auto;
   max-height: 88svh;
   overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 1.4rem 1.4rem 0 0;
   border: 1px solid rgba(181, 120, 58, 0.18);
   border-bottom: none;
@@ -693,4 +696,35 @@ body::after {
   font-size: 0.72rem;
   color: var(--ink-faint);
   text-align: left;
+}
+
+/* ── Phase 2: Signal Badge ──────────────────────────── */
+
+.signal-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 4.5rem;
+  padding: 0.85rem 0.6rem;
+  border: 1px solid rgba(181, 120, 58, 0.22);
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, rgba(255, 252, 247, 0.95), rgba(243, 233, 219, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.signal-badge-number {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+.signal-badge-count {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
 }

@@ -108,10 +108,19 @@ function getTodayKey() {
 
 function formatCardDate(dateStr, locale) {
   const date = new Date(dateStr + "T00:00:00");
-  return date.toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
-    month: "numeric",
+  if (locale === "en") {
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    });
+  }
+  return date.toLocaleDateString("zh-TW", {
+    year: "numeric",
+    month: "long",
     day: "numeric",
-    weekday: "short",
+    weekday: "long",
   });
 }
 
@@ -238,7 +247,8 @@ export default function JournalPage({
 
   const copy = locale === "en"
     ? {
-      title: "Journal",
+      title: "Daily Journey",
+      kicker: "COSMOS JOURNAL",
       todaySection: "Today's check-in",
       dailyQuestion: "Daily question",
       writeAnswer: "Write your answer →",
@@ -253,10 +263,11 @@ export default function JournalPage({
       projectionTitle: "Projection",
       noEntries: "Start recording your journey. Each day will appear here.",
       moodLabel: "Mood",
-      signalLabel: "Number signal",
+      signalLabel: "Soul code",
     }
     : {
-      title: "日記",
+      title: "每日歷程",
+      kicker: "COSMOS JOURNAL",
       todaySection: "今日紀錄",
       dailyQuestion: "今日一問",
       writeAnswer: "寫下回答 →",
@@ -271,7 +282,7 @@ export default function JournalPage({
       projectionTitle: "投射",
       noEntries: "開始記錄你的旅程，每一天都會在這裡出現。",
       moodLabel: "情緒",
-      signalLabel: "數字訊號",
+      signalLabel: "心靈密碼",
     };
 
   const handleSaveQuestion = async () => {
@@ -292,7 +303,7 @@ export default function JournalPage({
     <div className="space-y-5">
       {/* Header */}
       <section>
-        <p className="gold-kicker">Cosmos Journal</p>
+        <p className="gold-kicker">{copy.kicker}</p>
         <h1 className="page-title mt-2">{copy.title}</h1>
       </section>
 
@@ -407,14 +418,13 @@ export default function JournalPage({
                 <article key={day.date} className="journal-day-card">
                   {/* Date header */}
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <p className="text-[0.82rem] font-semibold tracking-[0.08em] text-[color:var(--ink)]">
-                        {isToday
-                          ? (locale === "en" ? "Today" : "今天")
-                          : formatCardDate(day.date, locale)}
-                      </p>
-                      <span className="journal-tag">{moonLabel}</span>
-                    </div>
+                    <p className="text-[0.82rem] font-semibold tracking-[0.06em] text-[color:var(--ink)]">
+                      {isToday
+                        ? (locale === "en" ? "Today" : "今天")
+                        : formatCardDate(day.date, locale)}
+                      {" · "}
+                      <span className="font-normal text-[color:var(--ink-soft)]">{moonLabel}</span>
+                    </p>
                     {day.mood ? (
                       <span className="journal-tag">
                         {moodLabels[day.mood] || day.mood}
