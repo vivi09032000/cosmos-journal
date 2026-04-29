@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getMoonPhaseInfo } from "../angelEngine";
-import NumberSignalSheet from "../components/NumberSignalSheet";
+import { useNavigate } from "react-router-dom";
 import { useI18n } from "../lib/i18n";
 
 const MOON_LABELS = {
@@ -231,7 +231,6 @@ export default function JournalPage({
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questionAnswer, setQuestionAnswer] = useState("");
   const [questionSaving, setQuestionSaving] = useState(false);
-  const [showNumberSheet, setShowNumberSheet] = useState(false);
 
   const savedAnswer = dailyLogEntry?.questionAnswer || "";
 
@@ -257,7 +256,7 @@ export default function JournalPage({
       cancel: "Cancel",
       saving: "Saving...",
       saveAnswer: "Save",
-      numberSignal: "Record a number signal ✦",
+      numberSignal: "✦ Seeing a number today? Decode it →",
       timeline: "Past entries",
       gratitudeTitle: "Grateful for",
       projectionTitle: "Projection",
@@ -276,7 +275,7 @@ export default function JournalPage({
       cancel: "取消",
       saving: "儲存中...",
       saveAnswer: "存下回答",
-      numberSignal: "記錄數字訊號 ✦",
+      numberSignal: "✦ 今天看到什麼數字？查看天使訊號 →",
       timeline: "歷史紀錄",
       gratitudeTitle: "感恩",
       projectionTitle: "投射",
@@ -383,12 +382,12 @@ export default function JournalPage({
           )}
         </div>
 
-        {/* Number signal quick entry */}
-        <div className="mt-5 border-t border-[rgba(181,120,58,0.12)] pt-4">
+        {/* Angel signal link */}
+        <div className="mt-5 border-t border-[rgba(181,120,58,0.12)] pt-4 flex justify-center">
           <button
             type="button"
-            onClick={() => setShowNumberSheet(true)}
-            className="primary-button w-full"
+            onClick={() => navigate("/angel")}
+            className="text-[0.88rem] tracking-[0.14em] text-[color:var(--gold)] opacity-80 hover:opacity-100 transition-opacity"
           >
             {copy.numberSignal}
           </button>
@@ -408,6 +407,12 @@ export default function JournalPage({
             {timeline.map((day) => {
               const moonLabel = getMoonLabelForDate(day.date, locale);
               const isToday = day.date === todayKey;
+              const uniqueSignalNumbers = [
+                ...new Set(
+                  [day.numberSignal, ...day.angelSignals.map((sig) => sig.number)]
+                    .filter(Boolean),
+                ),
+              ];
               const hasContent = day.mood || day.gratitude || day.questionAnswer
                 || day.projections.length > 0 || day.angelSignals.length > 0
                 || day.numberSignal;
@@ -488,12 +493,9 @@ export default function JournalPage({
                         {copy.signalLabel}
                       </p>
                       <div className="mt-1 flex flex-wrap gap-2">
-                        {day.numberSignal ? (
-                          <span className="journal-tag">{day.numberSignal}</span>
-                        ) : null}
-                        {day.angelSignals.map((sig, i) => (
-                          <span key={`as-${i}`} className="journal-tag">
-                            {sig.number}
+                        {uniqueSignalNumbers.map((number) => (
+                          <span key={`signal-${day.date}-${number}`} className="journal-tag">
+                            {number}
                           </span>
                         ))}
                       </div>
@@ -511,13 +513,6 @@ export default function JournalPage({
         )}
       </section>
 
-      {/* Number signal bottom sheet */}
-      <NumberSignalSheet
-        open={showNumberSheet}
-        onClose={() => setShowNumberSheet(false)}
-        onSave={onCreateAngelLog}
-        onSaveNumberSignal={onSaveNumberSignal}
-      />
     </div>
   );
 }

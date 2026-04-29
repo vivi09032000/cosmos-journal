@@ -7,7 +7,7 @@ import {
   Tag,
   WaveDivider,
 } from "../components/CosmosDecor";
-import NumberSignalSheet from "../components/NumberSignalSheet";
+
 import OrderCoverArt from "../components/OrderCoverArt";
 import { useI18n } from "../lib/i18n";
 import { getActionProgress } from "../lib/orderActions";
@@ -251,7 +251,7 @@ export default function TodayPage({
   const [questionSaving, setQuestionSaving] = useState(false);
   const [moodSaving, setMoodSaving] = useState("");
   const [moodError, setMoodError] = useState("");
-  const [showNumberSheet, setShowNumberSheet] = useState(false);
+
 
   const copy = locale === "en"
     ? {
@@ -278,7 +278,7 @@ export default function TodayPage({
       goGratitude: "Go to gratitude →",
       projectToday: "✦ Project today",
       moonProgressPrefix: (label) => `${label} energy is supporting this goal today. It is a good day to project once more.`,
-      numberSignal: "Record a number signal ✦",
+      angelLink: "✦ Seeing a number today? Decode it →",
       day: "Day",
     }
     : {
@@ -305,7 +305,7 @@ export default function TodayPage({
       goGratitude: "前往感恩 →",
       projectToday: "✦ 今日投射",
       moonProgressPrefix: (label) => `${label}的能量正在推著這個目標往前，很適合今天再投射一次。`,
-      numberSignal: "記錄數字訊號 ✦",
+      angelLink: "✦ 今天看到什麼數字？查看天使訊號 →",
       day: "第",
     };
 
@@ -348,47 +348,6 @@ export default function TodayPage({
 
   return (
     <div className="space-y-5">
-      <section className="paper-card-soft px-4 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="section-label">{copy.moodTitle}</p>
-            <p className="mt-2 text-xs leading-6 text-[color:var(--ink-faint)]">
-              {copy.moodHint}
-            </p>
-          </div>
-          {dailyLogEntry?.mood ? (
-            <span className="rounded-full border border-[rgba(181,120,58,0.26)] px-3 py-1 text-[0.68rem] tracking-[0.14em] text-[color:var(--gold)]">
-              ✓ {copy.moodSaved}
-            </span>
-          ) : null}
-        </div>
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {MOOD_OPTIONS.map((mood) => {
-            const isSelected = dailyLogEntry?.mood === mood.value;
-            return (
-              <button
-                key={mood.value}
-                type="button"
-                onClick={() => handleMoodSelect(mood.value)}
-                disabled={Boolean(moodSaving)}
-                className={`soft-choice-button shrink-0 ${
-                  isSelected
-                    ? "soft-choice-button-selected"
-                    : ""
-                } ${moodSaving ? "opacity-60" : ""}`}
-              >
-                {moodSaving === mood.value ? "..." : mood.labels[locale] || mood.labels["zh-TW"]}
-              </button>
-            );
-          })}
-        </div>
-        {moodError ? (
-          <p className="mt-2 text-xs leading-6 text-[color:var(--danger)]">
-            {moodError}
-          </p>
-        ) : null}
-      </section>
-
       <section className="screen-header">
         <SunRays size={78} className="absolute -right-3 -top-4" />
         <div>
@@ -431,6 +390,82 @@ export default function TodayPage({
             </p>
           </div>
         </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <section className="paper-card-soft px-5 py-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="section-label">{copy.moodTitle}</p>
+              <p className="mt-2 text-xs leading-6 text-[color:var(--ink-faint)]">
+                {copy.moodHint}
+              </p>
+            </div>
+            {dailyLogEntry?.mood ? (
+              <span className="rounded-full border border-[rgba(181,120,58,0.26)] px-3 py-1 text-[0.68rem] tracking-[0.14em] text-[color:var(--gold)]">
+                ✓ {copy.moodSaved}
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3 sm:grid-cols-2">
+            {MOOD_OPTIONS.map((mood) => {
+              const isSelected = dailyLogEntry?.mood === mood.value;
+              return (
+                <button
+                  key={mood.value}
+                  type="button"
+                  onClick={() => handleMoodSelect(mood.value)}
+                  disabled={Boolean(moodSaving)}
+                  className={`soft-choice-button min-w-0 justify-center ${
+                    isSelected
+                      ? "soft-choice-button-selected"
+                      : ""
+                  } ${moodSaving ? "opacity-60" : ""}`}
+                >
+                  {moodSaving === mood.value ? "..." : mood.labels[locale] || mood.labels["zh-TW"]}
+                </button>
+              );
+            })}
+          </div>
+          {moodError ? (
+            <p className="mt-3 text-xs leading-6 text-[color:var(--danger)]">
+              {moodError}
+            </p>
+          ) : null}
+        </section>
+
+        <section className="paper-card relative px-5 py-5">
+          <LeafDecor className="absolute bottom-0 right-0" />
+          {todayEntry ? (
+            <>
+              <p className="section-label">{copy.gratitude}</p>
+              <h2 className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
+                {copy.recorded}
+              </h2>
+              <div className="mt-4 space-y-2">
+                {gratitudeItems.map((item, index) => (
+                  <p key={`${item}-${index}`} className="text-[1.02rem] italic leading-[1.85] text-[color:var(--ink-soft)]">
+                    「{item}」
+                  </p>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="section-label">{copy.gratitude}</p>
+              <h2 className="mt-4 font-[var(--font-display)] text-[1.55rem] leading-[1.45] text-[color:var(--ink)]">
+                {copy.notLogged}
+              </h2>
+              <button
+                type="button"
+                onClick={() => navigate("/gratitude")}
+                className="text-action-button mt-3"
+              >
+                {copy.goGratitude}
+              </button>
+            </>
+          )}
+        </section>
       </section>
 
       <section className="paper-card overflow-hidden px-0 py-0">
@@ -519,127 +554,84 @@ export default function TodayPage({
         )}
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <section className="paper-card px-5 py-5">
-          <p className="section-label">{copy.dailyQuestion}</p>
-          {!showQuestionForm && !savedQuestionAnswer ? (
-            <>
-              <p className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.55] text-[color:var(--ink)]">
-                {dailyQuestion}
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowQuestionForm(true)}
-                className="text-action-button mt-3"
-              >
-                {copy.writeAnswer}
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="mt-4 font-[var(--font-display)] text-[1.45rem] leading-[1.55] text-[color:var(--ink)]">
-                {dailyQuestion}
-              </p>
-              {showQuestionForm ? (
-                <div className="mt-4">
-                  <textarea
-                    value={questionAnswer}
-                    onChange={(event) => setQuestionAnswer(event.target.value)}
-                    rows={4}
-                    className="cosmos-textarea"
-                    placeholder={copy.answerPlaceholder}
-                  />
-                  <div className="mt-3 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowQuestionForm(false);
-                        setQuestionAnswer(savedQuestionAnswer);
-                      }}
-                      className="secondary-button flex-1"
-                    >
-                      {copy.cancel}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSaveDailyQuestion}
-                      disabled={!questionAnswer.trim() || questionSaving}
-                      className="primary-button flex-1"
-                    >
-                      {questionSaving ? copy.savingAnswer : copy.saveAnswer}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <p className="mt-4 text-sm italic leading-7 text-[color:var(--ink-soft)]">
-                    {savedQuestionAnswer}
-                  </p>
+      <section className="paper-card px-5 py-5">
+        <p className="section-label">{copy.dailyQuestion}</p>
+        {!showQuestionForm && !savedQuestionAnswer ? (
+          <>
+            <p className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.55] text-[color:var(--ink)]">
+              {dailyQuestion}
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowQuestionForm(true)}
+              className="text-action-button mt-3"
+            >
+              {copy.writeAnswer}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="mt-4 font-[var(--font-display)] text-[1.45rem] leading-[1.55] text-[color:var(--ink)]">
+              {dailyQuestion}
+            </p>
+            {showQuestionForm ? (
+              <div className="mt-4">
+                <textarea
+                  value={questionAnswer}
+                  onChange={(event) => setQuestionAnswer(event.target.value)}
+                  rows={4}
+                  className="cosmos-textarea"
+                  placeholder={copy.answerPlaceholder}
+                />
+                <div className="mt-3 flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setShowQuestionForm(true)}
-                    className="text-action-button mt-3"
+                    onClick={() => {
+                      setShowQuestionForm(false);
+                      setQuestionAnswer(savedQuestionAnswer);
+                    }}
+                    className="secondary-button flex-1"
                   >
-                    {copy.editAnswer}
+                    {copy.cancel}
                   </button>
-                </>
-              )}
-            </>
-          )}
-        </section>
-
-        <section className="paper-card relative px-5 py-5">
-          <LeafDecor className="absolute bottom-0 right-0" />
-          {todayEntry ? (
-            <>
-              <p className="section-label">{copy.gratitude}</p>
-              <h2 className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
-                {copy.recorded}
-              </h2>
-              <div className="mt-4 space-y-2">
-                {gratitudeItems.map((item, index) => (
-                  <p key={`${item}-${index}`} className="text-[1.02rem] italic leading-[1.85] text-[color:var(--ink-soft)]">
-                    「{item}」
-                  </p>
-                ))}
+                  <button
+                    type="button"
+                    onClick={handleSaveDailyQuestion}
+                    disabled={!questionAnswer.trim() || questionSaving}
+                    className="primary-button flex-1"
+                  >
+                    {questionSaving ? copy.savingAnswer : copy.saveAnswer}
+                  </button>
+                </div>
               </div>
-            </>
-          ) : (
-            <>
-              <p className="section-label">{copy.gratitude}</p>
-              <h2 className="mt-4 font-[var(--font-display)] text-[1.55rem] leading-[1.45] text-[color:var(--ink)]">
-                {copy.notLogged}
-              </h2>
-              <button
-                type="button"
-                onClick={() => navigate("/gratitude")}
-                className="text-action-button mt-3"
-              >
-                {copy.goGratitude}
-              </button>
-            </>
-          )}
-        </section>
+            ) : (
+              <>
+                <p className="mt-4 text-sm italic leading-7 text-[color:var(--ink-soft)]">
+                  {savedQuestionAnswer}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowQuestionForm(true)}
+                  className="text-action-button mt-3"
+                >
+                  {copy.editAnswer}
+                </button>
+              </>
+            )}
+          </>
+        )}
       </section>
 
-      {/* Number signal entry */}
-      <section className="paper-card-soft px-5 py-4">
+      {/* Angel signal link */}
+      <div className="flex items-center justify-center py-2">
         <button
           type="button"
-          onClick={() => setShowNumberSheet(true)}
-          className="primary-button w-full"
+          onClick={() => navigate("/angel")}
+          className="text-[0.88rem] tracking-[0.14em] text-[color:var(--gold)] opacity-80 hover:opacity-100 transition-opacity"
         >
-          {copy.numberSignal}
+          {copy.angelLink}
         </button>
-      </section>
-
-      {/* Number signal bottom sheet */}
-      <NumberSignalSheet
-        open={showNumberSheet}
-        onClose={() => setShowNumberSheet(false)}
-        onSave={onCreateAngelLog}
-        onSaveNumberSignal={onSaveNumberSignal}
-      />
+      </div>
     </div>
   );
 }
