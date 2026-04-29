@@ -7,8 +7,8 @@ import {
   Tag,
   WaveDivider,
 } from "../components/CosmosDecor";
+import NumberSignalSheet from "../components/NumberSignalSheet";
 import OrderCoverArt from "../components/OrderCoverArt";
-import { useDailyQuestion } from "../hooks/useDailyQuestion";
 import { useI18n } from "../lib/i18n";
 import { getActionProgress } from "../lib/orderActions";
 import { daysSince, getOrderTheme, getOrderStatusLabel } from "../lib/orderTheme";
@@ -222,6 +222,9 @@ export default function TodayPage({
   todayEntry,
   dailyLogEntry,
   onSaveDailyMood,
+  onSaveQuestionAnswer,
+  onCreateAngelLog,
+  onSaveNumberSignal,
   userId,
 }) {
   const { locale } = useI18n();
@@ -242,12 +245,13 @@ export default function TodayPage({
   const featuredTheme = featuredOrder ? getOrderTheme(featuredOrder) : null;
   const gratitudeItems = [todayEntry?.item1, todayEntry?.item2, todayEntry?.item3].filter(Boolean);
   const dailyQuestion = useMemo(() => getDailyQuestion(locale, new Date()), [locale]);
-  const { entry: dailyQuestionEntry, saveAnswer: saveDailyQuestionAnswer } = useDailyQuestion(userId);
+  const savedQuestionAnswer = dailyLogEntry?.questionAnswer || "";
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questionAnswer, setQuestionAnswer] = useState("");
   const [questionSaving, setQuestionSaving] = useState(false);
   const [moodSaving, setMoodSaving] = useState("");
   const [moodError, setMoodError] = useState("");
+  const [showNumberSheet, setShowNumberSheet] = useState(false);
 
   const copy = locale === "en"
     ? {
@@ -261,8 +265,6 @@ export default function TodayPage({
       noOrderTitle: "There is no goal to move today",
       noOrderDescription: "Create a new manifest goal and tell the universe what you want most right now.",
       goOrders: "Go to goals",
-      fulfilledBanner: (count) => `You have fulfilled ${count} wishes`,
-      goWall: "Go to wall →",
       dailyQuestion: "Daily question",
       writeAnswer: "Write your answer →",
       answerPlaceholder: "Write what is true for you right now...",
@@ -276,6 +278,7 @@ export default function TodayPage({
       goGratitude: "Go to gratitude →",
       projectToday: "✦ Project today",
       moonProgressPrefix: (label) => `${label} energy is supporting this goal today. It is a good day to project once more.`,
+      numberSignal: "Record a number signal ✦",
       day: "Day",
     }
     : {
@@ -289,8 +292,6 @@ export default function TodayPage({
       noOrderTitle: "今天還沒有可以推進的目標",
       noOrderDescription: "建立一個新的顯化目標，讓宇宙知道你此刻最想實現的是什麼。",
       goOrders: "前往目標",
-      fulfilledBanner: (count) => `你已實現了 ${count} 個願望`,
-      goWall: "前往戰績牆 →",
       dailyQuestion: "今日一問",
       writeAnswer: "寫下回答 →",
       answerPlaceholder: "寫下你此刻的回答...",
@@ -304,22 +305,28 @@ export default function TodayPage({
       goGratitude: "前往感恩 →",
       projectToday: "✦ 今日投射",
       moonProgressPrefix: (label) => `${label}的能量正在推著這個目標往前，很適合今天再投射一次。`,
+      numberSignal: "記錄數字訊號 ✦",
       day: "第",
     };
 
   useEffect(() => {
-    setQuestionAnswer(dailyQuestionEntry?.answer || "");
+    setQuestionAnswer(savedQuestionAnswer);
     setShowQuestionForm(false);
-  }, [dailyQuestionEntry]);
+  }, [savedQuestionAnswer]);
 
   const handleSaveDailyQuestion = async () => {
     if (!questionAnswer.trim()) return;
 
     setQuestionSaving(true);
-    await saveDailyQuestionAnswer({
-      prompt: dailyQuestion,
-      answer: questionAnswer.trim(),
-    });
+    try {
+      const questionBank = DAILY_QUESTION_BANK[locale] || DAILY_QUESTION_BANK["zh-TW"];
+      const start = new Date("2026-01-01T00:00:00");
+      const diffDays = Math.floor((new Date() - start) / (1000 * 60 * 60 * 24));
+      const qIndex = ((diffDays % questionBank.length) + questionBank.length) % questionBank.length;
+      await onSaveQuestionAnswer(qIndex, dailyQuestion, questionAnswer.trim());
+    } catch (err) {
+      console.error("Save question error:", err);
+    }
     setQuestionSaving(false);
     setShowQuestionForm(false);
   };
@@ -512,23 +519,10 @@ export default function TodayPage({
         )}
       </section>
 
-      <button
-        type="button"
-        onClick={() => navigate("/wall")}
-        className="paper-card-soft flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
-      >
-        <p className="font-[var(--font-display)] text-[1.45rem] text-[color:var(--navy-deep)]">
-          {copy.fulfilledBanner(deliveredCount)}
-        </p>
-        <span className="text-[0.78rem] tracking-[0.14em] text-[color:var(--gold)]">
-          {copy.goWall}
-        </span>
-      </button>
-
       <section className="grid grid-cols-2 gap-4">
         <section className="paper-card px-5 py-5">
           <p className="section-label">{copy.dailyQuestion}</p>
-          {!showQuestionForm && !dailyQuestionEntry?.answer ? (
+          {!showQuestionForm && !savedQuestionAnswer ? (
             <>
               <p className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.55] text-[color:var(--ink)]">
                 {dailyQuestion}
@@ -560,7 +554,7 @@ export default function TodayPage({
                       type="button"
                       onClick={() => {
                         setShowQuestionForm(false);
-                        setQuestionAnswer(dailyQuestionEntry?.answer || "");
+                        setQuestionAnswer(savedQuestionAnswer);
                       }}
                       className="secondary-button flex-1"
                     >
@@ -579,7 +573,7 @@ export default function TodayPage({
               ) : (
                 <>
                   <p className="mt-4 text-sm italic leading-7 text-[color:var(--ink-soft)]">
-                    {dailyQuestionEntry?.answer}
+                    {savedQuestionAnswer}
                   </p>
                   <button
                     type="button"
@@ -627,6 +621,25 @@ export default function TodayPage({
           )}
         </section>
       </section>
+
+      {/* Number signal entry */}
+      <section className="paper-card-soft px-5 py-4">
+        <button
+          type="button"
+          onClick={() => setShowNumberSheet(true)}
+          className="primary-button w-full"
+        >
+          {copy.numberSignal}
+        </button>
+      </section>
+
+      {/* Number signal bottom sheet */}
+      <NumberSignalSheet
+        open={showNumberSheet}
+        onClose={() => setShowNumberSheet(false)}
+        onSave={onCreateAngelLog}
+        onSaveNumberSignal={onSaveNumberSignal}
+      />
     </div>
   );
 }

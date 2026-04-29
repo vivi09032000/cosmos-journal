@@ -13,14 +13,14 @@ const tabs = [
     labels: { "zh-TW": "目標", en: "Goals" },
   },
   {
-    to: "/angel",
-    icon: "wings",
-    labels: { "zh-TW": "天使", en: "Angel" },
+    to: "/journal",
+    icon: "journal",
+    labels: { "zh-TW": "日記", en: "Journal" },
   },
   {
-    to: "/gratitude",
-    icon: "heart",
-    labels: { "zh-TW": "感恩", en: "Gratitude" },
+    to: "/profile",
+    icon: "user",
+    labels: { "zh-TW": "我的", en: "Me" },
   },
 ];
 
@@ -50,18 +50,25 @@ function Icon({ name, active }) {
           <path d="M12 11.5V20.5" {...common} />
         </svg>
       );
-    case "wings":
+    case "journal":
       return (
         <svg viewBox="0 0 24 24" className="h-5 w-5">
-          <path d="M12 18c-1.8-3.2-4.8-4.8-7.5-4.8 1.2-2.8 3.7-4.5 6.7-4.5-.4 1.8-.1 3.8.8 5.5Z" {...common} />
-          <path d="M12 18c1.8-3.2 4.8-4.8 7.5-4.8-1.2-2.8-3.7-4.5-6.7-4.5.4 1.8.1 3.8-.8 5.5Z" {...common} />
-          <path d="M12 7.4V4.5" {...common} />
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" {...common} />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" {...common} />
+          <path d="M8 7h8M8 11h6" {...common} />
+        </svg>
+      );
+    case "user":
+      return (
+        <svg viewBox="0 0 24 24" className="h-5 w-5">
+          <circle cx="12" cy="8" r="4" {...common} />
+          <path d="M5.5 21c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" {...common} />
         </svg>
       );
     default:
       return (
         <svg viewBox="0 0 24 24" className="h-5 w-5">
-          <path d="m12 20-1.4-1.2C5.2 14 2 11.1 2 7.5A4.5 4.5 0 0 1 6.5 3c2 0 3.2 1 4 2.1C11.3 4 12.5 3 14.5 3A4.5 4.5 0 0 1 19 7.5c0 3.6-3.2 6.5-8.6 11.3L12 20Z" {...common} />
+          <circle cx="12" cy="12" r="8" {...common} />
         </svg>
       );
   }

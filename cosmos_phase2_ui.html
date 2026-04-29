@@ -1,0 +1,305 @@
+
+<h2 class="sr-only">Cosmos Journal Phase 2 UI mockup showing four tabs: Today, Goals, Journal, and Profile</h2>
+<style>
+:root {
+  --am: #b5783a;
+  --am-lt: #e8c99a;
+  --am-pale: rgba(181,120,58,0.12);
+  --bg: #f5efe6;
+  --card: #faf6f0;
+  --card2: #f0e8dc;
+  --text: #2e2318;
+  --mid: #6b5540;
+  --dim: #a08870;
+  --sage: #7a8c6e;
+  --border: rgba(181,120,58,0.18);
+  --border-am: rgba(181,120,58,0.45);
+  --navy: #1e2d40;
+  --navy2: #263545;
+  --serif: 'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif;
+  --sans: system-ui,-apple-system,sans-serif;
+}
+.wrap { display:flex; flex-direction:column; align-items:center; gap:20px; padding:12px 0; background:transparent; }
+.label { font-family:var(--sans); font-size:10px; letter-spacing:3px; color:var(--color-text-secondary); margin-bottom:6px; text-align:center; }
+.phone { width:300px; background:var(--bg); border-radius:28px; overflow:hidden; border:1px solid var(--border-am); font-family:var(--serif); }
+.sb { display:flex; justify-content:space-between; padding:9px 18px 0; font-family:var(--sans); font-size:10px; color:var(--text); }
+.scroll { padding:0 0 72px; }
+.nav { display:flex; border-top:0.5px solid var(--border); background:rgba(245,239,230,0.97); }
+.ni { flex:1; display:flex; flex-direction:column; align-items:center; padding:10px 0 14px; cursor:pointer; gap:3px; }
+.ni-icon { font-size:13px; color:var(--dim); }
+.ni-icon.on { color:var(--am); }
+.ni-label { font-family:var(--sans); font-size:8px; letter-spacing:1.5px; color:var(--dim); }
+.ni-label.on { color:var(--am); }
+.ni-line { width:14px; height:1px; background:var(--am); border-radius:1px; margin-top:2px; }
+.wave { height:0.5px; background:linear-gradient(to right,transparent,var(--am-lt),transparent); margin:0 18px 12px; }
+.tag { display:inline-block; border:0.5px solid var(--border-am); border-radius:20px; padding:2px 9px; font-family:var(--sans); font-size:8px; letter-spacing:2px; color:var(--am); }
+.tag-sage { border-color:rgba(122,140,110,0.4); color:var(--sage); }
+.sec-label { font-family:var(--sans); font-size:8px; letter-spacing:3px; color:var(--dim); margin-bottom:8px; }
+.card { background:var(--card); border:0.5px solid var(--border); border-radius:10px; }
+</style>
+
+<div class="wrap">
+
+<div class="label">今日 · Today</div>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span style="font-size:9px">▲▲ ■■■</span></div>
+  <div class="scroll">
+    <div style="padding:10px 18px 0;position:relative">
+      <div style="font-family:var(--sans);font-size:8px;letter-spacing:4px;color:var(--dim);margin-bottom:4px">COSMOS JOURNAL</div>
+      <div style="font-family:var(--serif);font-size:22px;color:var(--text);line-height:1.2;margin-bottom:2px">今天宇宙<br>說什麼？</div>
+      <div style="font-family:var(--sans);font-size:9px;color:var(--dim);letter-spacing:1px">2026年4月25日 · 星期六</div>
+      <svg style="position:absolute;right:10px;top:10px;opacity:0.1" width="60" height="60" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="24" fill="none" stroke="#b5783a" stroke-width="0.5"/>
+        <circle cx="30" cy="30" r="14" fill="none" stroke="#b5783a" stroke-width="0.5"/>
+        <line x1="30" y1="2" x2="30" y2="58" stroke="#b5783a" stroke-width="0.4"/>
+        <line x1="2" y1="30" x2="58" y2="30" stroke="#b5783a" stroke-width="0.4"/>
+        <line x1="8" y1="8" x2="52" y2="52" stroke="#b5783a" stroke-width="0.3"/>
+        <line x1="52" y1="8" x2="8" y2="52" stroke="#b5783a" stroke-width="0.3"/>
+      </svg>
+    </div>
+    <div class="wave" style="margin-top:10px"></div>
+
+    <div style="margin:0 12px;background:var(--navy);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(181,120,58,0.12) 0%,transparent 70%)"></div>
+      <svg width="38" height="38" viewBox="0 0 38 38" style="flex-shrink:0;position:relative;z-index:1">
+        <circle cx="19" cy="19" r="16" fill="none" stroke="rgba(181,120,58,0.3)" stroke-width="0.5"/>
+        <path d="M19,5 A14,14 0 0,1 19,33 A8,14 0 0,1 19,5" fill="rgba(181,120,58,0.22)"/>
+        <circle cx="19" cy="19" r="12" fill="none" stroke="rgba(181,120,58,0.35)" stroke-width="0.5"/>
+      </svg>
+      <div style="flex:1;position:relative;z-index:1">
+        <div style="font-family:var(--sans);font-size:8px;letter-spacing:3px;color:rgba(181,120,58,0.6);margin-bottom:3px">今日月相</div>
+        <div style="font-family:var(--serif);font-size:16px;color:#f0ead8;margin-bottom:2px">上弦月</div>
+        <div style="font-family:var(--sans);font-size:9px;color:rgba(240,234,216,0.5);line-height:1.5">適合跨過心裡的小阻力</div>
+      </div>
+      <div style="text-align:right;position:relative;z-index:1;flex-shrink:0">
+        <div style="font-family:var(--serif);font-size:20px;color:rgba(181,120,58,0.75);line-height:1">10</div>
+        <div style="font-family:var(--sans);font-size:7px;letter-spacing:1px;color:rgba(181,120,58,0.5)">距滿月 6 天</div>
+      </div>
+    </div>
+
+    <div style="margin:10px 12px 0;display:flex;gap:6px">
+      <div style="flex:1;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-family:var(--sans);font-size:8px;letter-spacing:2px;color:var(--dim);margin-bottom:8px">今日情緒</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div style="background:var(--am-pale);border:0.5px solid var(--border-am);border-radius:6px;padding:5px;text-align:center;font-family:var(--sans);font-size:8px;color:var(--am)">☀ 很好</div>
+          <div style="background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px;text-align:center;font-family:var(--sans);font-size:8px;color:var(--dim)">⛅ 還好</div>
+          <div style="background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px;text-align:center;font-family:var(--sans);font-size:8px;color:var(--dim)">🌧 低落</div>
+          <div style="background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px;text-align:center;font-family:var(--sans);font-size:8px;color:var(--dim)">⛈ 難受</div>
+        </div>
+      </div>
+      <div style="flex:1;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-family:var(--sans);font-size:8px;letter-spacing:2px;color:var(--sage);margin-bottom:6px">今日感恩</div>
+        <div style="font-family:var(--serif);font-size:11px;color:var(--text);margin-bottom:4px">✓ 已記錄</div>
+        <div style="font-family:var(--serif);font-size:10px;font-style:italic;color:var(--mid);line-height:1.5">「咖啡剛剛好」<br>「朋友的訊息」<br>「今天的風」</div>
+      </div>
+    </div>
+
+    <div style="margin:10px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="height:100px;background:linear-gradient(135deg,#1a3a5a 0%,#2d5580 50%,#1a4060 100%);position:relative">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to bottom,transparent,var(--card))"></div>
+        <div style="position:absolute;top:8px;right:10px;background:rgba(245,239,230,0.85);border:0.5px solid var(--border-am);border-radius:20px;padding:3px 9px;font-family:var(--sans);font-size:8px;letter-spacing:1.5px;color:var(--am)">今日投射</div>
+        <div style="position:absolute;top:8px;left:12px;font-family:var(--sans);font-size:8px;color:rgba(255,255,255,0.55)">第 0 天</div>
+      </div>
+      <div style="padding:4px 14px 14px">
+        <div style="font-family:var(--sans);font-size:8px;letter-spacing:2px;color:var(--dim);margin-bottom:4px">MANIFEST · 打包中</div>
+        <div style="font-family:var(--serif);font-size:16px;color:var(--text);margin-bottom:3px">加拿大露營</div>
+        <div style="height:1.5px;background:rgba(181,120,58,0.12);border-radius:1px;margin-bottom:10px"><div style="width:15%;height:100%;background:linear-gradient(to right,var(--am-lt),var(--am));border-radius:1px"></div></div>
+        <div style="text-align:center;padding:9px;border:0.5px solid var(--border-am);border-radius:7px;font-family:var(--sans);font-size:9px;letter-spacing:2.5px;color:var(--am)">✦ 今日投射</div>
+      </div>
+    </div>
+
+    <div style="margin:10px 12px 0;padding:10px 14px;background:var(--am-pale);border:0.5px solid var(--border-am);border-radius:8px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:var(--serif);font-size:12px;color:var(--text)">你已實現了 <span style="color:var(--am)">1</span> 個願望</div>
+      <div style="font-family:var(--sans);font-size:8px;letter-spacing:1.5px;color:var(--am)">前往 →</div>
+    </div>
+
+  </div>
+  <div class="nav">
+    <div class="ni"><div class="ni-icon on">✦</div><div class="ni-label on">今日</div><div class="ni-line"></div></div>
+    <div class="ni"><div class="ni-icon">◫</div><div class="ni-label">目標</div></div>
+    <div class="ni"><div class="ni-icon">≡</div><div class="ni-label">日記</div></div>
+    <div class="ni"><div class="ni-icon">◎</div><div class="ni-label">我的</div></div>
+  </div>
+</div>
+
+<div class="label">日記 · Journal</div>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span style="font-size:9px">▲▲ ■■■</span></div>
+  <div class="scroll">
+    <div style="padding:10px 18px 12px">
+      <div style="font-family:var(--sans);font-size:8px;letter-spacing:4px;color:var(--dim);margin-bottom:4px">MY JOURNAL</div>
+      <div style="font-family:var(--serif);font-size:22px;color:var(--text)">每日歷程</div>
+    </div>
+    <div class="wave"></div>
+    <div style="padding:0 12px;display:flex;flex-direction:column;gap:10px">
+
+      <div style="background:var(--card);border:0.5px solid var(--border-am);border-radius:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-family:var(--sans);font-size:8px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">2026.04.25 · 星期六</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="background:var(--am-pale);border:0.5px solid var(--border-am);border-radius:20px;padding:2px 8px;font-family:var(--sans);font-size:8px;color:var(--am)">☀ 很好</div>
+              <div style="font-family:var(--sans);font-size:8px;color:var(--dim)">上弦月</div>
+            </div>
+          </div>
+          <div style="font-family:var(--sans);font-size:8px;color:var(--am);letter-spacing:1px">今日 ✓</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="padding-left:10px;border-left:1.5px solid var(--border-am)">
+            <div style="font-family:var(--sans);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">感恩</div>
+            <div style="font-family:var(--serif);font-size:11px;font-style:italic;color:var(--mid)">「咖啡剛剛好」「朋友的訊息」「今天的風」</div>
+          </div>
+          <div style="padding-left:10px;border-left:1.5px solid var(--border)">
+            <div style="font-family:var(--sans);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">今日一問</div>
+            <div style="font-family:var(--serif);font-size:11px;font-style:italic;color:var(--mid)">「我要成為光」</div>
+          </div>
+          <div style="padding-left:10px;border-left:1.5px solid var(--border)">
+            <div style="font-family:var(--sans);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">投射</div>
+            <div style="font-family:var(--serif);font-size:11px;color:var(--mid)">加拿大露營 · 第 0 天</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-family:var(--sans);font-size:8px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">2026.04.24 · 星期五</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="background:rgba(181,120,58,0.07);border:0.5px solid var(--border);border-radius:20px;padding:2px 8px;font-family:var(--sans);font-size:8px;color:var(--dim)">⛅ 還好</div>
+              <div style="font-family:var(--sans);font-size:8px;color:var(--dim)">眉月</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="padding-left:10px;border-left:1.5px solid var(--border)">
+            <div style="font-family:var(--sans);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">感恩</div>
+            <div style="font-family:var(--serif);font-size:11px;font-style:italic;color:var(--mid)">「找到了一間很有感覺的咖啡廳」「完成了一個難的任務」</div>
+          </div>
+          <div style="padding-left:10px;border-left:1.5px solid rgba(181,120,58,0.25)">
+            <div style="font-family:var(--sans);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">數字訊號</div>
+            <div style="font-family:var(--serif);font-size:11px;color:var(--mid)">444 · 「看到車牌，想到加拿大的事」</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-family:var(--sans);font-size:8px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">2026.04.23 · 星期四</div>
+            <div style="background:rgba(181,120,58,0.07);border:0.5px solid var(--border);border-radius:20px;padding:2px 8px;font-family:var(--sans);font-size:8px;color:var(--dim);display:inline-block">🌧 低落</div>
+          </div>
+        </div>
+        <div style="padding-left:10px;border-left:1.5px solid var(--border)">
+          <div style="font-family:var(--sans);font-size:7px;letter-spacing:2px;color:var(--dim);margin-bottom:3px">感恩</div>
+          <div style="font-family:var(--serif);font-size:11px;font-style:italic;color:var(--mid)">「窗外的風」「自己做的早餐」「晚霞」</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="nav">
+    <div class="ni"><div class="ni-icon">✦</div><div class="ni-label">今日</div></div>
+    <div class="ni"><div class="ni-icon">◫</div><div class="ni-label">目標</div></div>
+    <div class="ni"><div class="ni-icon on">≡</div><div class="ni-label on">日記</div><div class="ni-line"></div></div>
+    <div class="ni"><div class="ni-icon">◎</div><div class="ni-label">我的</div></div>
+  </div>
+</div>
+
+<div class="label">我的 · Profile</div>
+<div class="phone">
+  <div class="sb"><span>9:41</span><span style="font-size:9px">▲▲ ■■■</span></div>
+  <div class="scroll">
+    <div style="padding:10px 18px 12px">
+      <div style="font-family:var(--sans);font-size:8px;letter-spacing:4px;color:var(--dim);margin-bottom:4px">MY COSMOS</div>
+      <div style="font-family:var(--serif);font-size:22px;color:var(--text)">宇宙的我</div>
+    </div>
+    <div class="wave"></div>
+    <div style="padding:0 12px;display:flex;flex-direction:column;gap:10px">
+
+      <div style="background:var(--card);border:0.5px solid var(--border-am);border-radius:10px;padding:14px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;border-radius:50%;border:0.5px solid var(--border-am);background:var(--am-pale);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;color:var(--am)">V</div>
+          <div>
+            <div style="font-family:var(--serif);font-size:15px;color:var(--text);margin-bottom:2px">Vivian</div>
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim)">生命靈數 4 · 穩定與建構</div>
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim)">加入第 37 天</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+        <div style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-family:var(--serif);font-size:28px;color:var(--am);line-height:1;margin-bottom:4px">7</div>
+          <div style="font-family:var(--sans);font-size:8px;letter-spacing:1.5px;color:var(--dim)">連續打卡天</div>
+        </div>
+        <div style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-family:var(--serif);font-size:28px;color:var(--am);line-height:1;margin-bottom:4px">1</div>
+          <div style="font-family:var(--sans);font-size:8px;letter-spacing:1.5px;color:var(--dim)">已實現願望</div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-family:var(--sans);font-size:8px;letter-spacing:3px;color:var(--dim);margin-bottom:12px">情緒分布 · 近 7 天</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim);width:30px">很好</div>
+            <div style="flex:1;height:6px;background:rgba(181,120,58,0.1);border-radius:3px"><div style="width:57%;height:100%;background:var(--am);border-radius:3px"></div></div>
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim);width:20px;text-align:right">4</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim);width:30px">還好</div>
+            <div style="flex:1;height:6px;background:rgba(181,120,58,0.1);border-radius:3px"><div style="width:28%;height:100%;background:var(--am-lt);border-radius:3px"></div></div>
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim);width:20px;text-align:right">2</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim);width:30px">低落</div>
+            <div style="flex:1;height:6px;background:rgba(181,120,58,0.1);border-radius:3px"><div style="width:14%;height:100%;background:rgba(181,120,58,0.3);border-radius:3px"></div></div>
+            <div style="font-family:var(--sans);font-size:9px;color:var(--dim);width:20px;text-align:right">1</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-family:var(--sans);font-size:8px;letter-spacing:3px;color:var(--dim);margin-bottom:12px">數字訊號 · 出現頻率</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div style="background:var(--am-pale);border:0.5px solid var(--border-am);border-radius:6px;padding:6px 10px;text-align:center">
+            <div style="font-family:var(--serif);font-size:14px;color:var(--am)">444</div>
+            <div style="font-family:var(--sans);font-size:8px;color:var(--dim)">3次</div>
+          </div>
+          <div style="background:rgba(181,120,58,0.06);border:0.5px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center">
+            <div style="font-family:var(--serif);font-size:14px;color:var(--mid)">111</div>
+            <div style="font-family:var(--sans);font-size:8px;color:var(--dim)">2次</div>
+          </div>
+          <div style="background:rgba(181,120,58,0.06);border:0.5px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center">
+            <div style="font-family:var(--serif);font-size:14px;color:var(--mid)">1212</div>
+            <div style="font-family:var(--sans);font-size:8px;color:var(--dim)">1次</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:10px;overflow:hidden">
+        <div style="padding:14px 14px 10px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-family:var(--sans);font-size:8px;letter-spacing:3px;color:var(--dim)">已實現的願望</div>
+          <div style="font-family:var(--sans);font-size:8px;color:var(--am)">戰績牆 →</div>
+        </div>
+        <div style="height:70px;background:linear-gradient(135deg,#1a3a5a,#2d5580);position:relative">
+          <div style="position:absolute;bottom:0;left:0;right:0;height:35px;background:linear-gradient(to bottom,transparent,var(--card))"></div>
+          <div style="position:absolute;top:8px;left:12px;font-family:var(--sans);font-size:8px;color:rgba(255,255,255,0.6)">✦ 已實現</div>
+        </div>
+        <div style="padding:4px 14px 14px">
+          <div style="font-family:var(--serif);font-size:14px;color:var(--text);margin-bottom:2px">加拿大</div>
+          <div style="font-family:var(--sans);font-size:9px;color:var(--dim)">2026/4/25 · 從下單到實現 1 天</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="nav">
+    <div class="ni"><div class="ni-icon">✦</div><div class="ni-label">今日</div></div>
+    <div class="ni"><div class="ni-icon">◫</div><div class="ni-label">目標</div></div>
+    <div class="ni"><div class="ni-icon">≡</div><div class="ni-label">日記</div></div>
+    <div class="ni"><div class="ni-icon on">◎</div><div class="ni-label on">我的</div><div class="ni-line"></div></div>
+  </div>
+</div>
+
+</div>

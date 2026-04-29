@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import BottomNav from "./components/BottomNav";
 import { useAngelLogs } from "./hooks/useAngelLogs";
+import { useAllDailyLogs } from "./hooks/useAllDailyLogs";
 import { useAuth } from "./hooks/useAuth";
+import { useCheckinStreak } from "./hooks/useCheckinStreak";
 import { useDailyLog } from "./hooks/useDailyLog";
 import { useGratitude } from "./hooks/useGratitude";
 import { useOrders } from "./hooks/useOrders";
@@ -10,7 +12,9 @@ import { firebaseErrorMessage, missingFirebaseKeys } from "./firebase";
 import { I18nProvider, useI18n } from "./lib/i18n";
 import AngelPage from "./pages/AngelPage";
 import GratitudePage from "./pages/GratitudePage";
+import JournalPage from "./pages/JournalPage";
 import OrdersPage from "./pages/OrdersPage";
+import ProfilePage from "./pages/ProfilePage";
 import TimeCapsulePage from "./pages/TimeCapsulePage";
 import TodayPage from "./pages/TodayPage";
 import WallPage from "./pages/WallPage";
@@ -265,14 +269,21 @@ function AppContent() {
   } = useAngelLogs(user?.uid);
   const {
     todayEntry,
-    entries,
+    entries: gratitudeEntries,
     streak,
     saveGratitude,
   } = useGratitude(user?.uid);
   const {
     entry: dailyLogEntry,
     saveMood: saveDailyMood,
+    saveQuestionAnswer: saveDailyQuestionAnswer,
+    saveNumberSignal: saveDailyNumberSignal,
   } = useDailyLog(user?.uid);
+  const {
+    entries: allDailyLogs,
+  } = useAllDailyLogs(user?.uid);
+
+  const checkinStreak = useCheckinStreak(allDailyLogs, gratitudeEntries, orders);
 
   const firebaseLabel = missingFirebaseKeys.length > 0
     ? (locale === "en"
@@ -313,6 +324,9 @@ function AppContent() {
                     todayEntry={todayEntry}
                     dailyLogEntry={dailyLogEntry}
                     onSaveDailyMood={saveDailyMood}
+                    onSaveQuestionAnswer={saveDailyQuestionAnswer}
+                    onCreateAngelLog={createAngelLog}
+                    onSaveNumberSignal={saveDailyNumberSignal}
                     userId={user?.uid || ""}
                   />
                 }
@@ -334,6 +348,34 @@ function AppContent() {
               <Route path="/wall" element={<WallPage orders={orders} />} />
               <Route path="/capsule/:orderId" element={<TimeCapsulePage orders={orders} />} />
               <Route
+                path="/journal"
+                element={
+                  <JournalPage
+                    allDailyLogs={allDailyLogs}
+                    gratitudeEntries={gratitudeEntries}
+                    orders={orders}
+                    angelLogs={angelLogs}
+                    dailyLogEntry={dailyLogEntry}
+                    onSaveQuestionAnswer={saveDailyQuestionAnswer}
+                    onCreateAngelLog={createAngelLog}
+                    onSaveNumberSignal={saveDailyNumberSignal}
+                  />
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProfilePage
+                    profile={profile}
+                    orders={orders}
+                    allDailyLogs={allDailyLogs}
+                    angelLogs={angelLogs}
+                    checkinStreak={checkinStreak}
+                  />
+                }
+              />
+              {/* Keep legacy routes for bookmarks */}
+              <Route
                 path="/angel"
                 element={
                   <AngelPage
@@ -348,7 +390,7 @@ function AppContent() {
                 element={
                   <GratitudePage
                     todayEntry={todayEntry}
-                    entries={entries}
+                    entries={gratitudeEntries}
                     streak={streak}
                     onSave={saveGratitude}
                   />

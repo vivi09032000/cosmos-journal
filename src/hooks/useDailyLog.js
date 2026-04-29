@@ -43,6 +43,42 @@ export function useDailyLog(userId) {
       {
         date: getTodayKey(),
         mood,
+        checkedIn: true,
+        updatedAt: serverTimestamp(),
+        createdAt: entry?.createdAt || serverTimestamp(),
+      },
+      { merge: true },
+    );
+  };
+
+  const saveQuestionAnswer = async (questionId, prompt, answer) => {
+    if (!db || !userId) return;
+
+    await setDoc(
+      doc(db, "users", userId, "dailyLogs", getTodayKey()),
+      {
+        date: getTodayKey(),
+        questionId,
+        questionPrompt: prompt,
+        questionAnswer: answer,
+        checkedIn: true,
+        updatedAt: serverTimestamp(),
+        createdAt: entry?.createdAt || serverTimestamp(),
+      },
+      { merge: true },
+    );
+  };
+
+  const saveNumberSignal = async (signal, note) => {
+    if (!db || !userId) return;
+
+    await setDoc(
+      doc(db, "users", userId, "dailyLogs", getTodayKey()),
+      {
+        date: getTodayKey(),
+        numberSignal: signal || "",
+        numberNote: note || "",
+        checkedIn: true,
         updatedAt: serverTimestamp(),
         createdAt: entry?.createdAt || serverTimestamp(),
       },
@@ -55,5 +91,7 @@ export function useDailyLog(userId) {
     loading,
     error,
     saveMood,
+    saveQuestionAnswer,
+    saveNumberSignal,
   };
 }
