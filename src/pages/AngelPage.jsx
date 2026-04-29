@@ -1,4 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  LeafDecor,
+  SunRays,
+  Tag,
+  WaveDivider,
+} from "../components/CosmosDecor";
 import { getAngelData } from "../hooks/useAngelLogs";
 import { useI18n } from "../lib/i18n";
 
@@ -10,12 +16,20 @@ function formatDate(timestamp, locale) {
   });
 }
 
+const QUICK_NUMBERS = ["111", "222", "333", "444", "555", "777", "888", "999"];
+
 export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
   const { locale } = useI18n();
   const angelData = useMemo(() => getAngelData(locale), [locale]);
+  const visibleOrders = useMemo(
+    () => orders.filter((order) => order.status !== "delivered").slice(0, 5),
+    [orders],
+  );
   const [number, setNumber] = useState("");
   const [decoded, setDecoded] = useState(null);
   const [note, setNote] = useState("");
+  const [showLink, setShowLink] = useState(false);
+  const [linkedOrderId, setLinkedOrderId] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -26,6 +40,13 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
       subtitle: "Enter the number you saw — the universe is speaking.",
       placeholder: "e.g. 111 · 444 · 1010",
       decode: "Decode signal ✦",
+      commonTitle: "Common signals",
+      relatedTitle: "Is this signal connected to a goal?",
+      linkOpen: "Link to my goals",
+      linkClose: "Collapse",
+      linked: "Linked",
+      choose: "Link →",
+      noOrders: "No active goals yet.",
       notFound: "This number isn't in the database yet. Try 111, 222, 333, 444, 555, 777, 888, 999.",
       notePlaceholder: "How did you feel in that moment? (optional)",
       save: "Save this signal",
@@ -40,6 +61,13 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
       subtitle: "輸入你看到的數字，宇宙正在說話",
       placeholder: "例如 111 · 444 · 1010",
       decode: "解碼訊息 ✦",
+      commonTitle: "常見天使數字",
+      relatedTitle: "這個訊號與你的願望有關嗎？",
+      linkOpen: "連結到我的目標",
+      linkClose: "收起",
+      linked: "已連結",
+      choose: "連結 →",
+      noOrders: "目前還沒有進行中的目標。",
       notFound: "這組數字尚未收錄。目前支援：111、222、333、444、555、777、888、999。",
       notePlaceholder: "當下的感受是什麼？（選填）",
       save: "儲存這個訊號",
@@ -51,15 +79,27 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
 
   useEffect(() => {
     setSaved(false);
-  }, [number, note]);
+  }, [number, note, linkedOrderId]);
 
-  const handleDecode = () => {
-    const trimmed = number.trim();
+  const decodeNumber = (rawNumber) => {
+    const trimmed = rawNumber.trim();
     if (!trimmed) return;
-    const result = angelData[trimmed] || null;
+    const knownKey = Object.keys(angelData).find((key) => trimmed.includes(key));
+    const result = knownKey ? angelData[knownKey] : null;
     setDecoded({ number: trimmed, result });
     setSaved(false);
     setNote("");
+    setShowLink(false);
+    setLinkedOrderId("");
+  };
+
+  const handleDecode = () => {
+    decodeNumber(number);
+  };
+
+  const handleQuickDecode = (quickNumber) => {
+    setNumber(quickNumber);
+    decodeNumber(quickNumber);
   };
 
   const handleSave = async () => {
@@ -70,7 +110,7 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
         number: decoded.number,
         mood: "calm",
         note: note.trim(),
-        linkedOrderId: "",
+        linkedOrderId,
         decodedMessage: decoded.result?.message || "",
       });
       setSaved(true);
@@ -123,24 +163,72 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
 
       {/* Decode result */}
       {decoded ? (
-        <section>
+        <section className="space-y-3">
           {decoded.result ? (
             <>
-              <div className="decode-result-card">
-                <p className="decode-number">{decoded.number}</p>
-                <h3 className="mt-3 font-[var(--font-display)] text-[1.25rem] leading-[1.4]">
-                  {decoded.result.title}
-                </h3>
-                <p className="mt-3 text-[0.85rem] leading-7 opacity-85">
-                  {decoded.result.message}
-                </p>
-                <span className="decode-energy-tag">
-                  {decoded.result.energy}
-                </span>
+              <div className="paper-card relative overflow-hidden px-5 py-5">
+                <SunRays size={96} className="absolute -right-7 -top-7 opacity-[0.16]" />
+                <LeafDecor className="absolute -bottom-2 -right-2" />
+                <Tag>{decoded.result.energy}</Tag>
+                <div className="mt-4 flex items-start gap-4">
+                  <p className="font-[var(--font-display)] text-[3.8rem] leading-none tracking-[0.04em] text-[color:var(--gold)]">
+                    {decoded.number}
+                  </p>
+                  <div className="min-w-0 flex-1 pt-1">
+                    <h3 className="font-[var(--font-display)] text-[1.35rem] leading-[1.35] text-[color:var(--ink)]">
+                      {decoded.result.title}
+                    </h3>
+                    <p className="mt-2 text-sm italic leading-7 text-[color:var(--ink-soft)]">
+                      {decoded.result.message}
+                    </p>
+                  </div>
+                </div>
+                <WaveDivider className="mt-4 opacity-60" />
               </div>
 
-              {/* Save section */}
-              <div className="paper-card mt-3 px-5 py-4">
+              <div className="paper-card px-5 py-4">
+                <Tag>{copy.relatedTitle}</Tag>
+                <button
+                  type="button"
+                  onClick={() => setShowLink((current) => !current)}
+                  className="text-action-button mt-3"
+                >
+                  {showLink ? `▾ ${copy.linkClose}` : `▸ ${copy.linkOpen}`}
+                </button>
+                {showLink ? (
+                  <div className="mt-3 divide-y divide-[rgba(181,120,58,0.1)]">
+                    {visibleOrders.length > 0 ? (
+                      visibleOrders.map((order) => {
+                        const isLinked = linkedOrderId === order.id;
+                        return (
+                          <button
+                            key={order.id}
+                            type="button"
+                            onClick={() => setLinkedOrderId(order.id)}
+                            className="flex w-full items-center gap-3 py-3 text-left"
+                          >
+                            <span className="w-12 shrink-0 text-[0.65rem] tracking-[0.14em] text-[color:var(--gold)]">
+                              {order.angelNumber ? `#${order.angelNumber}` : "MANIFEST"}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate font-[var(--font-display)] text-[0.98rem] text-[color:var(--ink)]">
+                              {order.title}
+                            </span>
+                            <span className="shrink-0 text-[0.72rem] tracking-[0.12em] text-[color:var(--gold)]">
+                              {isLinked ? copy.linked : copy.choose}
+                            </span>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <p className="py-3 text-sm leading-6 text-[color:var(--ink-soft)]">
+                        {copy.noOrders}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="paper-card px-5 py-4">
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
@@ -166,7 +254,31 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
             </div>
           )}
         </section>
-      ) : null}
+      ) : (
+        <section className="paper-card px-5 py-5">
+          <Tag>{copy.commonTitle}</Tag>
+          <div className="mt-4 grid grid-cols-2 gap-3 min-[420px]:grid-cols-3">
+            {QUICK_NUMBERS.map((quickNumber) => {
+              const data = angelData[quickNumber];
+              return (
+                <button
+                  key={quickNumber}
+                  type="button"
+                  onClick={() => handleQuickDecode(quickNumber)}
+                  className="rounded-lg border border-[rgba(181,120,58,0.16)] bg-[rgba(237,228,216,0.54)] px-4 py-4 text-left transition hover:border-[rgba(181,120,58,0.36)]"
+                >
+                  <span className="block font-[var(--font-display)] text-[1.65rem] leading-none text-[color:var(--gold)]">
+                    {quickNumber}
+                  </span>
+                  <span className="mt-2 block text-[0.62rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
+                    {data?.energy || "SIGNAL"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* History */}
       <section className="paper-card px-5 py-5">
