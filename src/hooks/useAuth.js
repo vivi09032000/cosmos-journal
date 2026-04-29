@@ -35,7 +35,7 @@ export function calculateLifePathNumber(birthday) {
   return reduceToLifePath(sum);
 }
 
-export function useAuth() {
+export function useAuth(locale = "zh-TW") {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +43,10 @@ export function useAuth() {
 
   useEffect(() => {
     if (!auth || !db) {
-      setError(firebaseErrorMessage || "Firebase 尚未設定完成。");
+      setError(
+        firebaseErrorMessage
+          || (locale === "en" ? "Firebase is not configured yet." : "Firebase 尚未設定完成。"),
+      );
       setLoading(false);
       return undefined;
     }
@@ -96,7 +99,7 @@ export function useAuth() {
       unsubscribeProfile();
       unsubscribe();
     };
-  }, []);
+  }, [locale]);
 
   const saveBirthday = async (birthday) => {
     if (!db || !user?.uid) return;

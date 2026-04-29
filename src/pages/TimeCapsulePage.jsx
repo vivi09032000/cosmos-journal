@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useI18n } from "../lib/i18n";
 
-function formatDate(timestamp) {
+function formatDate(timestamp, locale) {
   if (!timestamp?.toDate) return "";
-  return timestamp.toDate().toLocaleDateString("zh-TW", {
+  return timestamp.toDate().toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
     year: "numeric",
     month: "numeric",
     day: "numeric",
@@ -20,17 +21,20 @@ function getOrderJourneyDays(order) {
   return Math.max(0, Math.floor((end - start) / (1000 * 60 * 60 * 24)));
 }
 
-function getJournalContent(entry) {
+function getJournalContent(entry, locale) {
   const content = [entry?.q1, entry?.q2, entry?.q3]
     .filter(Boolean)
     .map((item) => String(item).trim())
     .filter(Boolean)
     .join(" · ");
 
-  return content || "這次投射沒有留下文字，但願望仍然被宇宙記住了。";
+  return content || (locale === "en"
+    ? "This projection left no written note, but the wish was still received."
+    : "這次投射沒有留下文字，但願望仍然被宇宙記住了。");
 }
 
 export default function TimeCapsulePage({ orders }) {
+  const { locale } = useI18n();
   const navigate = useNavigate();
   const { orderId } = useParams();
   const order = useMemo(
@@ -57,14 +61,16 @@ export default function TimeCapsulePage({ orders }) {
           className="ghost-button -ml-2 text-sm"
         >
           <span>‹</span>
-          <span>返回訂單</span>
+          <span>{locale === "en" ? "Back to goals" : "返回目標"}</span>
         </button>
         <section className="paper-card px-6 py-10 text-center">
           <h1 className="font-[var(--font-display)] text-[1.8rem] text-[color:var(--navy-deep)]">
-            找不到這顆時光膠囊
+            {locale === "en" ? "Time capsule not found" : "找不到這顆時光膠囊"}
           </h1>
           <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-            這筆願望可能還沒被簽收，或已經不在目前的資料裡。
+            {locale === "en"
+              ? "This wish may not be fulfilled yet, or it is no longer in the current dataset."
+              : "這筆願望可能還沒被簽收，或已經不在目前的資料裡。"}
           </p>
         </section>
       </div>
@@ -81,41 +87,45 @@ export default function TimeCapsulePage({ orders }) {
         className="ghost-button -ml-2 text-sm"
       >
         <span>‹</span>
-        <span>時光膠囊</span>
+        <span>{locale === "en" ? "Time capsule" : "時光膠囊"}</span>
       </button>
 
       <section className="paper-card overflow-hidden px-0 py-0">
         <div className="px-6 py-6">
           <p className="text-[0.8rem] tracking-[0.18em] text-[color:var(--ink-faint)]">
-            實現日期 · {formatDate(order.deliveredAt)}
+            {locale === "en" ? "Fulfilled on" : "實現日期"} · {formatDate(order.deliveredAt, locale)}
           </p>
           <h1 className="mt-4 font-[var(--font-display)] text-[2.2rem] leading-[1.2] text-[color:var(--ink)]">
             {order.title}
           </h1>
           <p className="mt-3 text-[1rem] tracking-[0.06em] text-[color:var(--ink-soft)]">
-            從下單到實現 {journeyDays} 天
+            {locale === "en" ? `${journeyDays} days from goal to fulfillment` : `從建立到實現 ${journeyDays} 天`}
           </p>
         </div>
 
         <div className="border-t border-[rgba(181,120,58,0.12)] px-6 py-8">
           <blockquote className="text-center font-[var(--font-display)] text-[2rem] italic leading-[1.7] text-[color:var(--ink)]">
-            「你曾經反覆感受到的畫面，
+            「{locale === "en" ? "The scene you kept feeling again and again," : "你曾經反覆感受到的畫面，"}
             <br />
-            現在成為現實的一部分。」
+            {locale === "en" ? "has now become part of reality." : "現在成為現實的一部分。"}」
           </blockquote>
         </div>
 
         <div className="border-t border-[rgba(181,120,58,0.12)] px-6 py-8">
-          <p className="section-label">投射日記回顧</p>
+          <p className="section-label">{locale === "en" ? "Projection journal" : "投射日記回顧"}</p>
           <div className="mt-6 space-y-6">
             {timeline.length === 0 ? (
               <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
-                這張時光膠囊裡還沒有留下投射文字，但你真的已經走到這裡了。
+                {locale === "en"
+                  ? "There is no written projection here yet, but you still reached this reality."
+                  : "這張時光膠囊裡還沒有留下投射文字，但你真的已經走到這裡了。"}
               </p>
             ) : (
               timeline.map((entry, index) => {
                 const isLast = index === timeline.length - 1;
-                const label = isLast ? "實現當天" : `第 ${index + 1} 次投射`;
+                const label = isLast
+                  ? (locale === "en" ? "Fulfilled day" : "實現當天")
+                  : (locale === "en" ? `Projection ${index + 1}` : `第 ${index + 1} 次投射`);
 
                 return (
                   <article key={`${entry.recordedAt?.seconds || "entry"}-${index}`} className="relative pl-12">
@@ -124,10 +134,10 @@ export default function TimeCapsulePage({ orders }) {
                       <span className="absolute left-[0.72rem] top-8 h-[calc(100%+1rem)] w-px bg-[rgba(181,120,58,0.18)]" />
                     ) : null}
                     <p className="text-[0.9rem] tracking-[0.12em] text-[color:var(--ink-faint)]">
-                      {formatDate(entry.recordedAt)} · {label}
+                      {formatDate(entry.recordedAt, locale)} · {label}
                     </p>
                     <blockquote className="mt-3 text-[1.08rem] italic leading-[1.95] text-[color:var(--ink-soft)]">
-                      「{getJournalContent(entry)}」
+                      「{getJournalContent(entry, locale)}」
                     </blockquote>
                   </article>
                 );
@@ -138,7 +148,7 @@ export default function TimeCapsulePage({ orders }) {
 
         <div className="border-t border-[rgba(181,120,58,0.12)] px-6 py-6 text-center">
           <p className="font-[var(--font-display)] text-[1.7rem] italic text-[color:var(--gold)]">
-            正如你所預見。
+            {locale === "en" ? "Just as you foresaw." : "正如你所預見。"}
           </p>
         </div>
       </section>

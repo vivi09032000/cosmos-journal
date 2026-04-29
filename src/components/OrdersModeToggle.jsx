@@ -1,4 +1,8 @@
+import { useI18n } from "../lib/i18n";
+
 export default function OrdersModeToggle({ mode, onChange }) {
+  const { locale } = useI18n();
+
   return (
     <div className="inline-flex items-center rounded-full border border-[rgba(181,120,58,0.22)] bg-[rgba(250,246,240,0.9)] p-1">
       <button
@@ -10,7 +14,7 @@ export default function OrdersModeToggle({ mode, onChange }) {
             : "text-[color:var(--ink-faint)]"
         }`}
       >
-        運送中
+        {locale === "en" ? "In Transit" : "運送中"}
       </button>
       <button
         type="button"
@@ -21,7 +25,7 @@ export default function OrdersModeToggle({ mode, onChange }) {
             : "text-[color:var(--ink-faint)]"
         }`}
       >
-        已實現
+        {locale === "en" ? "Fulfilled" : "已實現"}
       </button>
     </div>
   );

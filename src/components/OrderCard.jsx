@@ -2,13 +2,15 @@ import {
   daysSince,
   formatOrderMonth,
   getOrderTheme,
-  orderStatusLabels,
+  getOrderStatusLabel,
 } from "../lib/orderTheme";
 import { getActionProgress } from "../lib/orderActions";
+import { useI18n } from "../lib/i18n";
 import { Tag } from "./CosmosDecor";
 import OrderCoverArt from "./OrderCoverArt";
 
 export default function OrderCard({ order, onClick }) {
+  const { locale } = useI18n();
   const theme = getOrderTheme(order);
   const progress = getActionProgress(order);
 
@@ -40,14 +42,14 @@ export default function OrderCard({ order, onClick }) {
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <p className="text-[0.62rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-              {formatOrderMonth(order.createdAt)} · {orderStatusLabels[order.status]}
+              {formatOrderMonth(order.createdAt)} · {getOrderStatusLabel(order.status, locale)}
             </p>
             {order.subtitle ? (
               <p className="mt-1 text-sm text-[color:var(--ink-soft)]">{order.subtitle}</p>
             ) : null}
           </div>
           <div className="text-[0.65rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-            第 {daysSince(order.createdAt)} 天
+            {locale === "en" ? `Day ${daysSince(order.createdAt)}` : `第 ${daysSince(order.createdAt)} 天`}
           </div>
         </div>
 
@@ -59,7 +61,7 @@ export default function OrderCard({ order, onClick }) {
             />
           </div>
           <div className="text-[0.62rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-            {orderStatusLabels[order.status]}
+            {getOrderStatusLabel(order.status, locale)}
           </div>
         </div>
       </div>

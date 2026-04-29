@@ -15,28 +15,46 @@ import { useEffect, useMemo, useState } from "react";
 import { db, storage } from "../firebase";
 import { prepareImageForUpload } from "../lib/imageUpload";
 
-function getStorageErrorMessage(error) {
+function getStorageErrorMessage(error, locale = "zh-TW") {
+  const copy = locale === "en"
+    ? {
+      unauthorized: "Firebase Storage access is not allowed yet. Check your Storage rules.",
+      canceled: "Image upload was canceled.",
+      unknown: "Firebase Storage returned an unknown error. Confirm Storage is enabled.",
+      quota: "Firebase Storage quota has been exceeded.",
+      fallback: "Image upload failed.",
+      storageMissing: "Firebase Storage is not configured yet. Confirm storageBucket and the Storage service.",
+    }
+    : {
+      unauthorized: "Firebase Storage 權限尚未開放，請先檢查 Storage 規則。",
+      canceled: "圖片上傳已取消。",
+      unknown: "Firebase Storage 發生未知錯誤，請確認 Storage 已啟用。",
+      quota: "Firebase Storage 配額已超過。",
+      fallback: "圖片上傳失敗。",
+      storageMissing: "Firebase Storage 尚未完成設定，請先確認 storageBucket 和 Storage 服務。",
+    };
+
   switch (error?.code) {
     case "storage/unauthorized":
-      return "Firebase Storage 權限尚未開放，請先檢查 Storage 規則。";
+      return copy.unauthorized;
     case "storage/canceled":
-      return "圖片上傳已取消。";
+      return copy.canceled;
     case "storage/unknown":
-      return "Firebase Storage 發生未知錯誤，請確認 Storage 已啟用。";
+      return copy.unknown;
     case "storage/quota-exceeded":
-      return "Firebase Storage 配額已超過。";
+      return copy.quota;
     default:
-      return error?.message || "圖片上傳失敗。";
+      return error?.message || copy.fallback;
   }
 }
 
-async function uploadOrderImage(userId, orderId, imageFile) {
+async function uploadOrderImage(userId, orderId, imageFile, locale) {
   if (!storage) {
-    throw new Error("Firebase Storage 尚未完成設定，請先確認 storageBucket 和 Storage 服務。");
+    throw new Error(getStorageErrorMessage(null, locale));
   }
 
   try {
-    const preparedImageFile = await prepareImageForUpload(imageFile);
+    const preparedImageFile = await prepareImageForUpload(imageFile, locale);
     const imageRef = ref(storage, `users/${userId}/orders/${orderId}.webp`);
 
     await uploadBytes(imageRef, preparedImageFile, {
@@ -52,11 +70,11 @@ async function uploadOrderImage(userId, orderId, imageFile) {
       throw error;
     }
 
-    throw new Error(getStorageErrorMessage(error));
+    throw new Error(getStorageErrorMessage(error, locale));
   }
 }
 
-export function useOrders(userId) {
+export function useOrders(userId, locale = "zh-TW") {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(Boolean(userId));
   const [error, setError] = useState("");
@@ -138,7 +156,7 @@ export function useOrders(userId) {
 
     if (!imageFile) return;
 
-    const imageUrl = await uploadOrderImage(userId, orderRef.id, imageFile);
+    const imageUrl = await uploadOrderImage(userId, orderRef.id, imageFile, locale);
 
     await updateDoc(orderRef, {
       imageUrl,
@@ -150,7 +168,7 @@ export function useOrders(userId) {
     if (!db || !imageFile) return;
 
     const orderRef = doc(db, "users", userId, "orders", orderId);
-    const imageUrl = await uploadOrderImage(userId, orderId, imageFile);
+    const imageUrl = await uploadOrderImage(userId, orderId, imageFile, locale);
 
     await updateDoc(orderRef, {
       imageUrl,

@@ -9,79 +9,170 @@ import {
 } from "../components/CosmosDecor";
 import OrderCoverArt from "../components/OrderCoverArt";
 import { useDailyQuestion } from "../hooks/useDailyQuestion";
+import { useI18n } from "../lib/i18n";
 import { getActionProgress } from "../lib/orderActions";
-import { daysSince, getOrderTheme, orderStatusLabels } from "../lib/orderTheme";
+import { daysSince, getOrderTheme, getOrderStatusLabel } from "../lib/orderTheme";
 
 const MOON_COPY = {
-  new: {
-    title: "今天適合種下新的意圖",
-    description: "把注意力放回你最想實現的一件事，讓願望有一個清晰起點。",
+  "zh-TW": {
+    new: {
+      title: "今天適合種下新的意圖",
+      description: "把注意力放回你最想實現的一件事，讓願望有一個清晰起點。",
+    },
+    waxCrescent: {
+      title: "今天適合把願望說得更具體",
+      description: "你的能量正在累積，愈清楚的畫面，愈容易被宇宙接住。",
+    },
+    firstQuarter: {
+      title: "今天適合跨過心裡的小阻力",
+      description: "有些遲疑不是退步，而是願望成形前必經的對準過程。",
+    },
+    waxGibbous: {
+      title: "今天適合微調，靠近結果",
+      description: "距離顯化高峰只差最後一段，把感受再校準一點點。",
+    },
+    full: {
+      title: "今天適合接收與放大顯化",
+      description: "滿月把情緒和意圖都照亮了，請打開雙手接住此刻的回應。",
+    },
+    waneGibbous: {
+      title: "今天適合感謝已經開始的流動",
+      description: "當你先感謝，豐盛更容易往你靠近，今天適合承認自己的進展。",
+    },
+    lastQuarter: {
+      title: "今天適合清理舊有的卡點",
+      description: "把不再適合你的念頭放下，願望才有新的空間長出來。",
+    },
+    waneCrescent: {
+      title: "今天適合安靜蓄能",
+      description: "先不用急著衝刺，休息與沉澱也是顯化的一部分。",
+    },
   },
-  waxCrescent: {
-    title: "今天適合把願望說得更具體",
-    description: "你的能量正在累積，愈清楚的畫面，愈容易被宇宙接住。",
-  },
-  firstQuarter: {
-    title: "今天適合跨過心裡的小阻力",
-    description: "有些遲疑不是退步，而是願望成形前必經的對準過程。",
-  },
-  waxGibbous: {
-    title: "今天適合微調，靠近結果",
-    description: "距離顯化高峰只差最後一段，把感受再校準一點點。",
-  },
-  full: {
-    title: "今天適合接收與放大顯化",
-    description: "滿月把情緒和意圖都照亮了，請打開雙手接住此刻的回應。",
-  },
-  waneGibbous: {
-    title: "今天適合感謝已經開始的流動",
-    description: "當你先感謝，豐盛更容易往你靠近，今天適合承認自己的進展。",
-  },
-  lastQuarter: {
-    title: "今天適合清理舊有的卡點",
-    description: "把不再適合你的念頭放下，願望才有新的空間長出來。",
-  },
-  waneCrescent: {
-    title: "今天適合安靜蓄能",
-    description: "先不用急著衝刺，休息與沉澱也是顯化的一部分。",
+  en: {
+    new: {
+      title: "Today is for planting a new intention",
+      description: "Bring your focus back to the one thing you most want to manifest and give it a clear beginning.",
+    },
+    waxCrescent: {
+      title: "Today is for making the desire more specific",
+      description: "Your energy is building. The clearer the scene becomes, the easier it is to catch.",
+    },
+    firstQuarter: {
+      title: "Today is for moving through small inner resistance",
+      description: "Some hesitation is not regression. It is part of how a desire aligns before it arrives.",
+    },
+    waxGibbous: {
+      title: "Today is for fine-tuning and moving closer",
+      description: "You are close to the peak. Small emotional adjustments matter now.",
+    },
+    full: {
+      title: "Today is for receiving and amplifying",
+      description: "The full moon brightens both feeling and intention. Stay open enough to receive the response.",
+    },
+    waneGibbous: {
+      title: "Today is for gratitude toward what is already moving",
+      description: "When you acknowledge progress first, abundance approaches more easily.",
+    },
+    lastQuarter: {
+      title: "Today is for clearing old friction",
+      description: "Release the thoughts that no longer fit so the next form of the wish has room to grow.",
+    },
+    waneCrescent: {
+      title: "Today is for quiet restoration",
+      description: "You do not need to push. Rest and stillness are part of manifestation too.",
+    },
   },
 };
 
-const DAILY_QUESTION_BANK = [
-  "此刻，你最期待發生的一件事是什麼？",
-  "如果今天有一個小奇蹟，你希望它長什麼樣子？",
-  "現在的你，最需要被安撫的是哪一部分？",
-  "今天哪個瞬間最值得你停下來深呼吸？",
-  "如果今天有一種顏色，它會是什麼？",
-  "你現在最想靠近的感受，是平靜、自由還是喜悅？",
-  "今天有哪件小事，已經在默默支持你？",
-  "如果把今天想成一段旅程，你現在走到哪裡了？",
-  "你心裡最想實現的畫面，今天有沒有更清楚一點？",
-  "此刻，你身體哪個部位是完全放鬆的？",
-  "你最想為今天留下一句什麼樣的註解？",
-  "今天有沒有一個念頭，值得你溫柔地相信？",
-  "如果宇宙正在回應你，你希望它提醒你什麼？",
-  "哪一個小細節，讓你覺得今天其實很有希望？",
-  "如果今天只做一件對自己好的事，那會是什麼？",
-  "你今天最想感謝自己的哪一個選擇？",
-  "你現在的心，比昨天更接近哪一種狀態？",
-  "今天最適合你放慢的，是哪一件事？",
-  "此刻的你，最值得被珍惜的是哪個感受？",
-  "如果今天的風景是一張照片，主角會是什麼？",
-  "你今天最不想辜負的是哪一個願望？",
-  "什麼樣的畫面，能讓你馬上想起未來的自己？",
-  "今天有沒有一個訊號，在提醒你繼續相信？",
-  "如果把今天說成一句短短的咒語，會是什麼？",
-  "你今天最渴望被看見的是哪一面？",
-  "有哪件事正在變好，只是你還沒完全發現？",
-  "如果今天是一封信，你希望宇宙在最後寫什麼？",
-  "今天最適合你靠近的，是哪種生活感？",
-  "你現在最想把注意力放回哪一件重要的事？",
-  "什麼樣的回答，會讓今天的你感到更安心？",
+const DAILY_QUESTION_BANK = {
+  "zh-TW": [
+    "此刻，你最期待發生的一件事是什麼？",
+    "如果今天有一個小奇蹟，你希望它長什麼樣子？",
+    "現在的你，最需要被安撫的是哪一部分？",
+    "今天哪個瞬間最值得你停下來深呼吸？",
+    "如果今天有一種顏色，它會是什麼？",
+    "你現在最想靠近的感受，是平靜、自由還是喜悅？",
+    "今天有哪件小事，已經在默默支持你？",
+    "如果把今天想成一段旅程，你現在走到哪裡了？",
+    "你心裡最想實現的畫面，今天有沒有更清楚一點？",
+    "此刻，你身體哪個部位是完全放鬆的？",
+    "你最想為今天留下一句什麼樣的註解？",
+    "今天有沒有一個念頭，值得你溫柔地相信？",
+    "如果宇宙正在回應你，你希望它提醒你什麼？",
+    "哪一個小細節，讓你覺得今天其實很有希望？",
+    "如果今天只做一件對自己好的事，那會是什麼？",
+    "你今天最想感謝自己的哪一個選擇？",
+    "你現在的心，比昨天更接近哪一種狀態？",
+    "今天最適合你放慢的，是哪一件事？",
+    "此刻的你，最值得被珍惜的是哪個感受？",
+    "如果今天的風景是一張照片，主角會是什麼？",
+    "你今天最不想辜負的是哪一個願望？",
+    "什麼樣的畫面，能讓你馬上想起未來的自己？",
+    "今天有沒有一個訊號，在提醒你繼續相信？",
+    "如果把今天說成一句短短的咒語，會是什麼？",
+    "你今天最渴望被看見的是哪一面？",
+    "有哪件事正在變好，只是你還沒完全發現？",
+    "如果今天是一封信，你希望宇宙在最後寫什麼？",
+    "今天最適合你靠近的，是哪種生活感？",
+    "你現在最想把注意力放回哪一件重要的事？",
+    "什麼樣的回答，會讓今天的你感到更安心？",
+  ],
+  en: [
+    "What are you most looking forward to right now?",
+    "If a small miracle happened today, what would it look like?",
+    "What part of you needs the most gentleness today?",
+    "Which moment today is worth pausing for one deep breath?",
+    "If today had a color, what would it be?",
+    "Which feeling do you most want to move closer to right now?",
+    "What small thing is already supporting you quietly today?",
+    "If today were a journey, where do you feel you are on it?",
+    "Has the picture you most want to live become clearer today?",
+    "Which part of your body feels completely relaxed right now?",
+    "What sentence would you want to leave behind for today?",
+    "Is there a thought worth trusting more softly today?",
+    "If the universe were answering you now, what would you hope to hear?",
+    "What small detail makes today feel more hopeful than it looks?",
+    "If you only did one good thing for yourself today, what would it be?",
+    "Which choice of yours deserves gratitude today?",
+    "What state is your heart closer to than it was yesterday?",
+    "What would be best to slow down today?",
+    "What feeling in you deserves more care right now?",
+    "If today became a photo, what would be at the center of it?",
+    "Which wish do you most not want to let down today?",
+    "What scene instantly reminds you of your future self?",
+    "Is there a signal today telling you to keep trusting?",
+    "If today were a short spell, what would it say?",
+    "What part of you most wants to be seen today?",
+    "What is already getting better, even if you have not named it yet?",
+    "If today were a letter, what would you want the universe to write at the end?",
+    "What kind of life feeling do you most want to step toward today?",
+    "What important thing do you want to return your attention to now?",
+    "What answer would make you feel steadier today?",
+  ],
+};
+
+const MOON_LABELS = {
+  new: { "zh-TW": "新月", en: "New Moon" },
+  waxCrescent: { "zh-TW": "眉月", en: "Waxing Crescent" },
+  firstQuarter: { "zh-TW": "上弦月", en: "First Quarter" },
+  waxGibbous: { "zh-TW": "盈凸月", en: "Waxing Gibbous" },
+  full: { "zh-TW": "滿月", en: "Full Moon" },
+  waneGibbous: { "zh-TW": "虧凸月", en: "Waning Gibbous" },
+  lastQuarter: { "zh-TW": "下弦月", en: "Last Quarter" },
+  waneCrescent: { "zh-TW": "殘月", en: "Waning Crescent" },
+};
+
+const MOOD_OPTIONS = [
+  { value: "calm", labels: { "zh-TW": "平靜", en: "Calm" } },
+  { value: "hopeful", labels: { "zh-TW": "期待", en: "Hopeful" } },
+  { value: "light", labels: { "zh-TW": "輕盈", en: "Light" } },
+  { value: "tired", labels: { "zh-TW": "疲憊", en: "Tired" } },
+  { value: "anxious", labels: { "zh-TW": "焦慮", en: "Anxious" } },
+  { value: "grateful", labels: { "zh-TW": "感謝", en: "Grateful" } },
 ];
 
-function formatToday() {
-  return new Date().toLocaleDateString("zh-TW", {
+function formatToday(locale) {
+  return new Date().toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -102,7 +193,7 @@ function MoonIcon() {
   );
 }
 
-function getMoonRhythm(moonAge) {
+function getMoonRhythm(moonAge, locale) {
   const roundedAge = Math.round(moonAge);
   const daysUntilFull = Math.max(0, Math.round(14.77 - moonAge));
   const daysUntilNew = moonAge <= 14.77
@@ -110,28 +201,36 @@ function getMoonRhythm(moonAge) {
     : Math.round(29.53 - moonAge);
 
   return {
-    ageLabel: `月齡 ${moonAge.toFixed(1)}`,
-    rhythmLabel: moonAge <= 14.77 ? `距滿月 ${daysUntilFull} 天` : `距新月 ${Math.max(0, daysUntilNew)} 天`,
+    ageLabel: locale === "en" ? `Moon age ${moonAge.toFixed(1)}` : `月齡 ${moonAge.toFixed(1)}`,
+    rhythmLabel: locale === "en"
+      ? (moonAge <= 14.77 ? `${daysUntilFull} days to full moon` : `${Math.max(0, daysUntilNew)} days to new moon`)
+      : (moonAge <= 14.77 ? `距滿月 ${daysUntilFull} 天` : `距新月 ${Math.max(0, daysUntilNew)} 天`),
     shortLabel: `Day ${roundedAge + 1}`,
   };
 }
 
-function getDailyQuestion(date = new Date()) {
+function getDailyQuestion(locale, date = new Date()) {
+  const questionBank = DAILY_QUESTION_BANK[locale] || DAILY_QUESTION_BANK["zh-TW"];
   const start = new Date("2026-01-01T00:00:00");
   const diffDays = Math.floor((date - start) / (1000 * 60 * 60 * 24));
-  const index = ((diffDays % DAILY_QUESTION_BANK.length) + DAILY_QUESTION_BANK.length) % DAILY_QUESTION_BANK.length;
-  return DAILY_QUESTION_BANK[index];
+  const index = ((diffDays % questionBank.length) + questionBank.length) % questionBank.length;
+  return questionBank[index];
 }
 
 export default function TodayPage({
   orders,
   todayEntry,
+  dailyLogEntry,
+  onSaveDailyMood,
   userId,
 }) {
+  const { locale } = useI18n();
   const navigate = useNavigate();
   const moonPhase = useMemo(() => getMoonPhaseInfo(new Date()), []);
-  const moonCopy = MOON_COPY[moonPhase.phase] || MOON_COPY.new;
-  const moonRhythm = useMemo(() => getMoonRhythm(moonPhase.moonAge), [moonPhase.moonAge]);
+  const moonCopyMap = MOON_COPY[locale] || MOON_COPY["zh-TW"];
+  const moonCopy = moonCopyMap[moonPhase.phase] || moonCopyMap.new;
+  const moonLabel = MOON_LABELS[moonPhase.phase]?.[locale] || moonPhase.label;
+  const moonRhythm = useMemo(() => getMoonRhythm(moonPhase.moonAge, locale), [locale, moonPhase.moonAge]);
   const featuredOrder = useMemo(
     () => orders.find((order) => order.status !== "delivered") || orders[0] || null,
     [orders],
@@ -142,11 +241,71 @@ export default function TodayPage({
   );
   const featuredTheme = featuredOrder ? getOrderTheme(featuredOrder) : null;
   const gratitudeItems = [todayEntry?.item1, todayEntry?.item2, todayEntry?.item3].filter(Boolean);
-  const dailyQuestion = useMemo(() => getDailyQuestion(new Date()), []);
+  const dailyQuestion = useMemo(() => getDailyQuestion(locale, new Date()), [locale]);
   const { entry: dailyQuestionEntry, saveAnswer: saveDailyQuestionAnswer } = useDailyQuestion(userId);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questionAnswer, setQuestionAnswer] = useState("");
   const [questionSaving, setQuestionSaving] = useState(false);
+  const [moodSaving, setMoodSaving] = useState("");
+  const [moodError, setMoodError] = useState("");
+
+  const copy = locale === "en"
+    ? {
+      title: "What is the universe saying today?",
+      moodTitle: "How are you arriving today?",
+      moodHint: "Pick one to begin. It saves automatically.",
+      moodSaved: "Saved",
+      moodError: "Mood could not be saved. Please try again.",
+      moonCard: "Moon phase",
+      projectionTag: "Today's projection",
+      noOrderTitle: "There is no goal to move today",
+      noOrderDescription: "Create a new manifest goal and tell the universe what you want most right now.",
+      goOrders: "Go to goals",
+      fulfilledBanner: (count) => `You have fulfilled ${count} wishes`,
+      goWall: "Go to wall →",
+      dailyQuestion: "Daily question",
+      writeAnswer: "Write your answer →",
+      answerPlaceholder: "Write what is true for you right now...",
+      cancel: "Cancel",
+      savingAnswer: "Saving...",
+      saveAnswer: "Save answer",
+      editAnswer: "Edit again →",
+      gratitude: "Today's gratitude",
+      recorded: "✓ Logged",
+      notLogged: "Not logged yet",
+      goGratitude: "Go to gratitude →",
+      projectToday: "✦ Project today",
+      moonProgressPrefix: (label) => `${label} energy is supporting this goal today. It is a good day to project once more.`,
+      day: "Day",
+    }
+    : {
+      title: "今天宇宙說什麼？",
+      moodTitle: "今天的你，是什麼狀態？",
+      moodHint: "進來先選一個，會自動記錄。",
+      moodSaved: "已記錄",
+      moodError: "心情儲存失敗，請再試一次。",
+      moonCard: "今日月相",
+      projectionTag: "今日投射",
+      noOrderTitle: "今天還沒有可以推進的目標",
+      noOrderDescription: "建立一個新的顯化目標，讓宇宙知道你此刻最想實現的是什麼。",
+      goOrders: "前往目標",
+      fulfilledBanner: (count) => `你已實現了 ${count} 個願望`,
+      goWall: "前往戰績牆 →",
+      dailyQuestion: "今日一問",
+      writeAnswer: "寫下回答 →",
+      answerPlaceholder: "寫下你此刻的回答...",
+      cancel: "取消",
+      savingAnswer: "儲存中...",
+      saveAnswer: "存下回答",
+      editAnswer: "重新編輯 →",
+      gratitude: "今日感恩",
+      recorded: "✓ 已記錄",
+      notLogged: "今天還沒記錄",
+      goGratitude: "前往感恩 →",
+      projectToday: "✦ 今日投射",
+      moonProgressPrefix: (label) => `${label}的能量正在推著這個目標往前，很適合今天再投射一次。`,
+      day: "第",
+    };
 
   useEffect(() => {
     setQuestionAnswer(dailyQuestionEntry?.answer || "");
@@ -165,16 +324,72 @@ export default function TodayPage({
     setShowQuestionForm(false);
   };
 
+  const handleMoodSelect = async (mood) => {
+    if (!onSaveDailyMood || moodSaving) return;
+
+    setMoodSaving(mood);
+    setMoodError("");
+
+    try {
+      await onSaveDailyMood(mood);
+    } catch (error) {
+      setMoodError(error.message || copy.moodError);
+    } finally {
+      setMoodSaving("");
+    }
+  };
+
   return (
     <div className="space-y-5">
+      <section className="paper-card-soft px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="section-label">{copy.moodTitle}</p>
+            <p className="mt-2 text-xs leading-6 text-[color:var(--ink-faint)]">
+              {copy.moodHint}
+            </p>
+          </div>
+          {dailyLogEntry?.mood ? (
+            <span className="rounded-full border border-[rgba(181,120,58,0.26)] px-3 py-1 text-[0.68rem] tracking-[0.14em] text-[color:var(--gold)]">
+              ✓ {copy.moodSaved}
+            </span>
+          ) : null}
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {MOOD_OPTIONS.map((mood) => {
+            const isSelected = dailyLogEntry?.mood === mood.value;
+            return (
+              <button
+                key={mood.value}
+                type="button"
+                onClick={() => handleMoodSelect(mood.value)}
+                disabled={Boolean(moodSaving)}
+                className={`shrink-0 rounded-full border px-4 py-2 text-sm tracking-[0.08em] transition ${
+                  isSelected
+                    ? "border-[rgba(181,120,58,0.5)] bg-[rgba(181,120,58,0.13)] text-[color:var(--gold)]"
+                    : "border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.62)] text-[color:var(--ink-soft)]"
+                } ${moodSaving ? "opacity-60" : ""}`}
+              >
+                {moodSaving === mood.value ? "..." : mood.labels[locale] || mood.labels["zh-TW"]}
+              </button>
+            );
+          })}
+        </div>
+        {moodError ? (
+          <p className="mt-2 text-xs leading-6 text-[#b05b3b]">
+            {moodError}
+          </p>
+        ) : null}
+      </section>
+
       <section className="screen-header">
         <SunRays size={78} className="absolute -right-3 -top-4" />
         <div>
           <p className="gold-kicker">Cosmos Journal</p>
           <h1 className="section-title mt-2 text-[2rem] leading-[1.28]">
-            今天宇宙說什麼？
+            {copy.title}
           </h1>
-          <p className="mt-2 text-[0.68rem] tracking-[0.22em] text-[color:var(--ink-faint)]">{formatToday()}</p>
+          <p className="mt-2 text-[0.68rem] tracking-[0.22em] text-[color:var(--ink-faint)]">{formatToday(locale)}</p>
         </div>
         <WaveDivider className="wave-divider" />
       </section>
@@ -186,9 +401,9 @@ export default function TodayPage({
             <MoonIcon />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[0.58rem] tracking-[0.3em] text-[#d8c5a1]">今日月相</p>
+            <p className="text-[0.58rem] tracking-[0.3em] text-[#d8c5a1]">{copy.moonCard}</p>
             <p className="mt-2 font-[var(--font-display)] text-[2rem] leading-none text-[#fff3dd]">
-              {moonPhase.label}
+              {moonLabel}
             </p>
             <p className="mt-2 text-[0.88rem] leading-7 text-[#ecdcbf]">
               {moonCopy.title}
@@ -230,17 +445,19 @@ export default function TodayPage({
               <div className="absolute inset-0 opacity-80" style={{ backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" }} />
               <div className="absolute inset-x-0 bottom-0 h-16 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
               <span className="absolute left-4 top-3 text-[0.58rem] tracking-[0.16em] text-[rgba(255,247,230,0.72)]">
-                第 {daysSince(featuredOrder.createdAt)} 天
+                {locale === "en"
+                  ? `Day ${daysSince(featuredOrder.createdAt)}`
+                  : `第 ${daysSince(featuredOrder.createdAt)} 天`}
               </span>
               <span className="absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)]">
-                今日投射
+                {copy.projectionTag}
               </span>
             </div>
             <div className="px-5 py-5">
               <div className="flex items-center gap-2">
                 <Tag>{featuredOrder.angelNumber ? `#${featuredOrder.angelNumber}` : "Manifest"}</Tag>
                 <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
-                  {orderStatusLabels[featuredOrder.status]}
+                  {getOrderStatusLabel(featuredOrder.status, locale)}
                 </span>
               </div>
               <h2 className="mt-3 font-[var(--font-display)] text-[1.55rem] leading-[1.25] text-[color:var(--ink)]">
@@ -252,7 +469,7 @@ export default function TodayPage({
                 </p>
               ) : null}
               <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
-                {moonPhase.label}的能量正在推著這張訂單往前，很適合今天再投射一次。
+                {copy.moonProgressPrefix(moonLabel)}
               </p>
               <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
                 <div
@@ -270,7 +487,7 @@ export default function TodayPage({
               }
               className="primary-button mx-5 mb-5 w-[calc(100%-2.5rem)]"
             >
-              ✦ 今日投射
+              {copy.projectToday}
             </button>
           </>
         ) : (
@@ -278,10 +495,10 @@ export default function TodayPage({
             <div className="px-5 py-5">
               <Tag>今日投射</Tag>
               <h2 className="mt-3 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
-                今天還沒有可以推進的訂單
+                {copy.noOrderTitle}
               </h2>
               <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-                建立一張新的顯化訂單，讓宇宙知道你此刻最想實現的是什麼。
+                {copy.noOrderDescription}
               </p>
             </div>
             <button
@@ -289,7 +506,7 @@ export default function TodayPage({
               onClick={() => navigate("/orders")}
               className="primary-button mx-5 mb-5 w-[calc(100%-2.5rem)]"
             >
-              前往訂單
+              {copy.goOrders}
             </button>
           </>
         )}
@@ -301,16 +518,16 @@ export default function TodayPage({
         className="paper-card-soft flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
       >
         <p className="font-[var(--font-display)] text-[1.45rem] text-[color:var(--navy-deep)]">
-          你已實現了 {deliveredCount} 個願望
+          {copy.fulfilledBanner(deliveredCount)}
         </p>
         <span className="text-[0.78rem] tracking-[0.14em] text-[color:var(--gold)]">
-          前往戰績牆 →
+          {copy.goWall}
         </span>
       </button>
 
       <section className="grid grid-cols-2 gap-4">
         <section className="paper-card px-5 py-5">
-          <p className="section-label">今日一問</p>
+          <p className="section-label">{copy.dailyQuestion}</p>
           {!showQuestionForm && !dailyQuestionEntry?.answer ? (
             <>
               <p className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.55] text-[color:var(--ink)]">
@@ -321,7 +538,7 @@ export default function TodayPage({
                 onClick={() => setShowQuestionForm(true)}
                 className="mt-5 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
               >
-                寫下回答 →
+                {copy.writeAnswer}
               </button>
             </>
           ) : (
@@ -336,7 +553,7 @@ export default function TodayPage({
                     onChange={(event) => setQuestionAnswer(event.target.value)}
                     rows={4}
                     className="cosmos-textarea"
-                    placeholder="寫下你此刻的回答..."
+                    placeholder={copy.answerPlaceholder}
                   />
                   <div className="mt-3 flex gap-3">
                     <button
@@ -347,7 +564,7 @@ export default function TodayPage({
                       }}
                       className="secondary-button flex-1"
                     >
-                      取消
+                      {copy.cancel}
                     </button>
                     <button
                       type="button"
@@ -355,7 +572,7 @@ export default function TodayPage({
                       disabled={!questionAnswer.trim() || questionSaving}
                       className="primary-button flex-1"
                     >
-                      {questionSaving ? "儲存中..." : "存下回答"}
+                      {questionSaving ? copy.savingAnswer : copy.saveAnswer}
                     </button>
                   </div>
                 </div>
@@ -369,7 +586,7 @@ export default function TodayPage({
                     onClick={() => setShowQuestionForm(true)}
                     className="mt-5 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
                   >
-                    重新編輯 →
+                    {copy.editAnswer}
                   </button>
                 </>
               )}
@@ -381,9 +598,9 @@ export default function TodayPage({
           <LeafDecor className="absolute bottom-0 right-0" />
           {todayEntry ? (
             <>
-              <p className="section-label">今日感恩</p>
+              <p className="section-label">{copy.gratitude}</p>
               <h2 className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
-                ✓ 已記錄
+                {copy.recorded}
               </h2>
               <div className="mt-4 space-y-2">
                 {gratitudeItems.map((item, index) => (
@@ -395,16 +612,16 @@ export default function TodayPage({
             </>
           ) : (
             <>
-              <p className="section-label">今日感恩</p>
+              <p className="section-label">{copy.gratitude}</p>
               <h2 className="mt-4 font-[var(--font-display)] text-[1.55rem] leading-[1.45] text-[color:var(--ink)]">
-                今天還沒記錄
+                {copy.notLogged}
               </h2>
               <button
                 type="button"
                 onClick={() => navigate("/gratitude")}
                 className="mt-5 text-[0.88rem] tracking-[0.12em] text-[color:var(--gold)]"
               >
-                前往感恩 →
+                {copy.goGratitude}
               </button>
             </>
           )}

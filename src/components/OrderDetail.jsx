@@ -3,7 +3,7 @@ import {
   daysSince,
   formatOrderMonth,
   getOrderTheme,
-  orderStatusLabels,
+  getOrderStatusLabel,
 } from "../lib/orderTheme";
 import OrderCoverArt from "./OrderCoverArt";
 import {
@@ -11,15 +11,22 @@ import {
   getSuggestedActionPrompts,
 } from "../lib/orderActions";
 import { getOrderQuestions } from "../lib/orderQuestions";
+import { useI18n } from "../lib/i18n";
 
 const statusActions = {
-  packing: { label: "對準中，繼續投射", next: "aligning" },
-  aligning: { label: "✨ 已實現，點此收貨", next: "delivered" },
+  "zh-TW": {
+    packing: { label: "對準中，繼續投射", next: "aligning" },
+    aligning: { label: "✨ 已實現，點此收貨", next: "delivered" },
+  },
+  en: {
+    packing: { label: "Move into alignment", next: "aligning" },
+    aligning: { label: "✨ It manifested. Mark delivered", next: "delivered" },
+  },
 };
 
-function formatDate(timestamp) {
+function formatDate(timestamp, locale) {
   if (!timestamp?.toDate) return "";
-  return timestamp.toDate().toLocaleString("zh-TW");
+  return timestamp.toDate().toLocaleString(locale === "en" ? "en-US" : "zh-TW");
 }
 
 export default function OrderDetail({
@@ -30,6 +37,7 @@ export default function OrderDetail({
   onSaveActionItems,
   onUpdateOrderImage,
 }) {
+  const { locale } = useI18n();
   const [answers, setAnswers] = useState(["", "", ""]);
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -39,16 +47,17 @@ export default function OrderDetail({
   const [imageSaving, setImageSaving] = useState(false);
   const [actionSuggestionIndex, setActionSuggestionIndex] = useState(0);
   const imageInputRef = useRef(null);
-  const action = statusActions[order.status];
+  const statusCopy = statusActions[locale] || statusActions["zh-TW"];
+  const action = statusCopy[order.status];
   const canSubmit = answers.every((answer) => answer.trim().length > 0);
   const theme = getOrderTheme(order);
   const questions = useMemo(
-    () => getOrderQuestions(order),
-    [order.id],
+    () => getOrderQuestions(order, locale),
+    [locale, order.id],
   );
   const suggestedActions = useMemo(
-    () => getSuggestedActionPrompts(order),
-    [order.id],
+    () => getSuggestedActionPrompts(order, locale),
+    [locale, order.id],
   );
   const actionItems = order.actionItems || [];
   const actionSummary = useMemo(
@@ -63,6 +72,66 @@ export default function OrderDetail({
     setJournalSent(false);
     setActionSuggestionIndex(0);
   }, [order.id]);
+
+  const copy = locale === "en"
+    ? {
+      back: "Back to goals",
+      changeImage: "Change goal image",
+      journalKicker: "Journal Prompt",
+      journalTitle: "Sensory projection",
+      answerPlaceholder: "Write what this feels like...",
+      sending: "Sending...",
+      send: "Send to universe",
+      actionKicker: "Inspired Action",
+      actionTitle: "What is the next inspired action?",
+      actionAfterJournal: "The universe received your projection. Now do one small real thing so the wish can enter reality.",
+      actionBeforeJournal: "When you take one small real step, the path becomes easier for the universe to reveal.",
+      suggestionSaved: "Added to your progress",
+      suggestionSave: "Receive this prompt",
+      nextSuggestion: "Next idea →",
+      customActionLabel: "Write down the action you received",
+      customActionPlaceholder: "For example: check snow pass and flight prices...",
+      addAction: "Add to my progress",
+      activeActions: "Small aligned actions",
+      aligned: (done, total) => `Aligned ${done}/${total}`,
+      noActions: "There are no action prompts saved yet. Choose the lightest one and let the wish have a first step.",
+      statusKicker: "Manifest Status",
+      statusTitle: "Status update",
+      completed: "This goal has already been completed.",
+      historyKicker: "Past Entries",
+      historyTitle: "Journal history",
+      noHistory: "There are no journal entries yet.",
+      uploadFailed: "Image upload failed: ",
+    }
+    : {
+      back: "返回目標列表",
+      changeImage: "更換願景圖片",
+      journalKicker: "Journal Prompt",
+      journalTitle: "感官日記對話",
+      answerPlaceholder: "寫下你的感受...",
+      sending: "發送中...",
+      send: "發送給宇宙",
+      actionKicker: "Inspired Action",
+      actionTitle: "你的下一個靈感行動是什麼？",
+      actionAfterJournal: "宇宙收到你的投射了，現在邀請你做一件很小但很真的事，讓願望開始落進現實。",
+      actionBeforeJournal: "當你願意為願望做一個微小而真實的動作，宇宙會更容易把路徑推到你面前。",
+      suggestionSaved: "已收進你的進度",
+      suggestionSave: "收下這個提示",
+      nextSuggestion: "換一個靈感 →",
+      customActionLabel: "把你收到的行動靈感寫下來",
+      customActionPlaceholder: "例如：去看一下雪票和機票的價格...",
+      addAction: "收進我的進度",
+      activeActions: "顯化中的微小行動",
+      aligned: (done, total) => `已對齊 ${done}/${total}`,
+      noActions: "還沒有收進任何行動靈感。先挑一個最輕、最容易開始的提示，讓願望有第一步。",
+      statusKicker: "Manifest Status",
+      statusTitle: "狀態更新",
+      completed: "這個目標已完成收貨。",
+      historyKicker: "Past Entries",
+      historyTitle: "過去的日記紀錄",
+      noHistory: "還沒有日記紀錄。",
+      uploadFailed: "圖片上傳失敗：",
+    };
 
   const journalTimeline = useMemo(
     () =>
@@ -166,7 +235,7 @@ export default function OrderDetail({
       await onUpdateOrderImage(imageFile);
     } catch (error) {
       console.error("Image upload failed:", error);
-      alert("圖片上傳失敗：" + error.message);
+      alert(copy.uploadFailed + error.message);
     } finally {
       setImageSaving(false);
       event.target.value = "";
@@ -181,7 +250,7 @@ export default function OrderDetail({
         className="ghost-button text-sm"
       >
         <span>‹</span>
-        <span>返回訂單列表</span>
+        <span>{copy.back}</span>
       </button>
 
       <section
@@ -203,7 +272,7 @@ export default function OrderDetail({
           onClick={() => imageInputRef.current?.click()}
           disabled={imageSaving}
           className="absolute bottom-4 right-4 z-[2] flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(245,239,230,0.7)] text-base text-[color:var(--navy-deep)] backdrop-blur-sm transition disabled:opacity-70"
-          aria-label="更換願景圖片"
+          aria-label={copy.changeImage}
         >
           <span aria-hidden="true">📷</span>
         </button>
@@ -220,10 +289,10 @@ export default function OrderDetail({
             <span className="status-pill">
               {order.angelNumber ? `#${order.angelNumber}` : "Manifest"}
             </span>
-            <span className="status-pill">{orderStatusLabels[order.status]}</span>
+            <span className="status-pill">{getOrderStatusLabel(order.status, locale)}</span>
           </div>
           <p className="mt-4 text-[0.78rem] uppercase tracking-[0.24em] text-[#efd7b6]">
-            {formatOrderMonth(order.createdAt)} · 第 {daysSince(order.createdAt)} 天
+            {formatOrderMonth(order.createdAt)} · {locale === "en" ? `Day ${daysSince(order.createdAt)}` : `第 ${daysSince(order.createdAt)} 天`}
           </p>
           <h2 className="mt-2 font-[var(--font-display)] text-[2.25rem] leading-none">{order.title}</h2>
           {order.subtitle ? <p className="mt-3 max-w-[17rem] text-sm text-[#f7e9cf]/88">{order.subtitle}</p> : null}
@@ -231,8 +300,8 @@ export default function OrderDetail({
       </section>
 
       <section className="paper-card px-5 py-5">
-        <p className="section-label">Journal Prompt</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">感官日記對話</h3>
+        <p className="section-label">{copy.journalKicker}</p>
+        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.journalTitle}</h3>
         <div className="mt-4 space-y-4">
           {questions.slice(0, step + 1).map((question, index) => (
             <div key={question} className="paper-card-soft px-4 py-4">
@@ -243,7 +312,7 @@ export default function OrderDetail({
                 onKeyDown={handleKeyDown}
                 rows={3}
                 className="cosmos-textarea mt-3"
-                placeholder="寫下你的感受..."
+                placeholder={copy.answerPlaceholder}
               />
             </div>
           ))}
@@ -253,18 +322,18 @@ export default function OrderDetail({
             disabled={!canSubmit || saving}
             className="primary-button w-full"
           >
-            {saving ? "發送中..." : "發送給宇宙"}
+            {saving ? copy.sending : copy.send}
           </button>
         </div>
       </section>
 
       <section className="paper-card px-5 py-5">
-        <p className="section-label">Inspired Action</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">你的下一個靈感行動是什麼？</h3>
+        <p className="section-label">{copy.actionKicker}</p>
+        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.actionTitle}</h3>
         <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
           {journalSent || journalTimeline.length > 0
-            ? "宇宙收到你的投射了，現在邀請你做一件很小但很真的事，讓願望開始落進現實。"
-            : "當你願意為願望做一個微小而真實的動作，宇宙會更容易把路徑推到你面前。"}
+            ? copy.actionAfterJournal
+            : copy.actionBeforeJournal}
         </p>
 
         <div className="mt-4 space-y-3">
@@ -288,8 +357,8 @@ export default function OrderDetail({
                   {actionItems.some(
                     (item) => item.text.trim().toLowerCase() === activeSuggestion.toLowerCase(),
                   )
-                    ? "已收進你的進度"
-                    : "收下這個提示"}
+                    ? copy.suggestionSaved
+                    : copy.suggestionSave}
                 </p>
                 <span
                   role="button"
@@ -308,7 +377,7 @@ export default function OrderDetail({
                   }}
                   className="text-[0.72rem] tracking-[0.08em] text-[color:var(--gold)]"
                 >
-                  換一個靈感 →
+                  {copy.nextSuggestion}
                 </span>
               </div>
             </button>
@@ -316,7 +385,7 @@ export default function OrderDetail({
         </div>
 
         <div className="mt-4 paper-card-soft px-4 py-4">
-          <label className="text-sm font-medium text-[color:var(--ink)]">把你收到的行動靈感寫下來</label>
+          <label className="text-sm font-medium text-[color:var(--ink)]">{copy.customActionLabel}</label>
           <input
             value={customAction}
             onChange={(event) => setCustomAction(event.target.value)}
@@ -327,7 +396,7 @@ export default function OrderDetail({
               }
             }}
             className="cosmos-input mt-3"
-            placeholder="例如：去看一下雪票和機票的價格..."
+            placeholder={copy.customActionPlaceholder}
           />
           <button
             type="button"
@@ -335,21 +404,21 @@ export default function OrderDetail({
             disabled={!customAction.trim() || actionSaving}
             className="secondary-button mt-3 w-full disabled:opacity-50"
           >
-            收進我的進度
+            {copy.addAction}
           </button>
         </div>
 
         <div className="mt-5">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-medium text-[color:var(--ink)]">顯化中的微小行動</p>
+            <p className="text-sm font-medium text-[color:var(--ink)]">{copy.activeActions}</p>
             <p className="text-[0.68rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-              已對齊 {actionSummary.completed}/{actionSummary.total}
+              {copy.aligned(actionSummary.completed, actionSummary.total)}
             </p>
           </div>
 
           {actionItems.length === 0 ? (
             <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-              還沒有收進任何行動靈感。先挑一個最輕、最容易開始的提示，讓願望有第一步。
+              {copy.noActions}
             </p>
           ) : (
             <div className="mt-3 space-y-3">
@@ -375,8 +444,8 @@ export default function OrderDetail({
       </section>
 
       <section className="paper-card px-5 py-5">
-        <p className="section-label">Manifest Status</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">狀態更新</h3>
+        <p className="section-label">{copy.statusKicker}</p>
+        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.statusTitle}</h3>
         {action ? (
           <button
             type="button"
@@ -386,22 +455,22 @@ export default function OrderDetail({
             {action.label}
           </button>
         ) : (
-          <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">這筆訂單已完成收貨。</p>
+          <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">{copy.completed}</p>
         )}
       </section>
 
       <section className="paper-card px-5 py-5">
-        <p className="section-label">Past Entries</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">過去的日記紀錄</h3>
+        <p className="section-label">{copy.historyKicker}</p>
+        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.historyTitle}</h3>
         <div className="timeline-rail mt-4 space-y-4">
           {journalTimeline.length === 0 ? (
-            <p className="text-sm leading-7 text-[color:var(--ink-soft)]">還沒有日記紀錄。</p>
+            <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{copy.noHistory}</p>
           ) : (
             journalTimeline.map((entry, index) => (
               <article key={`${entry.recordedAt?.seconds || "entry"}-${index}`} className="relative pl-10">
                 <span className="timeline-dot absolute left-0 top-1">✦</span>
                 <div className="paper-card-soft px-4 py-4">
-                  <p className="text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">{formatDate(entry.recordedAt)}</p>
+                  <p className="text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">{formatDate(entry.recordedAt, locale)}</p>
                   <p className="mt-2 text-sm leading-7 text-[color:var(--ink)]">
                     {entry.prompts?.[0] ? `1. ${entry.prompts[0]}` : "1."} {entry.q1}
                   </p>

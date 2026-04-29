@@ -1,10 +1,27 @@
 import { NavLink } from "react-router-dom";
+import { useI18n } from "../lib/i18n";
 
 const tabs = [
-  { to: "/", label: "今日", icon: "sun" },
-  { to: "/orders", label: "訂單", icon: "box" },
-  { to: "/angel", label: "天使", icon: "wings" },
-  { to: "/gratitude", label: "感恩", icon: "heart" },
+  {
+    to: "/",
+    icon: "sun",
+    labels: { "zh-TW": "今日", en: "Today" },
+  },
+  {
+    to: "/orders",
+    icon: "box",
+    labels: { "zh-TW": "目標", en: "Goals" },
+  },
+  {
+    to: "/angel",
+    icon: "wings",
+    labels: { "zh-TW": "天使", en: "Angel" },
+  },
+  {
+    to: "/gratitude",
+    icon: "heart",
+    labels: { "zh-TW": "感恩", en: "Gratitude" },
+  },
 ];
 
 function Icon({ name, active }) {
@@ -51,6 +68,8 @@ function Icon({ name, active }) {
 }
 
 export default function BottomNav() {
+  const { locale } = useI18n();
+
   return (
     <nav className="bottom-nav-shell">
       <div className="grid grid-cols-4 px-2 py-2">
@@ -66,7 +85,7 @@ export default function BottomNav() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-full">
                   <Icon name={tab.icon} active={isActive} />
                 </div>
-                <span className="tracking-[0.18em]">{tab.label}</span>
+                <span className="tracking-[0.18em]">{tab.labels[locale] || tab.labels["zh-TW"]}</span>
                 {isActive ? (
                   <span className="mt-0.5 h-px w-4 rounded-full bg-[color:var(--gold)]" />
                 ) : null}

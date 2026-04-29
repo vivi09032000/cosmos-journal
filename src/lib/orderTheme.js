@@ -16,11 +16,22 @@ const orderThemes = [
   },
 ];
 
-export const orderStatusLabels = {
-  packing: "打包中",
-  aligning: "對準中",
-  delivered: "已送達",
+const ORDER_STATUS_LABELS = {
+  "zh-TW": {
+    packing: "打包中",
+    aligning: "對準中",
+    delivered: "已送達",
+  },
+  en: {
+    packing: "Packing",
+    aligning: "Aligning",
+    delivered: "Delivered",
+  },
 };
+
+export function getOrderStatusLabel(status, locale = "zh-TW") {
+  return ORDER_STATUS_LABELS[locale]?.[status] || ORDER_STATUS_LABELS["zh-TW"][status] || status;
+}
 
 export function daysSince(timestamp) {
   if (!timestamp?.toDate) return 0;

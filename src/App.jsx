@@ -3,9 +3,11 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import BottomNav from "./components/BottomNav";
 import { useAngelLogs } from "./hooks/useAngelLogs";
 import { useAuth } from "./hooks/useAuth";
+import { useDailyLog } from "./hooks/useDailyLog";
 import { useGratitude } from "./hooks/useGratitude";
 import { useOrders } from "./hooks/useOrders";
-import { firebaseErrorMessage } from "./firebase";
+import { firebaseErrorMessage, missingFirebaseKeys } from "./firebase";
+import { I18nProvider, useI18n } from "./lib/i18n";
 import AngelPage from "./pages/AngelPage";
 import GratitudePage from "./pages/GratitudePage";
 import OrdersPage from "./pages/OrdersPage";
@@ -29,12 +31,50 @@ function getDaysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
 
+function LanguageSwitch({ className = "" }) {
+  const { locale, setLocale } = useI18n();
+
+  return (
+    <div
+      className={`inline-flex items-center rounded-full border border-[rgba(181,120,58,0.22)] bg-[rgba(250,246,240,0.94)] p-1 shadow-[0_10px_24px_rgba(46,35,24,0.08)] ${className}`}
+    >
+      <button
+        type="button"
+        onClick={() => setLocale("zh-TW")}
+        className={`rounded-full px-3 py-1.5 text-[0.72rem] tracking-[0.14em] transition ${
+          locale === "zh-TW"
+            ? "bg-[rgba(181,120,58,0.14)] text-[color:var(--gold)]"
+            : "text-[color:var(--ink-faint)]"
+        }`}
+      >
+        中文
+      </button>
+      <button
+        type="button"
+        onClick={() => setLocale("en")}
+        className={`rounded-full px-3 py-1.5 text-[0.72rem] tracking-[0.14em] transition ${
+          locale === "en"
+            ? "bg-[rgba(181,120,58,0.14)] text-[color:var(--gold)]"
+            : "text-[color:var(--ink-faint)]"
+        }`}
+      >
+        EN
+      </button>
+    </div>
+  );
+}
+
 function LoadingScreen({ label }) {
+  const { locale } = useI18n();
+
   return (
     <div className="cosmos-stage flex items-center justify-center">
       <div className="paper-card max-w-sm px-6 py-8 text-center">
+        <LanguageSwitch className="mx-auto mb-5" />
         <p className="gold-kicker">Cosmos Journal</p>
-        <h1 className="section-title mt-3 text-[1.8rem]">宇宙正在整理你的頁面</h1>
+        <h1 className="section-title mt-3 text-[1.8rem]">
+          {locale === "en" ? "Preparing your journal" : "宇宙正在整理你的頁面"}
+        </h1>
         <p className="mt-4 text-sm leading-7 text-[color:var(--ink-soft)]">{label}</p>
       </div>
     </div>
@@ -42,17 +82,28 @@ function LoadingScreen({ label }) {
 }
 
 function SetupScreen({ label }) {
+  const { locale } = useI18n();
+
   return (
     <div className="cosmos-stage flex items-center justify-center">
       <div className="paper-card max-w-lg px-6 py-8">
+        <div className="flex justify-end">
+          <LanguageSwitch />
+        </div>
         <p className="gold-kicker">Firebase Setup</p>
-        <h1 className="section-title mt-3 text-[1.8rem]">目前不是白屏，是初始化被設定擋住了。</h1>
+        <h1 className="section-title mt-3 text-[1.8rem]">
+          {locale === "en"
+            ? "The app is blocked by missing initialization, not a blank screen."
+            : "目前不是白屏，是初始化被設定擋住了。"}
+        </h1>
         <p className="mt-4 text-sm leading-7 text-[color:var(--ink-soft)]">{label}</p>
         <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-          請在專案根目錄建立 `.env`，並把 `.env.example` 裡的欄位填上 Firebase 專案參數後重新整理。
+          {locale === "en"
+            ? "Create a `.env` file in the project root, fill in the Firebase values from `.env.example`, then refresh."
+            : "請在專案根目錄建立 `.env`，並把 `.env.example` 裡的欄位填上 Firebase 專案參數後重新整理。"}
         </p>
         <p className="mt-3 text-xs tracking-[0.2em] text-[color:var(--ink-faint)]">
-          檔案位置：/Users/heyvienne/Documents/宇宙手帳/.env
+          {locale === "en" ? "Path" : "檔案位置"}：/Users/heyvienne/Documents/宇宙手帳/.env
         </p>
       </div>
     </div>
@@ -60,6 +111,7 @@ function SetupScreen({ label }) {
 }
 
 function BirthdayOnboarding({ onConfirm }) {
+  const { locale } = useI18n();
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
@@ -70,11 +122,33 @@ function BirthdayOnboarding({ onConfirm }) {
     (_, index) => index + 1,
   );
 
+  const copy = locale === "en"
+    ? {
+      title: "The universe needs your birthday to calculate today's energy",
+      year: "Year",
+      month: "Month",
+      day: "Day",
+      submit: "Confirm",
+      saving: "Saving...",
+      missing: "Please choose your birthday first.",
+      failed: "Saving your birthday failed. Please try again.",
+    }
+    : {
+      title: "宇宙需要知道你的生日，才能為你計算今日能量",
+      year: "年份",
+      month: "月份",
+      day: "日期",
+      submit: "確認",
+      saving: "確認中...",
+      missing: "請先選擇生日。",
+      failed: "生日儲存失敗，請再試一次。",
+    };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!year || !month || !day) {
-      setError("請先選擇生日。");
+      setError(copy.missing);
       return;
     }
 
@@ -85,7 +159,7 @@ function BirthdayOnboarding({ onConfirm }) {
       const birthday = `${year}-${padDateUnit(month)}-${padDateUnit(day)}`;
       await onConfirm(birthday);
     } catch (saveError) {
-      setError(saveError.message || "生日儲存失敗，請再試一次。");
+      setError(saveError.message || copy.failed);
       setSaving(false);
     }
   };
@@ -93,11 +167,12 @@ function BirthdayOnboarding({ onConfirm }) {
   return (
     <div className="cosmos-stage flex items-center justify-center">
       <form onSubmit={handleSubmit} className="paper-card w-full max-w-lg px-6 py-8">
+        <div className="flex justify-end">
+          <LanguageSwitch />
+        </div>
         <p className="gold-kicker">Birthday Onboarding</p>
         <h1 className="section-title mt-3 text-[1.8rem] leading-[1.35]">
-          宇宙需要知道你的生日，
-          <br />
-          才能為你計算今日能量
+          {copy.title}
         </h1>
         <div className="mt-6 grid grid-cols-3 gap-3">
           <select
@@ -109,7 +184,7 @@ function BirthdayOnboarding({ onConfirm }) {
             className="cosmos-select"
             required
           >
-            <option value="">年份</option>
+            <option value="">{copy.year}</option>
             {YEAR_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -126,7 +201,7 @@ function BirthdayOnboarding({ onConfirm }) {
             className="cosmos-select"
             required
           >
-            <option value="">月份</option>
+            <option value="">{copy.month}</option>
             {MONTH_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -142,7 +217,7 @@ function BirthdayOnboarding({ onConfirm }) {
             className="cosmos-select"
             required
           >
-            <option value="">日期</option>
+            <option value="">{copy.day}</option>
             {dayOptions.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -158,14 +233,15 @@ function BirthdayOnboarding({ onConfirm }) {
           disabled={!year || !month || !day || saving}
           className="primary-button mt-5 w-full"
         >
-          {saving ? "確認中..." : "確認"}
+          {saving ? copy.saving : copy.submit}
         </button>
       </form>
     </div>
   );
 }
 
-export default function App() {
+function AppContent() {
+  const { locale } = useI18n();
   const location = useLocation();
   const {
     user,
@@ -173,7 +249,7 @@ export default function App() {
     loading: authLoading,
     error: authError,
     saveBirthday,
-  } = useAuth();
+  } = useAuth(locale);
   const {
     orders,
     loading: ordersLoading,
@@ -182,7 +258,7 @@ export default function App() {
     addJournalEntry,
     saveActionItems,
     updateOrderImage,
-  } = useOrders(user?.uid);
+  } = useOrders(user?.uid, locale);
   const {
     angelLogs,
     createAngelLog,
@@ -193,17 +269,27 @@ export default function App() {
     streak,
     saveGratitude,
   } = useGratitude(user?.uid);
+  const {
+    entry: dailyLogEntry,
+    saveMood: saveDailyMood,
+  } = useDailyLog(user?.uid);
 
-  if (firebaseErrorMessage) {
-    return <SetupScreen label={firebaseErrorMessage} />;
+  const firebaseLabel = missingFirebaseKeys.length > 0
+    ? (locale === "en"
+      ? `Missing Firebase configuration: ${missingFirebaseKeys.join(", ")}`
+      : firebaseErrorMessage)
+    : "";
+
+  if (firebaseLabel) {
+    return <SetupScreen label={firebaseLabel} />;
   }
 
   if (authLoading) {
-    return <LoadingScreen label="正在初始化匿名登入..." />;
+    return <LoadingScreen label={locale === "en" ? "Initializing anonymous sign-in..." : "正在初始化匿名登入..."} />;
   }
 
   if (authError) {
-    return <LoadingScreen label={`登入失敗：${authError}`} />;
+    return <LoadingScreen label={`${locale === "en" ? "Sign-in failed" : "登入失敗"}：${authError}`} />;
   }
 
   if (user && !profile?.birthday) {
@@ -214,7 +300,8 @@ export default function App() {
 
   return (
     <div className="cosmos-stage">
-      <div className="cosmos-app-shell">
+      <div className="cosmos-app-shell relative">
+        {!hideBottomNav ? <LanguageSwitch className="absolute right-4 top-4 z-30" /> : null}
         <div className="cosmos-screen">
           <main className="cosmos-main pb-24">
             <Routes>
@@ -224,6 +311,8 @@ export default function App() {
                   <TodayPage
                     orders={orders}
                     todayEntry={todayEntry}
+                    dailyLogEntry={dailyLogEntry}
+                    onSaveDailyMood={saveDailyMood}
                     userId={user?.uid || ""}
                   />
                 }
@@ -242,14 +331,8 @@ export default function App() {
                   />
                 }
               />
-              <Route
-                path="/wall"
-                element={<WallPage orders={orders} />}
-              />
-              <Route
-                path="/capsule/:orderId"
-                element={<TimeCapsulePage orders={orders} />}
-              />
+              <Route path="/wall" element={<WallPage orders={orders} />} />
+              <Route path="/capsule/:orderId" element={<TimeCapsulePage orders={orders} />} />
               <Route
                 path="/angel"
                 element={
@@ -277,5 +360,13 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <I18nProvider>
+      <AppContent />
+    </I18nProvider>
   );
 }

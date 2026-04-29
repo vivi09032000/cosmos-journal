@@ -6,6 +6,7 @@ import { WaveDivider } from "../components/CosmosDecor";
 import OrderCard from "../components/OrderCard";
 import OrderCoverArt from "../components/OrderCoverArt";
 import OrderDetail from "../components/OrderDetail";
+import { useI18n } from "../lib/i18n";
 import { getOrderTheme } from "../lib/orderTheme";
 
 function getOrderJourneyDays(order) {
@@ -30,22 +31,19 @@ function getJournalExcerpt(entry) {
     .join(" · ");
 
   if (!content) {
-    return "你曾經反覆感受到的畫面，現在成為現實的一部分。";
+    return "";
   }
 
   return content.length > 40 ? `${content.slice(0, 40)}...` : content;
 }
 
 function formatDeliveredDate(timestamp) {
-  if (!timestamp?.toDate) return "宇宙已簽收";
-  return timestamp.toDate().toLocaleDateString("zh-TW", {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-  });
+  if (!timestamp?.toDate) return null;
+  return timestamp.toDate();
 }
 
 function CreateOrderModal({ onClose, onCreate }) {
+  const { locale } = useI18n();
   const [form, setForm] = useState({
     title: "",
     subtitle: "",
@@ -86,17 +84,41 @@ function CreateOrderModal({ onClose, onCreate }) {
     });
   };
 
+  const copy = locale === "en"
+    ? {
+      kicker: "New Manifest",
+      title: "Create Goal",
+      titleLabel: "Goal title",
+      subtitleLabel: "Subtitle",
+      imageLabel: "Goal image",
+      helper: "You can skip the upload. The app will start with an illustrated cover for this goal.",
+      previewAlt: "Goal preview",
+      cancel: "Cancel",
+      submit: "Create",
+    }
+    : {
+      kicker: "New Manifest",
+      title: "新增目標",
+      titleLabel: "目標標題",
+      subtitleLabel: "副標題",
+      imageLabel: "目標圖片",
+      helper: "沒有上傳也沒關係，系統會先用目標類型的插畫陪你顯化。",
+      previewAlt: "目標預覽",
+      cancel: "取消",
+      submit: "建立",
+    };
+
   return (
     <div className="fixed inset-0 z-40 overflow-y-auto bg-[rgba(18,20,29,0.48)] p-4 pb-28 pt-6">
       <form
         onSubmit={handleSubmit}
         className="paper-card mx-auto w-full max-w-lg overflow-y-auto px-5 py-5 max-h-[calc(100svh-3rem)]"
       >
-        <p className="gold-kicker">New Manifest</p>
-        <h2 className="mt-2 font-[var(--font-display)] text-[2rem] text-[color:var(--navy-deep)]">新增訂單</h2>
+        <p className="gold-kicker">{copy.kicker}</p>
+        <h2 className="mt-2 font-[var(--font-display)] text-[2rem] text-[color:var(--navy-deep)]">{copy.title}</h2>
         <div className="mt-4 space-y-4">
           <div>
-            <label className="text-sm font-medium text-[color:var(--ink-soft)]">願望標題</label>
+            <label className="text-sm font-medium text-[color:var(--ink-soft)]">{copy.titleLabel}</label>
             <input
               value={form.title}
               onChange={(event) => updateField("title", event.target.value)}
@@ -105,7 +127,7 @@ function CreateOrderModal({ onClose, onCreate }) {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-[color:var(--ink-soft)]">副標題</label>
+            <label className="text-sm font-medium text-[color:var(--ink-soft)]">{copy.subtitleLabel}</label>
             <input
               value={form.subtitle}
               onChange={(event) => updateField("subtitle", event.target.value)}
@@ -113,7 +135,7 @@ function CreateOrderModal({ onClose, onCreate }) {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-[color:var(--ink-soft)]">願望圖片</label>
+            <label className="text-sm font-medium text-[color:var(--ink-soft)]">{copy.imageLabel}</label>
             <input
               type="file"
               accept="image/*"
@@ -121,25 +143,25 @@ function CreateOrderModal({ onClose, onCreate }) {
               className="cosmos-input mt-2 file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(181,120,58,0.12)] file:px-4 file:py-2 file:text-sm file:text-[color:var(--gold)]"
             />
             <p className="mt-2 text-xs leading-6 text-[color:var(--ink-faint)]">
-              沒有上傳也沒關係，系統會先用願望類型的插畫陪你顯化。
+              {copy.helper}
             </p>
             {previewUrl ? (
               <div className="mt-3 overflow-hidden rounded-[1.2rem] border border-[rgba(181,120,58,0.18)]">
-                <img src={previewUrl} alt="願望預覽" className="h-40 w-full object-cover" />
+                <img src={previewUrl} alt={copy.previewAlt} className="h-40 w-full object-cover" />
               </div>
             ) : null}
           </div>
         </div>
         <div className="mt-6 flex gap-3">
           <button type="button" onClick={onClose} className="secondary-button flex-1">
-            取消
+            {copy.cancel}
           </button>
           <button
             type="submit"
             disabled={!form.title.trim()}
             className="primary-button flex-1"
           >
-            建立
+            {copy.submit}
           </button>
         </div>
       </form>
@@ -148,6 +170,7 @@ function CreateOrderModal({ onClose, onCreate }) {
 }
 
 function DeliveredOrderCard({ order, onOpenCapsule }) {
+  const { locale } = useI18n();
   const theme = getOrderTheme(order);
   const journeyDays = getOrderJourneyDays(order);
   const latestEntry = [...(order.journal || [])].sort((left, right) => {
@@ -156,13 +179,15 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
     return rightTime - leftTime;
   })[0];
 
+  const deliveredDate = formatDeliveredDate(order.deliveredAt);
+
   return (
     <article className="paper-card overflow-hidden">
       <div className="relative h-40 overflow-hidden" style={{ background: theme.background }}>
         <OrderCoverArt order={order} />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(250,246,240,0)_35%,rgba(250,246,240,0.96)_100%)]" />
         <div className="absolute right-4 top-4 rounded-full border border-[rgba(181,120,58,0.45)] bg-[rgba(250,246,240,0.9)] px-3 py-1 text-[0.68rem] tracking-[0.16em] text-[color:var(--gold)]">
-          ✦ 已實現
+          {locale === "en" ? "✦ Fulfilled" : "✦ 已實現"}
         </div>
       </div>
 
@@ -183,10 +208,18 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
         <div className="mt-5 flex items-center justify-between gap-4 border-t border-[rgba(181,120,58,0.12)] pt-4">
           <div>
             <p className="text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-              實現日期
+              {locale === "en" ? "Fulfilled on" : "實現日期"}
             </p>
             <p className="mt-2 text-sm leading-6 text-[color:var(--ink-soft)]">
-              {formatDeliveredDate(order.deliveredAt)} · 從下單到實現 {journeyDays} 天
+              {deliveredDate
+                ? `${deliveredDate.toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
+                  year: "numeric",
+                  month: "numeric",
+                  day: "numeric",
+                })} · ${locale === "en" ? `${journeyDays} days from goal to fulfillment` : `從建立到實現 ${journeyDays} 天`}`
+                : locale === "en"
+                  ? "Received by the universe"
+                  : "宇宙已簽收"}
             </p>
           </div>
           <button
@@ -194,7 +227,7 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
             onClick={onOpenCapsule}
             className="text-[0.9rem] tracking-[0.12em] text-[color:var(--gold)]"
           >
-            時光膠囊 →
+            {locale === "en" ? "Time capsule →" : "時光膠囊 →"}
           </button>
         </div>
       </div>
@@ -203,6 +236,7 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
 }
 
 function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
+  const { locale } = useI18n();
   return (
     <section className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
@@ -210,19 +244,19 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
           <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
             {deliveredCount}
           </p>
-          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">已實現</p>
+          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "Fulfilled" : "已實現"}</p>
         </div>
         <div className="paper-card-soft px-4 py-5 text-center">
           <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
             {activeCount}
           </p>
-          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">運送中</p>
+          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "In transit" : "運送中"}</p>
         </div>
         <div className="paper-card-soft px-4 py-5 text-center">
           <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
             {projectionDays}
           </p>
-          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">累計投射天數</p>
+          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "Projection days" : "累計投射天數"}</p>
         </div>
       </div>
 
@@ -231,10 +265,12 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
           ✦
         </div>
         <p className="mx-auto mt-8 max-w-[20rem] font-[var(--font-display)] text-[1.9rem] leading-[1.45] text-[color:var(--navy-deep)]">
-          第一個顯化正在路上
+          {locale === "en" ? "Your first manifestation is on its way" : "第一個顯化正在路上"}
         </p>
         <p className="mx-auto mt-5 max-w-[22rem] text-[1rem] leading-[2] text-[color:var(--ink-soft)]">
-          當願望落地的那一刻，它會永遠留在這裡。
+          {locale === "en"
+            ? "When a wish becomes real, it will stay here permanently."
+            : "當願望落地的那一刻，它會永遠留在這裡。"}
         </p>
       </section>
     </section>
@@ -250,6 +286,7 @@ export default function OrdersPage({
   onSaveActionItems,
   onUpdateOrderImage,
 }) {
+  const { locale } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -307,7 +344,7 @@ export default function OrdersPage({
       await onCreateOrder(form);
     } catch (error) {
       console.error("Error creating order:", error);
-      alert("儲存時發生錯誤：" + error.message);
+      alert((locale === "en" ? "Saving failed: " : "儲存時發生錯誤：") + error.message);
     }
   };
 
@@ -327,8 +364,8 @@ export default function OrdersPage({
           <section className="screen-header">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="gold-kicker">Manifest Orders</p>
-                <h1 className="section-title mt-2 text-[2rem]">顯化訂單</h1>
+                <p className="gold-kicker">Manifest Goals</p>
+                <h1 className="section-title mt-2 text-[2rem]">{locale === "en" ? "Goals" : "目標"}</h1>
               </div>
               <OrdersModeToggle mode={mode} onChange={handleModeChange} />
             </div>
@@ -336,11 +373,11 @@ export default function OrdersPage({
           </section>
 
           {loading ? (
-            <p className="text-sm text-[color:var(--ink-soft)]">讀取訂單中...</p>
+            <p className="text-sm text-[color:var(--ink-soft)]">{locale === "en" ? "Loading goals..." : "讀取目標中..."}</p>
           ) : mode === "active" ? (
             activeOrders.length === 0 ? (
               <section className="paper-card px-6 py-10 text-center text-sm text-[color:var(--ink-soft)]">
-                還沒有訂單，先建立第一個願望吧。
+                {locale === "en" ? "There are no goals yet. Create the first wish." : "還沒有目標，先建立第一個願望吧。"}
               </section>
             ) : (
               <section className="grid gap-4">

@@ -22,6 +22,8 @@ const requiredKeys = [
 
 const missingKeys = requiredKeys.filter((key) => !import.meta.env[key]);
 
+export const missingFirebaseKeys = missingKeys;
+
 export const firebaseErrorMessage =
   missingKeys.length > 0
     ? `缺少 Firebase 設定：${missingKeys.join(", ")}`
