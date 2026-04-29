@@ -13,14 +13,14 @@ const tabs = [
     labels: { "zh-TW": "目標", en: "Goals" },
   },
   {
+    to: "/angel",
+    icon: "angel",
+    labels: { "zh-TW": "天使", en: "Angel" },
+  },
+  {
     to: "/journal",
     icon: "journal",
     labels: { "zh-TW": "日記", en: "Journal" },
-  },
-  {
-    to: "/profile",
-    icon: "user",
-    labels: { "zh-TW": "我的", en: "Me" },
   },
 ];
 
@@ -56,6 +56,13 @@ function Icon({ name, active }) {
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" {...common} />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" {...common} />
           <path d="M8 7h8M8 11h6" {...common} />
+        </svg>
+      );
+    case "angel":
+      return (
+        <svg viewBox="0 0 24 24" className="h-5 w-5">
+          <path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6L12 2z" {...common} />
+          <path d="M5 17l.8 2.4 2.4.8-2.4.8L5 23l-.8-2.4L1.8 19.8l2.4-.8L5 17z" {...common} />
         </svg>
       );
     case "user":

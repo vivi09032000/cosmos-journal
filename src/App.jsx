@@ -1,6 +1,7 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import BottomNav from "./components/BottomNav";
+import SideDrawer from "./components/SideDrawer";
 import { useAngelLogs } from "./hooks/useAngelLogs";
 import { useAllDailyLogs } from "./hooks/useAllDailyLogs";
 import { useAuth } from "./hooks/useAuth";
@@ -310,11 +311,28 @@ function AppContent() {
 
   const hideBottomNav = location.pathname.startsWith("/capsule/");
   const routeLoadingLabel = locale === "en" ? "Opening page..." : "正在打開頁面...";
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const deliveredCount = useMemo(
+    () => orders.filter((o) => o.status === "delivered").length,
+    [orders],
+  );
 
   return (
     <div className="cosmos-stage">
       <div className="cosmos-app-shell relative">
-        {!hideBottomNav ? <LanguageSwitch className="absolute right-4 top-4 z-30" /> : null}
+        {!hideBottomNav ? (
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.9)] shadow-[0_4px_12px_rgba(46,35,24,0.08)] transition hover:bg-[rgba(250,246,240,1)]"
+            aria-label="Menu"
+          >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="var(--gold)" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M3 5h14M3 10h14M3 15h14" />
+            </svg>
+          </button>
+        ) : null}
         <div className="cosmos-screen">
           <main className="cosmos-main pb-24">
             <Suspense
@@ -410,6 +428,13 @@ function AppContent() {
           </main>
           {!hideBottomNav ? <BottomNav /> : null}
         </div>
+        <SideDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          profile={profile}
+          checkinStreak={checkinStreak}
+          deliveredCount={deliveredCount}
+        />
       </div>
     </div>
   );

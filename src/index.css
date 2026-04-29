@@ -749,3 +749,125 @@ body::after {
   letter-spacing: 0.14em;
   color: var(--ink-faint);
 }
+
+/* ── Phase 2.5: Side Drawer ────────────────────────── */
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(30, 24, 16, 0.42);
+  backdrop-filter: blur(4px);
+  animation: bso-fade-in 220ms ease forwards;
+}
+
+.drawer-overlay.closing {
+  animation: bso-fade-out 200ms ease forwards;
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 201;
+  width: min(80vw, 22rem);
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(250, 246, 240, 0.99), rgba(244, 236, 224, 0.99));
+  border-left: 1px solid rgba(181, 120, 58, 0.14);
+  box-shadow: -8px 0 40px rgba(46, 35, 24, 0.12);
+  padding: 2rem 1.5rem calc(2rem + env(safe-area-inset-bottom));
+  animation: drawer-slide-in 280ms cubic-bezier(0.22, 0.68, 0.36, 1) forwards;
+  scrollbar-width: none;
+}
+
+.drawer-panel::-webkit-scrollbar { display: none; }
+
+@keyframes drawer-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawer-panel.closing {
+  animation: drawer-slide-out 220ms ease forwards;
+}
+
+@keyframes drawer-slide-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.drawer-divider {
+  height: 1px;
+  margin: 1.2rem 0;
+  background: rgba(181, 120, 58, 0.12);
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  transition: color 160ms ease;
+}
+
+.drawer-link:hover {
+  color: var(--gold);
+}
+
+.drawer-link svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ── Phase 2.5: Angel Decode Card ──────────────────── */
+
+.decode-result-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.1rem;
+  padding: 1.8rem 1.5rem;
+  background: linear-gradient(160deg, #2c3a58, #1c2744 60%, #151f38);
+  color: #fff4de;
+  box-shadow:
+    0 8px 32px rgba(20, 28, 50, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.decode-result-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 244, 222, 0.35), transparent),
+    radial-gradient(1px 1px at 78% 12%, rgba(255, 244, 222, 0.25), transparent),
+    radial-gradient(1px 1px at 45% 85%, rgba(255, 244, 222, 0.2), transparent),
+    radial-gradient(1px 1px at 88% 72%, rgba(255, 244, 222, 0.3), transparent),
+    radial-gradient(1px 1px at 22% 58%, rgba(255, 244, 222, 0.15), transparent),
+    radial-gradient(1px 1px at 65% 38%, rgba(255, 244, 222, 0.2), transparent);
+}
+
+.decode-number {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+.decode-energy-tag {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(199, 157, 97, 0.35);
+  background: rgba(199, 157, 97, 0.12);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: rgba(255, 244, 222, 0.85);
+}
