@@ -13,6 +13,11 @@ export default function OrderCard({ order, onClick }) {
   const { locale } = useI18n();
   const theme = getOrderTheme(order);
   const progress = getActionProgress(order);
+  const allLinkedNumbers = [
+    ...new Set((order.linkedAngelLogs || []).map((log) => log.number).filter(Boolean)),
+  ];
+  const linkedNumbers = allLinkedNumbers.slice(0, 6);
+  const hiddenLinkedCount = Math.max(0, allLinkedNumbers.length - linkedNumbers.length);
 
   return (
     <button
@@ -64,6 +69,21 @@ export default function OrderCard({ order, onClick }) {
             {getOrderStatusLabel(order.status, locale)}
           </div>
         </div>
+        {linkedNumbers.length > 0 ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-[0.62rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
+              {locale === "en" ? "Linked signals" : "已連結訊號"}
+            </span>
+            {linkedNumbers.map((number) => (
+              <span key={`${order.id}-${number}`} className="journal-tag">
+                {number}
+              </span>
+            ))}
+            {hiddenLinkedCount > 0 ? (
+              <span className="journal-tag">+{hiddenLinkedCount}</span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </button>
   );

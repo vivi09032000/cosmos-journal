@@ -35,6 +35,8 @@ function getStorageErrorMessage(error, locale = "zh-TW") {
     };
 
   switch (error?.code) {
+    case "storage/not-configured":
+      return copy.storageMissing;
     case "storage/unauthorized":
       return copy.unauthorized;
     case "storage/canceled":
@@ -50,7 +52,11 @@ function getStorageErrorMessage(error, locale = "zh-TW") {
 
 async function uploadOrderImage(userId, orderId, imageFile, locale) {
   if (!storage) {
-    throw new Error(getStorageErrorMessage(null, locale));
+    throw new Error(getStorageErrorMessage({ code: "storage/not-configured" }, locale));
+  }
+
+  if (!userId || !orderId) {
+    throw new Error(getStorageErrorMessage({ code: "storage/unauthorized" }, locale));
   }
 
   try {
@@ -165,7 +171,7 @@ export function useOrders(userId, locale = "zh-TW") {
   };
 
   const updateOrderImage = async (orderId, imageFile) => {
-    if (!db || !imageFile) return;
+    if (!db || !userId || !imageFile) return;
 
     const orderRef = doc(db, "users", userId, "orders", orderId);
     const imageUrl = await uploadOrderImage(userId, orderId, imageFile, locale);

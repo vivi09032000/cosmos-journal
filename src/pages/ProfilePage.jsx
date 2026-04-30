@@ -169,8 +169,8 @@ export default function ProfilePage({
 
   const copy = locale === "en"
     ? {
-      title: "Cosmos Me",
-      kicker: "✦ COSMOS PROFILE",
+      title: "Cosmos Archive",
+      kicker: "✦ COSMOS ARCHIVE",
       lifePath: "Life path number",
       joined: "days since joining",
       streakLabel: "Check-in streak",
@@ -184,8 +184,8 @@ export default function ProfilePage({
       noWall: "Your first fulfilled wish will be displayed here.",
     }
     : {
-      title: "宇宙的我",
-      kicker: "✦ 宇宙檔案 · COSMOS PROFILE",
+      title: "宇宙檔案",
+      kicker: "✦ 宇宙檔案 · COSMOS ARCHIVE",
       lifePath: "生命靈數",
       joined: "天",
       streakLabel: "持續打卡",

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   LeafDecor,
   SunRays,
@@ -11,8 +12,10 @@ import { useI18n } from "../lib/i18n";
 function formatDate(timestamp, locale) {
   if (!timestamp?.toDate) return "";
   return timestamp.toDate().toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
-    month: "numeric",
+    year: "numeric",
+    month: "long",
     day: "numeric",
+    weekday: "short",
   });
 }
 
@@ -20,6 +23,8 @@ const QUICK_NUMBERS = ["111", "222", "333", "444", "555", "777", "888", "999"];
 
 export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
   const { locale } = useI18n();
+  const location = useLocation();
+  const historyRef = useRef(null);
   const angelData = useMemo(() => getAngelData(locale), [locale]);
   const visibleOrders = useMemo(
     () => orders.filter((order) => order.status !== "delivered").slice(0, 5),
@@ -54,6 +59,8 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
       saved: "✓ Signal saved",
       historyTitle: "History",
       noHistory: "No decoded signals yet.",
+      linkedGoal: "Linked goal",
+      noteLabel: "Moment note",
     }
     : {
       kicker: "ANGEL DECODER · 天使訊號",
@@ -75,11 +82,22 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
       saved: "✓ 已儲存訊號",
       historyTitle: "歷史紀錄",
       noHistory: "還沒有解碼紀錄。",
+      linkedGoal: "連結目標",
+      noteLabel: "當下紀錄",
     };
 
   useEffect(() => {
     setSaved(false);
   }, [number, note, linkedOrderId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("view") !== "history") return;
+
+    window.requestAnimationFrame(() => {
+      historyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [location.search]);
 
   const decodeNumber = (rawNumber) => {
     const trimmed = rawNumber.trim();
@@ -281,30 +299,70 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
       )}
 
       {/* History */}
-      <section className="paper-card px-5 py-5">
+      <section ref={historyRef} className="paper-card px-5 py-5 scroll-mt-6">
         <p className="section-label">{copy.historyTitle}</p>
         {angelLogs.length === 0 ? (
           <p className="mt-3 text-sm text-[color:var(--ink-soft)]">
             {copy.noHistory}
           </p>
         ) : (
-          <div className="mt-3 space-y-0">
+          <div className="mt-4 space-y-3">
             {angelLogs.slice(0, 20).map((log) => {
               const data = angelData[log.number];
+              const linkedOrder = orders.find((order) => order.id === log.linkedOrderId);
               return (
                 <div
                   key={log.id}
-                  className="flex items-center justify-between gap-3 border-b border-[rgba(181,120,58,0.08)] py-3 last:border-b-0"
+                  className="rounded-xl border border-[rgba(181,120,58,0.14)] bg-[rgba(250,246,240,0.62)] px-4 py-4"
                 >
-                  <span className="text-[0.72rem] tracking-[0.12em] text-[color:var(--ink-faint)]">
-                    {formatDate(log.recordedAt, locale)}
-                  </span>
-                  <span className="font-[var(--font-display)] text-[1.1rem] text-[color:var(--navy-deep)]">
-                    {log.number}
-                  </span>
-                  <span className="text-[0.72rem] tracking-[0.12em] text-[color:var(--ink-soft)]">
-                    {data?.energy || "·"}
-                  </span>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[0.68rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
+                        {formatDate(log.recordedAt, locale)}
+                      </p>
+                      <div className="mt-2 flex items-baseline gap-3">
+                        <span className="font-[var(--font-display)] text-[2rem] leading-none text-[color:var(--navy-deep)]">
+                          {log.number}
+                        </span>
+                        <span className="journal-tag">
+                          {data?.energy || "SIGNAL"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {data ? (
+                    <div className="mt-3 border-t border-[rgba(181,120,58,0.1)] pt-3">
+                      <p className="font-[var(--font-display)] text-[1.08rem] leading-7 text-[color:var(--ink)]">
+                        {data.title}
+                      </p>
+                      <p className="mt-1 text-sm italic leading-7 text-[color:var(--ink-soft)]">
+                        {log.decodedMessage || data.message}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {log.note ? (
+                    <div className="mt-3">
+                      <p className="text-[0.62rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
+                        {copy.noteLabel}
+                      </p>
+                      <p className="mt-1 text-sm leading-7 text-[color:var(--ink-soft)]">
+                        「{log.note}」
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {linkedOrder ? (
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-[rgba(237,228,216,0.5)] px-3 py-2">
+                      <span className="text-[0.64rem] tracking-[0.18em] text-[color:var(--ink-faint)]">
+                        {copy.linkedGoal}
+                      </span>
+                      <span className="truncate text-sm text-[color:var(--ink-soft)]">
+                        {linkedOrder.title}
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
               );
             })}

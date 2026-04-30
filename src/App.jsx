@@ -363,6 +363,7 @@ function AppContent() {
                   element={
                     <OrdersPage
                       orders={orders}
+                      angelLogs={angelLogs}
                       loading={ordersLoading}
                       onCreateOrder={createOrder}
                       onUpdateStatus={updateOrderStatus}

@@ -66,8 +66,9 @@ export default function SideDrawer({
       streakUnit: "days",
       deliveredLabel: "Wishes fulfilled",
       deliveredUnit: "",
-      langLabel: "Language",
-      moodLink: "Mood overview",
+      langLabel: "Language settings",
+      profileLink: "Cosmos Archive",
+      journalLink: "Daily Journey",
       signalLink: "Soul codes",
       wallLink: "Achievements",
       version: "v2.5 · Cosmos Journal",
@@ -80,8 +81,9 @@ export default function SideDrawer({
       streakUnit: "天",
       deliveredLabel: "實現願望",
       deliveredUnit: "個",
-      langLabel: "語言 · Language",
-      moodLink: "情緒分布",
+      langLabel: "語言設定 · Language",
+      profileLink: "宇宙檔案",
+      journalLink: "每日歷程",
       signalLink: "心靈密碼",
       wallLink: "戰績牆",
       version: "v2.5 · Cosmos Journal",
@@ -180,13 +182,22 @@ export default function SideDrawer({
         <nav className="space-y-0">
           <button type="button" onClick={() => handleNav("/profile")} className="drawer-link w-full">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 3v18h18" />
-              <path d="M7 16l4-6 4 4 5-8" />
+              <circle cx="12" cy="8" r="4" />
+              <path d="M5.5 21c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" />
             </svg>
-            <span className="flex-1 text-left">{copy.moodLink}</span>
+            <span className="flex-1 text-left">{copy.profileLink}</span>
             <span className="text-[0.68rem] text-[color:var(--ink-faint)]">›</span>
           </button>
-          <button type="button" onClick={() => handleNav("/angel")} className="drawer-link w-full">
+          <button type="button" onClick={() => handleNav("/journal")} className="drawer-link w-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M8 7h8M8 11h6" />
+            </svg>
+            <span className="flex-1 text-left">{copy.journalLink}</span>
+            <span className="text-[0.68rem] text-[color:var(--ink-faint)]">›</span>
+          </button>
+          <button type="button" onClick={() => handleNav("/angel?view=history")} className="drawer-link w-full">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z" />
               <path d="M5 16l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" />

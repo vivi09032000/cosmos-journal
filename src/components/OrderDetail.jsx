@@ -31,6 +31,7 @@ function formatDate(timestamp, locale) {
 
 export default function OrderDetail({
   order,
+  linkedAngelLogs = [],
   onBack,
   onUpdateStatus,
   onSubmitJournal,
@@ -45,6 +46,7 @@ export default function OrderDetail({
   const [actionSaving, setActionSaving] = useState(false);
   const [journalSent, setJournalSent] = useState(false);
   const [imageSaving, setImageSaving] = useState(false);
+  const [imageError, setImageError] = useState("");
   const [actionSuggestionIndex, setActionSuggestionIndex] = useState(0);
   const imageInputRef = useRef(null);
   const statusCopy = statusActions[locale] || statusActions["zh-TW"];
@@ -60,6 +62,9 @@ export default function OrderDetail({
     [locale, order.id],
   );
   const actionItems = order.actionItems || [];
+  const linkedNumbers = [
+    ...new Set(linkedAngelLogs.map((log) => log.number).filter(Boolean)),
+  ];
   const actionSummary = useMemo(
     () => getActionSummary(order),
     [order],
@@ -70,6 +75,7 @@ export default function OrderDetail({
     setStep(0);
     setCustomAction("");
     setJournalSent(false);
+    setImageError("");
     setActionSuggestionIndex(0);
   }, [order.id]);
 
@@ -102,6 +108,7 @@ export default function OrderDetail({
       historyTitle: "Journal history",
       noHistory: "There are no journal entries yet.",
       uploadFailed: "Image upload failed: ",
+      linkedSignals: "Linked signals",
     }
     : {
       back: "返回目標列表",
@@ -131,6 +138,7 @@ export default function OrderDetail({
       historyTitle: "過去的日記紀錄",
       noHistory: "還沒有日記紀錄。",
       uploadFailed: "圖片上傳失敗：",
+      linkedSignals: "已連結訊號",
     };
 
   const journalTimeline = useMemo(
@@ -230,12 +238,13 @@ export default function OrderDetail({
     if (!imageFile) return;
 
     setImageSaving(true);
+    setImageError("");
 
     try {
       await onUpdateOrderImage(imageFile);
     } catch (error) {
       console.error("Image upload failed:", error);
-      alert(copy.uploadFailed + error.message);
+      setImageError(copy.uploadFailed + error.message);
     } finally {
       setImageSaving(false);
       event.target.value = "";
@@ -274,7 +283,7 @@ export default function OrderDetail({
           className="absolute bottom-4 right-4 z-[2] flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(245,239,230,0.7)] text-base text-[color:var(--navy-deep)] backdrop-blur-sm transition disabled:opacity-70"
           aria-label={copy.changeImage}
         >
-          <span aria-hidden="true">📷</span>
+          <span aria-hidden="true">{imageSaving ? "…" : "📷"}</span>
         </button>
         <input
           ref={imageInputRef}
@@ -296,6 +305,23 @@ export default function OrderDetail({
           </p>
           <h2 className="mt-2 font-[var(--font-display)] text-[2.25rem] leading-none">{order.title}</h2>
           {order.subtitle ? <p className="mt-3 max-w-[17rem] text-sm text-[#f7e9cf]/88">{order.subtitle}</p> : null}
+          {linkedNumbers.length > 0 ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-[0.68rem] tracking-[0.18em] text-[#efd7b6]/85">
+                {copy.linkedSignals}
+              </span>
+              {linkedNumbers.map((number) => (
+                <span key={`${order.id}-${number}`} className="status-pill">
+                  {number}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {imageError ? (
+            <p className="mt-4 max-w-[24rem] rounded-xl border border-[rgba(239,215,182,0.35)] bg-[rgba(18,20,29,0.32)] px-3 py-2 text-sm leading-6 text-[#ffe8c2]">
+              {imageError}
+            </p>
+          ) : null}
         </div>
       </section>
 

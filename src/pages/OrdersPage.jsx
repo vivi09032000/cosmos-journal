@@ -172,6 +172,11 @@ function CreateOrderModal({ onClose, onCreate }) {
 function DeliveredOrderCard({ order, onOpenCapsule }) {
   const { locale } = useI18n();
   const theme = getOrderTheme(order);
+  const allLinkedNumbers = [
+    ...new Set((order.linkedAngelLogs || []).map((log) => log.number).filter(Boolean)),
+  ];
+  const linkedNumbers = allLinkedNumbers.slice(0, 6);
+  const hiddenLinkedCount = Math.max(0, allLinkedNumbers.length - linkedNumbers.length);
   const journeyDays = getOrderJourneyDays(order);
   const latestEntry = [...(order.journal || [])].sort((left, right) => {
     const leftTime = left.recordedAt?.seconds || 0;
@@ -199,6 +204,21 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
           <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)]">
             {order.subtitle}
           </p>
+        ) : null}
+        {linkedNumbers.length > 0 ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-[0.62rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
+              {locale === "en" ? "Linked signals" : "已連結訊號"}
+            </span>
+            {linkedNumbers.map((number) => (
+              <span key={`${order.id}-${number}`} className="journal-tag">
+                {number}
+              </span>
+            ))}
+            {hiddenLinkedCount > 0 ? (
+              <span className="journal-tag">+{hiddenLinkedCount}</span>
+            ) : null}
+          </div>
         ) : null}
         {latestEntry ? (
           <p className="mt-4 border-l border-[rgba(181,120,58,0.24)] pl-4 text-sm italic leading-7 text-[color:var(--ink-soft)]">
@@ -279,6 +299,7 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
 
 export default function OrdersPage({
   orders,
+  angelLogs = [],
   loading,
   onCreateOrder,
   onUpdateStatus,
@@ -293,26 +314,48 @@ export default function OrdersPage({
   const [selectedOrderId, setSelectedOrderId] = useState("");
   const [mode, setMode] = useState("active");
 
+  const linkedAngelLogsByOrderId = useMemo(() => {
+    const map = new Map();
+
+    for (const log of angelLogs) {
+      if (!log.linkedOrderId) continue;
+      const currentLogs = map.get(log.linkedOrderId) || [];
+      currentLogs.push(log);
+      map.set(log.linkedOrderId, currentLogs);
+    }
+
+    return map;
+  }, [angelLogs]);
+
+  const ordersWithLinkedSignals = useMemo(
+    () =>
+      orders.map((order) => ({
+        ...order,
+        linkedAngelLogs: linkedAngelLogsByOrderId.get(order.id) || [],
+      })),
+    [linkedAngelLogsByOrderId, orders],
+  );
+
   const selectedOrder = useMemo(
-    () => orders.find((order) => order.id === selectedOrderId) || null,
-    [orders, selectedOrderId],
+    () => ordersWithLinkedSignals.find((order) => order.id === selectedOrderId) || null,
+    [ordersWithLinkedSignals, selectedOrderId],
   );
 
   const activeOrders = useMemo(
-    () => orders.filter((order) => order.status === "packing" || order.status === "aligning"),
-    [orders],
+    () => ordersWithLinkedSignals.filter((order) => order.status === "packing" || order.status === "aligning"),
+    [ordersWithLinkedSignals],
   );
 
   const deliveredOrders = useMemo(
     () =>
-      orders
+      ordersWithLinkedSignals
         .filter((order) => order.status === "delivered")
         .sort((left, right) => {
           const leftTime = left.deliveredAt?.seconds || 0;
           const rightTime = right.deliveredAt?.seconds || 0;
           return rightTime - leftTime;
         }),
-    [orders],
+    [ordersWithLinkedSignals],
   );
 
   const projectionDays = useMemo(
@@ -353,6 +396,7 @@ export default function OrdersPage({
       {selectedOrder ? (
         <OrderDetail
           order={selectedOrder}
+          linkedAngelLogs={selectedOrder.linkedAngelLogs}
           onBack={() => setSelectedOrderId("")}
           onUpdateStatus={(status) => onUpdateStatus(selectedOrder.id, status)}
           onSubmitJournal={(entry) => onAddJournalEntry(selectedOrder.id, entry)}
