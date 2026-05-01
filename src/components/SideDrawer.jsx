@@ -347,7 +347,7 @@ export default function SideDrawer({
         <div className="drawer-divider" />
 
         {/* Version */}
-        <p className="text-center text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
+        <p className="text-center text-[color:var(--ink-faint)]" style={{ fontSize: "var(--text-xs)", letterSpacing: "var(--ls-caps)" }}>
           {copy.version}
         </p>
       </div>
