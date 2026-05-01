@@ -64,7 +64,7 @@ function WallStats({ deliveredCount, activeCount, projectionDays }) {
     <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-3">
       {items.map((item) => (
         <div key={item.label} className="paper-card-soft px-4 py-5 text-center">
-          <p className="font-[var(--font-display)] text-[2.2rem] leading-none text-[color:var(--gold)]">
+          <p className="font-display text-[2.2rem] leading-none text-[color:var(--gold)]">
             {item.value}
           </p>
           <p className="mt-3 text-[0.72rem] tracking-[0.18em] text-[color:var(--ink-soft)]">
@@ -84,7 +84,7 @@ function WallEmptyState() {
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(232,201,154,0.22)] text-3xl text-[rgba(181,120,58,0.38)]">
         ✦
       </div>
-      <h2 className="mt-8 font-[var(--font-display)] text-[2.05rem] leading-[1.35] text-[color:var(--navy-deep)]">
+      <h2 className="mt-8 font-display text-[2.05rem] leading-[1.35] text-[color:var(--navy-deep)]">
         {locale === "en" ? "Your first fulfillment is on its way" : <>第一個顯化<br />正在路上</>}
       </h2>
       <p className="mx-auto mt-5 max-w-[18rem] text-[1.02rem] leading-[2] text-[color:var(--ink-soft)]">
@@ -131,7 +131,7 @@ function WallListCard({ order, onOpen }) {
           </span>
         </div>
 
-        <h3 className="mt-4 font-[var(--font-display)] text-[2rem] leading-[1.22] text-[color:var(--ink)]">
+        <h3 className="mt-4 font-display text-[2rem] leading-[1.22] text-[color:var(--ink)]">
           {order.title}
         </h3>
 
@@ -203,7 +203,7 @@ function CapsuleTimeline({ order }) {
       )}
 
       <div className="border-t border-[rgba(181,120,58,0.16)] pt-6 text-center">
-        <p className="font-[var(--font-display)] text-[1.5rem] italic text-[color:var(--gold)]">
+        <p className="font-display text-[1.5rem] italic text-[color:var(--gold)]">
           {locale === "en" ? "Just as you foresaw." : "正如你所預見。"}
         </p>
         <p className="mt-2 text-[0.82rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
@@ -239,7 +239,7 @@ function CapsuleDetail({ order, onBack }) {
           <p className="text-[0.8rem] tracking-[0.22em] text-[color:var(--ink-faint)]">
             ✦ {locale === "en" ? "Fulfilled" : "已實現"} · {formatDeliveredDate(order.deliveredAt, locale)}
           </p>
-          <h1 className="mt-4 font-[var(--font-display)] text-[2.2rem] leading-[1.18] text-[color:var(--ink)]">
+          <h1 className="mt-4 font-display text-[2.2rem] leading-[1.18] text-[color:var(--ink)]">
             {order.title}
           </h1>
           <p className="mt-3 text-[1.05rem] tracking-[0.08em] text-[color:var(--ink-soft)]">
@@ -248,7 +248,7 @@ function CapsuleDetail({ order, onBack }) {
         </div>
 
         <div className="border-t border-[rgba(181,120,58,0.12)] px-6 py-8">
-          <blockquote className="text-center font-[var(--font-display)] text-[2rem] italic leading-[1.7] text-[color:var(--ink)]">
+          <blockquote className="text-center font-display text-[2rem] italic leading-[1.7] text-[color:var(--ink)]">
             「{locale === "en" ? "The scene you felt again and again," : "你曾經反覆感受到的畫面，"}
             <br />
             {locale === "en" ? "has now become part of reality." : "現在成為現實的一部分。"}」

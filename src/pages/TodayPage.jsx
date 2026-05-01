@@ -256,7 +256,7 @@ function RitualBackCard({ label, status, offset, onClick }) {
     >
       <div className="absolute inset-x-0 top-0 h-12 bg-[linear-gradient(90deg,rgba(232,201,154,0.26),rgba(250,246,240,0.35))]" />
       <div className="relative flex items-center justify-between px-5 py-4 text-sm font-semibold tracking-[0.12em] text-[color:var(--ink-soft)]">
-        <span className="font-[var(--font-display)] text-[1rem] tracking-[0.08em] text-[color:var(--ink)]">{label}</span>
+        <span className="font-display text-[1rem] tracking-[0.08em] text-[color:var(--ink)]">{label}</span>
         <span className="text-[0.68rem] tracking-[0.12em] text-[color:var(--ink-faint)]">{status}</span>
       </div>
     </button>
@@ -679,7 +679,7 @@ export default function TodayPage({
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[0.58rem] tracking-[0.3em] text-[#d8c5a1]">{copy.moonCard}</p>
-            <p className="mt-2 font-[var(--font-display)] text-[2rem] leading-none text-[#fff3dd]">
+            <p className="mt-2 font-display text-[2rem] leading-none text-[#fff3dd]">
               {moonLabel}
             </p>
             <p className="mt-2 text-[0.88rem] leading-7 text-[#ecdcbf]">
@@ -687,7 +687,7 @@ export default function TodayPage({
             </p>
           </div>
           <div className="shrink-0 text-right">
-            <p className="font-[var(--font-display)] text-[2.25rem] leading-none text-[color:var(--gold-soft)]">
+            <p className="font-display text-[2.25rem] leading-none text-[color:var(--gold-soft)]">
               {moonRhythm.shortLabel.replace("Day ", "")}
             </p>
             <p className="mt-2 text-[0.62rem] tracking-[0.18em] text-[#caa97b]">
@@ -732,7 +732,7 @@ export default function TodayPage({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="section-label">{copy.moodCardTitle}</p>
-                    <h2 className="mt-4 font-[var(--font-display)] text-[1.75rem] leading-[1.35] text-[color:var(--ink)]">
+                    <h2 className="mt-4 font-display text-[1.75rem] leading-[1.35] text-[color:var(--ink)]">
                       {copy.moodTitle}
                     </h2>
                   </div>
@@ -781,7 +781,7 @@ export default function TodayPage({
                     {activeQuestion.index + 1}/7
                   </span>
                 </div>
-                <p className="mt-5 font-[var(--font-display)] text-[1.65rem] leading-[1.45] text-[color:var(--ink)]">
+                <p className="mt-5 font-display text-[1.65rem] leading-[1.45] text-[color:var(--ink)]">
                   {activeQuestion.question}
                 </p>
                 {questionState === "done" ? (
@@ -865,7 +865,7 @@ export default function TodayPage({
                 {todayEntry ? (
                   <>
                     <p className="section-label">{copy.gratitudeCardTitle}</p>
-                    <h2 className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
+                    <h2 className="mt-4 font-display text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
                       {copy.recorded}
                     </h2>
                     <div className="mt-4 space-y-2">
@@ -879,7 +879,7 @@ export default function TodayPage({
                 ) : (
                   <>
                     <p className="section-label">{copy.gratitudeCardTitle}</p>
-                    <h2 className="mt-4 font-[var(--font-display)] text-[1.65rem] leading-[1.45] text-[color:var(--ink)]">
+                    <h2 className="mt-4 font-display text-[1.65rem] leading-[1.45] text-[color:var(--ink)]">
                       {copy.notLogged}
                     </h2>
                     <button
@@ -954,7 +954,7 @@ export default function TodayPage({
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,28,45,0.08),rgba(20,28,45,0.55))]" />
                   <div className="absolute inset-x-0 bottom-0 p-4">
-                    <p className="line-clamp-2 font-[var(--font-display)] text-[1.05rem] leading-snug text-[#fff3dd] drop-shadow">
+                    <p className="line-clamp-2 font-display text-[1.05rem] leading-snug text-[#fff3dd] drop-shadow">
                       {order.title}
                     </p>
                     <p className="mt-1 text-[0.56rem] tracking-[0.16em] text-[rgba(255,243,221,0.78)]">
@@ -1000,7 +1000,7 @@ export default function TodayPage({
                       {getOrderStatusLabel(activeOrder.status, locale)}
                     </span>
                   </div>
-                  <h2 className="mt-3 font-[var(--font-display)] text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
+                  <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
                     {activeOrder.title}
                   </h2>
                   {activeOrder.subtitle ? (
@@ -1023,7 +1023,7 @@ export default function TodayPage({
             <article className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left">
                 <div className="px-5 py-5">
                   <Tag>今日投射</Tag>
-                  <h2 className="mt-3 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
+                  <h2 className="mt-3 font-display text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
                     {copy.noOrderTitle}
                   </h2>
                   <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
@@ -1064,7 +1064,7 @@ export default function TodayPage({
         <button
           type="button"
           onClick={() => navigate("/wall")}
-          className="w-full rounded-[1.35rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(240,232,220,0.62)] px-5 py-4 text-left font-[var(--font-display)] text-[1.15rem] text-[color:var(--ink)] shadow-[0_10px_28px_rgba(46,35,24,0.04)]"
+          className="w-full rounded-[1.35rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(240,232,220,0.62)] px-5 py-4 text-left font-display text-[1.15rem] text-[color:var(--ink)] shadow-[0_10px_28px_rgba(46,35,24,0.04)]"
         >
           {copy.achievedBanner(deliveredCount)}
         </button>

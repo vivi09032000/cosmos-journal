@@ -184,7 +184,7 @@ export default function NumberSignalSheet({
           ×
         </button>
 
-        <h2 id={titleId} className="pr-12 font-[var(--font-display)] text-[1.55rem] leading-[1.3] text-[color:var(--navy-deep)]">
+        <h2 id={titleId} className="pr-12 font-display text-[1.55rem] leading-[1.3] text-[color:var(--navy-deep)]">
           {copy.title}
         </h2>
 

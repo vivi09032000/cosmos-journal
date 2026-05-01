@@ -37,7 +37,7 @@ export default function GratitudePage({ todayEntry, entries, streak, onSave }) {
           <div className="mt-3 flex flex-wrap gap-4">
             {streak > 0 && (
               <div className="flex items-baseline gap-2">
-                <span className="font-[var(--font-display)] text-[2.2rem] leading-none text-[color:var(--gold)]">{streak}</span>
+                <span className="font-display text-[2.2rem] leading-none text-[color:var(--gold)]">{streak}</span>
                 <span className="text-[0.76rem] tracking-[0.14em] text-[color:var(--ink-soft)]">
                   {locale === "en" ? `day${streak !== 1 ? "s" : ""} in a row` : "天連續感恩中"}
                 </span>
@@ -45,7 +45,7 @@ export default function GratitudePage({ todayEntry, entries, streak, onSave }) {
             )}
             {entries.length > 0 && (
               <div className="flex items-baseline gap-2">
-                <span className="font-[var(--font-display)] text-[2.2rem] leading-none text-[color:var(--navy-deep)]">{entries.length}</span>
+                <span className="font-display text-[2.2rem] leading-none text-[color:var(--navy-deep)]">{entries.length}</span>
                 <span className="text-[0.76rem] tracking-[0.14em] text-[color:var(--ink-soft)]">
                   {locale === "en" ? `total entr${entries.length !== 1 ? "ies" : "y"}` : "次感恩紀錄"}
                 </span>

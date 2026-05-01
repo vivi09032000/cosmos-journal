@@ -305,7 +305,7 @@ export default function OrderDetail({
           <p className="mt-4 text-[0.78rem] uppercase tracking-[0.24em] text-[#efd7b6]">
             {formatOrderMonth(order.createdAt)} · {locale === "en" ? `Day ${daysSince(order.createdAt)}` : `第 ${daysSince(order.createdAt)} 天`}
           </p>
-          <h2 className="mt-2 font-[var(--font-display)] text-[2.25rem] leading-none">{order.title}</h2>
+          <h2 className="mt-2 font-display text-[2.25rem] leading-none">{order.title}</h2>
           {order.subtitle ? <p className="mt-3 max-w-[17rem] text-sm text-[#f7e9cf]/88">{order.subtitle}</p> : null}
           {linkedNumbers.length > 0 ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -329,7 +329,7 @@ export default function OrderDetail({
 
       <section className="paper-card px-5 py-5">
         <p className="section-label">{copy.journalKicker}</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.journalTitle}</h3>
+        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.journalTitle}</h3>
         <div className="mt-4 space-y-4">
           {questions.slice(0, step + 1).map((question, index) => (
             <div key={question} className="paper-card-soft px-4 py-4">
@@ -357,7 +357,7 @@ export default function OrderDetail({
 
       <section className="paper-card px-5 py-5">
         <p className="section-label">{copy.actionKicker}</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.actionTitle}</h3>
+        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.actionTitle}</h3>
         <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
           {journalSent || journalTimeline.length > 0
             ? copy.actionAfterJournal
@@ -473,7 +473,7 @@ export default function OrderDetail({
 
       <section className="paper-card px-5 py-5">
         <p className="section-label">{copy.statusKicker}</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.statusTitle}</h3>
+        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.statusTitle}</h3>
         {action ? (
           <button
             type="button"
@@ -489,7 +489,7 @@ export default function OrderDetail({
 
       <section className="paper-card px-5 py-5">
         <p className="section-label">{copy.historyKicker}</p>
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{copy.historyTitle}</h3>
+        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.historyTitle}</h3>
         <div className="timeline-rail mt-4 space-y-4">
           {journalTimeline.length === 0 ? (
             <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{copy.noHistory}</p>

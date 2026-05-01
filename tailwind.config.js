@@ -2,7 +2,13 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        display: ['var(--font-display)'],
+        body: ['var(--font-body)'],
+        ui: ['var(--font-ui)'],
+      },
+    },
   },
   plugins: [],
 };

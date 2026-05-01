@@ -37,7 +37,7 @@ export default function OrderCard({ order, onClick }) {
           <Tag>{order.angelNumber ? `#${order.angelNumber}` : "Manifest"}</Tag>
         </div>
         <div className="absolute bottom-3 left-4 right-4">
-          <div className="font-[var(--font-display)] text-[1.7rem] leading-none text-[color:var(--ink)]">
+          <div className="font-display text-[1.7rem] leading-none text-[color:var(--ink)]">
             {order.title}
           </div>
         </div>

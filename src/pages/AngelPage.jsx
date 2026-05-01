@@ -164,7 +164,7 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
           onKeyDown={handleKeyDown}
           placeholder={copy.placeholder}
           aria-label={copy.placeholder}
-          className="cosmos-input text-center text-[1.3rem] font-[var(--font-display)] tracking-[0.12em] placeholder:text-[0.88rem] placeholder:font-normal placeholder:tracking-[0.08em]"
+          className="cosmos-input text-center text-[1.3rem] font-display tracking-[0.12em] placeholder:text-[0.88rem] placeholder:font-normal placeholder:tracking-[0.08em]"
         />
         <button
           type="button"
@@ -194,11 +194,11 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
                 <LeafDecor className="absolute -bottom-2 -right-2" />
                 <Tag>{decoded.result.energy}</Tag>
                 <div className="mt-4 flex items-start gap-4">
-                  <p className="font-[var(--font-display)] text-[3.8rem] leading-none tracking-[0.04em] text-[color:var(--gold)]">
+                  <p className="font-display text-[3.8rem] leading-none tracking-[0.04em] text-[color:var(--gold)]">
                     {decoded.number}
                   </p>
                   <div className="min-w-0 flex-1 pt-1">
-                    <h3 className="font-[var(--font-display)] text-[1.35rem] leading-[1.35] text-[color:var(--ink)]">
+                    <h3 className="font-display text-[1.35rem] leading-[1.35] text-[color:var(--ink)]">
                       {decoded.result.title}
                     </h3>
                     <p className="mt-2 text-sm italic leading-7 text-[color:var(--ink-soft)]">
@@ -233,7 +233,7 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
                             <span className="w-12 shrink-0 text-[0.65rem] tracking-[0.14em] text-[color:var(--gold)]">
                               {order.angelNumber ? `#${order.angelNumber}` : "MANIFEST"}
                             </span>
-                            <span className="min-w-0 flex-1 truncate font-[var(--font-display)] text-[0.98rem] text-[color:var(--ink)]">
+                            <span className="min-w-0 flex-1 truncate font-display text-[0.98rem] text-[color:var(--ink)]">
                               {order.title}
                             </span>
                             <span className="shrink-0 text-[0.72rem] tracking-[0.12em] text-[color:var(--gold)]">
@@ -290,7 +290,7 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
                   onClick={() => handleQuickDecode(quickNumber)}
                   className="rounded-lg border border-[rgba(181,120,58,0.16)] bg-[rgba(237,228,216,0.54)] px-4 py-4 text-left transition hover:border-[rgba(181,120,58,0.36)]"
                 >
-                  <span className="block font-[var(--font-display)] text-[1.65rem] leading-none text-[color:var(--gold)]">
+                  <span className="block font-display text-[1.65rem] leading-none text-[color:var(--gold)]">
                     {quickNumber}
                   </span>
                   <span className="mt-2 block text-[0.62rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
@@ -326,7 +326,7 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
                         {formatDate(log.recordedAt, locale)}
                       </p>
                       <div className="mt-2 flex items-baseline gap-3">
-                        <span className="font-[var(--font-display)] text-[2rem] leading-none text-[color:var(--navy-deep)]">
+                        <span className="font-display text-[2rem] leading-none text-[color:var(--navy-deep)]">
                           {log.number}
                         </span>
                         <span className="journal-tag">
@@ -338,7 +338,7 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
 
                   {data ? (
                     <div className="mt-3 border-t border-[rgba(181,120,58,0.1)] pt-3">
-                      <p className="font-[var(--font-display)] text-[1.08rem] leading-7 text-[color:var(--ink)]">
+                      <p className="font-display text-[1.08rem] leading-7 text-[color:var(--ink)]">
                         {data.title}
                       </p>
                       <p className="mt-1 text-sm italic leading-7 text-[color:var(--ink-soft)]">

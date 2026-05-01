@@ -171,7 +171,7 @@ export default function SideDrawer({
               {activeAvatar.icon}
             </span>
           </div>
-          <h2 className="mt-3 font-[var(--font-display)] text-[1.4rem] leading-[1.2] text-[color:var(--navy-deep)]">
+          <h2 className="mt-3 font-display text-[1.4rem] leading-[1.2] text-[color:var(--navy-deep)]">
             {displayName}
           </h2>
           <button
@@ -289,7 +289,7 @@ export default function SideDrawer({
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center">
-            <p className="font-[var(--font-display)] text-[1.6rem] leading-none text-[color:var(--gold)]">
+            <p className="font-display text-[1.6rem] leading-none text-[color:var(--gold)]">
               {checkinStreak}
             </p>
             <p className="mt-1 text-[0.62rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
@@ -297,7 +297,7 @@ export default function SideDrawer({
             </p>
           </div>
           <div className="text-center">
-            <p className="font-[var(--font-display)] text-[1.6rem] leading-none text-[color:var(--gold)]">
+            <p className="font-display text-[1.6rem] leading-none text-[color:var(--gold)]">
               {deliveredCount}
             </p>
             <p className="mt-1 text-[0.62rem] tracking-[0.14em] text-[color:var(--ink-faint)]">

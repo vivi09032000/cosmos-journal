@@ -115,7 +115,7 @@ function CreateOrderModal({ onClose, onCreate }) {
         className="paper-card mx-auto w-full max-w-lg overflow-y-auto px-5 py-5 max-h-[calc(100svh-3rem)]"
       >
         <p className="gold-kicker">{copy.kicker}</p>
-        <h2 className="mt-2 font-[var(--font-display)] text-[2rem] text-[color:var(--navy-deep)]">{copy.title}</h2>
+        <h2 className="mt-2 font-display text-[2rem] text-[color:var(--navy-deep)]">{copy.title}</h2>
         <div className="mt-4 space-y-4">
           <div>
             <label className="text-sm font-medium text-[color:var(--ink-soft)]">{copy.titleLabel}</label>
@@ -197,7 +197,7 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
       </div>
 
       <div className="px-5 py-5">
-        <h3 className="font-[var(--font-display)] text-[1.85rem] leading-[1.2] text-[color:var(--ink)]">
+        <h3 className="font-display text-[1.85rem] leading-[1.2] text-[color:var(--ink)]">
           {order.title}
         </h3>
         {order.subtitle ? (
@@ -261,19 +261,19 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
     <section className="space-y-4">
       <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-3">
         <div className="paper-card-soft px-4 py-5 text-center">
-          <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
+          <p className="font-display text-[1.9rem] leading-none text-[color:var(--gold)]">
             {deliveredCount}
           </p>
           <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "Fulfilled" : "已實現"}</p>
         </div>
         <div className="paper-card-soft px-4 py-5 text-center">
-          <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
+          <p className="font-display text-[1.9rem] leading-none text-[color:var(--gold)]">
             {activeCount}
           </p>
           <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "In transit" : "運送中"}</p>
         </div>
         <div className="paper-card-soft px-4 py-5 text-center">
-          <p className="font-[var(--font-display)] text-[1.9rem] leading-none text-[color:var(--gold)]">
+          <p className="font-display text-[1.9rem] leading-none text-[color:var(--gold)]">
             {projectionDays}
           </p>
           <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "Projection days" : "累計投射天數"}</p>
@@ -284,7 +284,7 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(232,201,154,0.18)] text-3xl text-[rgba(181,120,58,0.32)]">
           ✦
         </div>
-        <p className="mx-auto mt-8 max-w-[20rem] font-[var(--font-display)] text-[1.9rem] leading-[1.45] text-[color:var(--navy-deep)]">
+        <p className="mx-auto mt-8 max-w-[20rem] font-display text-[1.9rem] leading-[1.45] text-[color:var(--navy-deep)]">
           {locale === "en" ? "Your first manifestation is on its way" : "第一個顯化正在路上"}
         </p>
         <p className="mx-auto mt-5 max-w-[22rem] text-[1rem] leading-[2] text-[color:var(--ink-soft)]">

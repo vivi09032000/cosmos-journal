@@ -318,7 +318,7 @@ export default function JournalPage({
 
           {!showQuestionForm && !savedAnswer ? (
             <>
-              <p className="mt-3 font-[var(--font-display)] text-[1.35rem] leading-[1.5] text-[color:var(--ink)]">
+              <p className="mt-3 font-display text-[1.35rem] leading-[1.5] text-[color:var(--ink)]">
                 {dailyQuestion}
               </p>
               <button
@@ -331,7 +331,7 @@ export default function JournalPage({
             </>
           ) : showQuestionForm ? (
             <>
-              <p className="mt-3 font-[var(--font-display)] text-[1.2rem] leading-[1.5] text-[color:var(--ink)]">
+              <p className="mt-3 font-display text-[1.2rem] leading-[1.5] text-[color:var(--ink)]">
                 {dailyQuestion}
               </p>
               <textarea
@@ -365,7 +365,7 @@ export default function JournalPage({
             </>
           ) : (
             <>
-              <p className="mt-3 font-[var(--font-display)] text-[1.2rem] leading-[1.5] text-[color:var(--ink)]">
+              <p className="mt-3 font-display text-[1.2rem] leading-[1.5] text-[color:var(--ink)]">
                 {dailyQuestion}
               </p>
               <p className="mt-3 text-sm italic leading-7 text-[color:var(--ink-soft)]">

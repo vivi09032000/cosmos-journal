@@ -152,8 +152,8 @@ export default function AngelDecoder({ orders, onSave }) {
         <Tag color={number === "222" ? "var(--olive)" : "var(--gold)"}>
           {result?.energy || copy.decodeFallback}
         </Tag>
-        <p className="mt-4 font-[var(--font-display)] text-[3.5rem] leading-none text-[color:var(--gold)]">{number}</p>
-        <p className="mt-3 font-[var(--font-display)] text-[1.35rem] text-[color:var(--ink)]">{result?.title || copy.invalidTitle}</p>
+        <p className="mt-4 font-display text-[3.5rem] leading-none text-[color:var(--gold)]">{number}</p>
+        <p className="mt-3 font-display text-[1.35rem] text-[color:var(--ink)]">{result?.title || copy.invalidTitle}</p>
         <WaveDivider className="wave-divider" />
         <p className="mt-3 text-sm italic leading-8 text-[color:var(--ink-soft)]">{result?.message || copy.invalidMessage}</p>
       </div>

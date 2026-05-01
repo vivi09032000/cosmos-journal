@@ -64,7 +64,7 @@ export default function TimeCapsulePage({ orders }) {
           <span>{locale === "en" ? "Back to goals" : "返回目標"}</span>
         </button>
         <section className="paper-card px-6 py-10 text-center">
-          <h1 className="font-[var(--font-display)] text-[1.8rem] text-[color:var(--navy-deep)]">
+          <h1 className="font-display text-[1.8rem] text-[color:var(--navy-deep)]">
             {locale === "en" ? "Time capsule not found" : "找不到這顆時光膠囊"}
           </h1>
           <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
@@ -95,7 +95,7 @@ export default function TimeCapsulePage({ orders }) {
           <p className="text-[0.8rem] tracking-[0.18em] text-[color:var(--ink-faint)]">
             {locale === "en" ? "Fulfilled on" : "實現日期"} · {formatDate(order.deliveredAt, locale)}
           </p>
-          <h1 className="mt-4 font-[var(--font-display)] text-[2.2rem] leading-[1.2] text-[color:var(--ink)]">
+          <h1 className="mt-4 font-display text-[2.2rem] leading-[1.2] text-[color:var(--ink)]">
             {order.title}
           </h1>
           <p className="mt-3 text-[1rem] tracking-[0.06em] text-[color:var(--ink-soft)]">
@@ -104,7 +104,7 @@ export default function TimeCapsulePage({ orders }) {
         </div>
 
         <div className="border-t border-[rgba(181,120,58,0.12)] px-6 py-8">
-          <blockquote className="text-center font-[var(--font-display)] text-[2rem] italic leading-[1.7] text-[color:var(--ink)]">
+          <blockquote className="text-center font-display text-[2rem] italic leading-[1.7] text-[color:var(--ink)]">
             「{locale === "en" ? "The scene you kept feeling again and again," : "你曾經反覆感受到的畫面，"}
             <br />
             {locale === "en" ? "has now become part of reality." : "現在成為現實的一部分。"}」
@@ -147,7 +147,7 @@ export default function TimeCapsulePage({ orders }) {
         </div>
 
         <div className="border-t border-[rgba(181,120,58,0.12)] px-6 py-6 text-center">
-          <p className="font-[var(--font-display)] text-[1.7rem] italic text-[color:var(--gold)]">
+          <p className="font-display text-[1.7rem] italic text-[color:var(--gold)]">
             {locale === "en" ? "Just as you foresaw." : "正如你所預見。"}
           </p>
         </div>

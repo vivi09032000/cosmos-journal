@@ -224,7 +224,7 @@ export default function ProfilePage({
             <span className="text-[1.65rem]" aria-label={activeAvatar.label}>{activeAvatar.icon}</span>
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-[var(--font-display)] text-[1.55rem] leading-[1.2] text-[color:var(--navy-deep)]">
+            <h2 className="font-display text-[1.55rem] leading-[1.2] text-[color:var(--navy-deep)]">
               {displayName}
             </h2>
             {lifePathInfo ? (
@@ -285,7 +285,7 @@ export default function ProfilePage({
               <div className="absolute inset-x-0 bottom-0 h-12 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
             </div>
             <div className="px-5 pb-5">
-              <h3 className="mt-2 font-[var(--font-display)] text-[1.3rem] leading-[1.3] text-[color:var(--ink)]">
+              <h3 className="mt-2 font-display text-[1.3rem] leading-[1.3] text-[color:var(--ink)]">
                 {latestDelivered.title}
               </h3>
               <button
