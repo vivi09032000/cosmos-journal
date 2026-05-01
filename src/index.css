@@ -61,9 +61,9 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   background:
-    radial-gradient(circle at 10% 12%, rgba(31, 44, 70, 0.78), transparent 17%),
-    radial-gradient(circle at 88% 18%, rgba(212, 149, 78, 0.14), transparent 18%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.28), transparent 62%),
+    radial-gradient(ellipse at 8% 10%, rgba(220, 195, 155, 0.32), transparent 26%),
+    radial-gradient(ellipse at 88% 18%, rgba(212, 149, 78, 0.12), transparent 22%),
+    radial-gradient(ellipse at 50% 88%, rgba(194, 159, 98, 0.1), transparent 30%),
     linear-gradient(180deg, #efe7d9 0%, #f8f2e8 36%, #f3eadc 100%);
   background-attachment: fixed;
 }
@@ -932,10 +932,10 @@ body::after {
   z-index: 201;
   width: min(80vw, 22rem);
   overflow-y: auto;
-  background: linear-gradient(180deg, rgba(250, 246, 240, 0.99), rgba(244, 236, 224, 0.99));
+  background: linear-gradient(180deg, rgba(252, 248, 242, 0.99), rgba(245, 237, 226, 0.99));
   border-left: 1px solid rgba(181, 120, 58, 0.14);
   box-shadow: -8px 0 40px rgba(46, 35, 24, 0.12);
-  padding: 2rem 1.5rem calc(2rem + env(safe-area-inset-bottom));
+  padding: calc(1.8rem + env(safe-area-inset-top)) 1.5rem calc(2rem + env(safe-area-inset-bottom));
   animation: drawer-slide-in 280ms cubic-bezier(0.22, 0.68, 0.36, 1) forwards;
   scrollbar-width: none;
 }
@@ -966,15 +966,17 @@ body::after {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 0;
+  padding: 0.85rem 0;
   font-size: 0.92rem;
   letter-spacing: 0.06em;
   color: var(--ink);
-  transition: color 160ms ease;
+  border-bottom: 1px solid rgba(181, 120, 58, 0.07);
+  transition: color 160ms ease, padding-left 160ms ease;
 }
 
 .drawer-link:hover {
   color: var(--gold);
+  padding-left: 0.2rem;
 }
 
 .drawer-link svg {

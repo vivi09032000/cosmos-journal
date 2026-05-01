@@ -19,7 +19,7 @@ function formatDate(timestamp, locale) {
   });
 }
 
-const QUICK_NUMBERS = ["111", "222", "333", "444", "555", "777", "888", "999"];
+const QUICK_NUMBERS = ["111", "222", "333", "444", "555", "777", "888", "999", "1010"];
 
 export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
   const { locale } = useI18n();
@@ -168,11 +168,14 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
           type="button"
           onClick={handleDecode}
           disabled={!number.trim()}
-          className="mt-4 w-full rounded-xl py-3.5 text-[0.88rem] font-medium tracking-[0.14em] transition disabled:opacity-40"
+          className="mt-4 w-full rounded-xl py-3.5 text-[0.88rem] font-medium tracking-[0.14em] transition"
           style={{
-            background: "linear-gradient(180deg, rgba(51,66,103,0.98), rgba(29,39,68,0.99))",
-            color: "#fff4de",
-            boxShadow: "0 4px 16px rgba(29,39,68,0.25)",
+            background: number.trim()
+              ? "linear-gradient(180deg, rgba(51,66,103,0.98), rgba(29,39,68,0.99))"
+              : "linear-gradient(180deg, rgba(51,66,103,0.42), rgba(29,39,68,0.45))",
+            color: number.trim() ? "#fff4de" : "rgba(255,244,222,0.52)",
+            boxShadow: number.trim() ? "0 4px 16px rgba(29,39,68,0.25)" : "none",
+            cursor: number.trim() ? "pointer" : "default",
           }}
         >
           {copy.decode}
