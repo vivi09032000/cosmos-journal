@@ -1,9 +1,9 @@
 /* ── Web fonts ─────────────────────────────────────────────────
-   Cormorant Garamond — high-contrast display serif, mystical/editorial
-   DM Sans           — humanist geometric sans, warm, mobile-legible
-   Noto Serif TC      — CJK serif fallback (Cormorant doesn't cover CJK)
+   Cormorant Garamond — high-contrast display serif (Latin)
+   Noto Serif TC      — CJK serif (Chinese)
+   Unified serif stack across all text roles.
 ──────────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -28,14 +28,14 @@
   --danger: #9f4f34;
   --shadow: 0 18px 40px rgba(46, 35, 24, 0.08);
   --font-display: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
-  --font-body: "DM Sans", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
-  --font-ui: "DM Sans", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  --font-body: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
+  --font-ui: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
-  /* Typography scale — app UI uses fixed rem, not fluid */
-  --text-xs:   0.72rem;   /* 11.5px — minimum for labels */
-  --text-sm:   0.82rem;   /* 13.1px — secondary text, captions */
-  --text-base: 0.92rem;   /* 14.7px — body, form text */
+  /* Typography scale — serif needs slightly larger sizes for legibility */
+  --text-xs:   0.76rem;   /* 12.2px — minimum for labels */
+  --text-sm:   0.86rem;   /* 13.8px — secondary text, captions */
+  --text-base: 0.95rem;   /* 15.2px — body, form text */
   --text-md:   1rem;      /* 16px   — default body */
   --text-lg:   1.15rem;   /* 18.4px — card titles, emphasis */
   --text-xl:   1.35rem;   /* 21.6px — section headings */
