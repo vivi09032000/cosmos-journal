@@ -345,6 +345,8 @@ export default function TodayPage({
     return "mood";
   };
   const [activeRitual, setActiveRitual] = useState(getDefaultRitual);
+  const [ritualAnimState, setRitualAnimState] = useState("idle"); // 'idle' | 'exiting' | 'entering'
+  const ritualAnimTimerRef = useRef(null);
   const [activeOrderIndex, setActiveOrderIndex] = useState(0);
   const activeOrder = activeOrders[activeOrderIndex] || activeOrders[0] || null;
   const activeOrderTheme = activeOrder ? getOrderTheme(activeOrder) : null;
@@ -586,16 +588,28 @@ export default function TodayPage({
     previousOrder ? { order: previousOrder, side: "left" } : null,
     nextOrder ? { order: nextOrder, side: "right" } : null,
   ].filter(Boolean);
+  const switchRitual = useCallback((nextId) => {
+    if (ritualAnimTimerRef.current) window.clearTimeout(ritualAnimTimerRef.current);
+    setRitualAnimState("exiting");
+    ritualAnimTimerRef.current = window.setTimeout(() => {
+      setActiveRitual(nextId);
+      setRitualAnimState("entering");
+      ritualAnimTimerRef.current = window.setTimeout(() => {
+        setRitualAnimState("idle");
+      }, 360);
+    }, 220);
+  }, []);
+
   const handleNextRitual = useCallback(() => {
     const currentIndex = ritualItems.findIndex((item) => item.id === activeRitual);
     const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % ritualItems.length : 0;
-    setActiveRitual(ritualItems[nextIndex].id);
-  }, [ritualItems, activeRitual]);
+    switchRitual(ritualItems[nextIndex].id);
+  }, [ritualItems, activeRitual, switchRitual]);
   const handlePrevRitual = useCallback(() => {
     const currentIndex = ritualItems.findIndex((item) => item.id === activeRitual);
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : ritualItems.length - 1;
-    setActiveRitual(ritualItems[prevIndex].id);
-  }, [ritualItems, activeRitual]);
+    switchRitual(ritualItems[prevIndex].id);
+  }, [ritualItems, activeRitual, switchRitual]);
   const openOrderProjection = (order) => {
     navigate("/orders", {
       state: { selectedOrderId: order.id },
@@ -709,10 +723,10 @@ export default function TodayPage({
               label={item.label}
               status={item.status}
               offset={(index + 1) * 10}
-              onClick={() => setActiveRitual(item.id)}
+              onClick={() => switchRitual(item.id)}
             />
           ))}
-          <article className="paper-card today-ritual-card relative z-10 min-h-[18rem] px-5 py-5">
+          <article className={`paper-card today-ritual-card relative z-10 min-h-[18rem] px-5 py-5${ritualAnimState !== "idle" ? ` ritual-${ritualAnimState}` : ""}`}>
             {activeRitual === "mood" ? (
               <>
                 <div className="flex items-start justify-between gap-3">
@@ -891,7 +905,7 @@ export default function TodayPage({
             {copy.skipRitual}
           </button>
         </div>
-        <RitualDots items={ritualItems} activeId={activeRitual} onSelect={setActiveRitual} />
+        <RitualDots items={ritualItems} activeId={activeRitual} onSelect={switchRitual} />
       </section>
 
       <div className="today-angel-strip flex items-center justify-center py-1">
