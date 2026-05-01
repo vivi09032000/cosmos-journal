@@ -1,3 +1,10 @@
+/* ── Web fonts ─────────────────────────────────────────────────
+   Cormorant Garamond — high-contrast display serif, mystical/editorial
+   DM Sans           — humanist geometric sans, warm, mobile-legible
+   Noto Serif TC      — CJK serif fallback (Cormorant doesn't cover CJK)
+──────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Noto+Serif+TC:wght@300;400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,10 +27,9 @@
   --olive: #7a8c6e;
   --danger: #9f4f34;
   --shadow: 0 18px 40px rgba(46, 35, 24, 0.08);
-  --font-display: "Palatino Linotype", "Book Antiqua", Palatino,
-    "Noto Serif TC", Georgia, serif;
-  --font-body: "Trebuchet MS", "Gill Sans", "Gill Sans MT", "PingFang TC",
-    "Noto Sans TC", sans-serif;
+  --font-display: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
+  --font-body: "DM Sans", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 }
 
 * {
@@ -60,6 +66,12 @@ body {
   min-height: 100vh;
   color: var(--ink);
   font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
   background:
     radial-gradient(ellipse at 8% 10%, rgba(220, 195, 155, 0.32), transparent 26%),
     radial-gradient(ellipse at 88% 18%, rgba(212, 149, 78, 0.12), transparent 22%),
@@ -271,20 +283,28 @@ body::after {
   color: var(--navy-deep);
   font-family: var(--font-display);
   font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   line-height: 1.12;
+  font-feature-settings: "kern" 1, "liga" 1, "dlig" 1;
 }
 
 .page-title {
   font-family: var(--font-display);
-  font-size: 1.85rem;
-  letter-spacing: 0.15em;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.14;
   color: var(--navy-deep);
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 .gold-kicker {
   color: var(--ink-faint);
-  font-size: 0.66rem;
-  letter-spacing: 0.34em;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
