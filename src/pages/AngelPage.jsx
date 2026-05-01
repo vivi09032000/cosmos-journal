@@ -156,12 +156,14 @@ export default function AngelPage({ orders, angelLogs, onCreateAngelLog }) {
       {/* Input area */}
       <section className="paper-card px-5 py-5">
         <input
+          id="angel-number-input"
           type="text"
           inputMode="numeric"
           value={number}
           onChange={(e) => setNumber(e.target.value.replace(/[^\d]/g, ""))}
           onKeyDown={handleKeyDown}
           placeholder={copy.placeholder}
+          aria-label={copy.placeholder}
           className="cosmos-input text-center text-[1.3rem] font-[var(--font-display)] tracking-[0.12em] placeholder:text-[0.88rem] placeholder:font-normal placeholder:tracking-[0.08em]"
         />
         <button

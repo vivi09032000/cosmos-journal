@@ -27,27 +27,34 @@ export default function GratitudePage({ todayEntry, entries, streak, onSave }) {
 
       <section>
         <p className="section-label">{locale === "en" ? "Gratitude milestones" : "感恩里程"}</p>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          <div className="paper-card-soft flex items-center gap-4 px-4 py-4">
-            <div className="coin-badge">
-              <span className="font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{streak}</span>
-            </div>
-            <div>
-              <p className="font-[var(--font-display)] text-3xl text-[color:var(--navy-deep)]">{locale === "en" ? `${streak} days` : `${streak}天`}</p>
-              <p className="mt-1 text-xs tracking-[0.14em] text-[color:var(--ink-soft)]">{locale === "en" ? "Current streak" : "持續感恩中"}</p>
-            </div>
+        {streak === 0 && entries.length === 0 ? (
+          <p className="mt-3 text-sm italic leading-7 text-[color:var(--ink-soft)]">
+            {locale === "en"
+              ? "Every great journey starts with one moment of gratitude. Today is a perfect day to begin."
+              : "每一段偉大的旅程，都從一刻感謝開始。今天就是最好的起點。"}
+          </p>
+        ) : (
+          <div className="mt-3 flex flex-wrap gap-4">
+            {streak > 0 && (
+              <div className="flex items-baseline gap-2">
+                <span className="font-[var(--font-display)] text-[2.2rem] leading-none text-[color:var(--gold)]">{streak}</span>
+                <span className="text-[0.76rem] tracking-[0.14em] text-[color:var(--ink-soft)]">
+                  {locale === "en" ? `day${streak !== 1 ? "s" : ""} in a row` : "天連續感恩中"}
+                </span>
+              </div>
+            )}
+            {entries.length > 0 && (
+              <div className="flex items-baseline gap-2">
+                <span className="font-[var(--font-display)] text-[2.2rem] leading-none text-[color:var(--navy-deep)]">{entries.length}</span>
+                <span className="text-[0.76rem] tracking-[0.14em] text-[color:var(--ink-soft)]">
+                  {locale === "en" ? `total entr${entries.length !== 1 ? "ies" : "y"}` : "次感恩紀錄"}
+                </span>
+              </div>
+            )}
           </div>
-          <div className="paper-card-soft flex items-center gap-4 px-4 py-4">
-            <div className="coin-badge bg-[linear-gradient(145deg,rgba(223,215,242,0.94),rgba(176,164,214,0.92))]">
-              <span className="font-[var(--font-display)] text-2xl text-[color:var(--navy-deep)]">{entries.length}</span>
-            </div>
-            <div>
-              <p className="font-[var(--font-display)] text-3xl text-[color:var(--navy-deep)]">{locale === "en" ? `${entries.length} entries` : `${entries.length}次`}</p>
-              <p className="mt-1 text-xs tracking-[0.14em] text-[color:var(--ink-soft)]">{locale === "en" ? "Journey total" : "感恩之旅"}</p>
-            </div>
-          </div>
-        </div>
+        )}
       </section>
+
 
       <section className="paper-card px-5 py-5">
         <p className="section-label">{locale === "en" ? "Gratitude timeline" : "感恩時間軸"}</p>

@@ -62,32 +62,42 @@ export default function GratitudeEntry({ entry, onSave }) {
     <form onSubmit={handleSubmit} className="paper-card space-y-4 px-5 py-5">
       <Tag color="var(--olive)">{copy.title}</Tag>
       <div className="paper-card-soft flex items-center gap-3 px-3 py-3">
-        <span className="timeline-dot shrink-0">1</span>
+        <span className="timeline-dot shrink-0" aria-hidden="true">1</span>
         <input
+          id="gratitude-item1"
+          type="text"
           value={form.item1}
           onChange={(event) => updateField("item1", event.target.value)}
           className="w-full border-none bg-transparent text-sm text-[color:var(--ink)] outline-none"
           placeholder={copy.placeholders[0]}
+          aria-label={copy.placeholders[0]}
         />
       </div>
       <div className="paper-card-soft flex items-center gap-3 px-3 py-3">
-        <span className="timeline-dot shrink-0">2</span>
+        <span className="timeline-dot shrink-0" aria-hidden="true">2</span>
         <input
+          id="gratitude-item2"
+          type="text"
           value={form.item2}
           onChange={(event) => updateField("item2", event.target.value)}
           className="w-full border-none bg-transparent text-sm text-[color:var(--ink)] outline-none"
           placeholder={copy.placeholders[1]}
+          aria-label={copy.placeholders[1]}
         />
       </div>
       <div className="paper-card-soft flex items-center gap-3 px-3 py-3">
-        <span className="timeline-dot shrink-0">3</span>
+        <span className="timeline-dot shrink-0" aria-hidden="true">3</span>
         <input
+          id="gratitude-item3"
+          type="text"
           value={form.item3}
           onChange={(event) => updateField("item3", event.target.value)}
           className="w-full border-none bg-transparent text-sm text-[color:var(--ink)] outline-none"
           placeholder={copy.placeholders[2]}
+          aria-label={copy.placeholders[2]}
         />
       </div>
+
       <button
         type="submit"
         disabled={!form.item1.trim() || saving}

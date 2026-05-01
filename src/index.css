@@ -497,6 +497,8 @@ body::after {
   border-top: 1px solid rgba(141, 116, 82, 0.14);
   background: rgba(245, 239, 230, 0.95);
   backdrop-filter: blur(18px);
+  /* Ensure touch zone is tall enough for WCAG 2.5.8 (≥24px minimum, recommended 44px+) */
+  min-height: calc(3.5rem + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 640px) {
@@ -618,12 +620,14 @@ body::after {
 }
 
 .today-ritual-card.ritual-exiting {
-  animation: ritual-exit 220ms cubic-bezier(0.36, 0, 0.66, -0.12) forwards;
+  animation: ritual-exit 220ms cubic-bezier(0.4, 0, 1, 1) forwards;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 
 .today-ritual-card.ritual-entering {
   animation: ritual-enter 340ms cubic-bezier(0.22, 0.68, 0.36, 1.08) forwards;
+  will-change: transform, opacity;
 }
 
 .today-angel-strip {
@@ -958,6 +962,7 @@ body::after {
   padding: calc(1.8rem + env(safe-area-inset-top)) 1.5rem calc(2rem + env(safe-area-inset-bottom));
   animation: drawer-slide-in 280ms cubic-bezier(0.22, 0.68, 0.36, 1) forwards;
   scrollbar-width: none;
+  will-change: transform;
 }
 
 .drawer-panel::-webkit-scrollbar { display: none; }
