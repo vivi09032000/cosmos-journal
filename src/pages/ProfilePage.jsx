@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import OrderCoverArt from "../components/OrderCoverArt";
 import { useI18n } from "../lib/i18n";
 import { getOrderTheme } from "../lib/orderTheme";
+import {
+  getDefaultProfileIdentity,
+  getProfileAvatar,
+  getProfileDisplayName,
+} from "../lib/profileIdentity";
 
 const LIFE_PATH_KEYWORDS = {
   "zh-TW": {
@@ -199,8 +204,9 @@ export default function ProfilePage({
       noWall: "你的第一個實現的願望，會在這裡出現。",
     };
 
-  const displayName = profile?.displayName || (locale === "en" ? "Cosmos Traveler" : "宇宙旅人");
-  const initial = displayName.charAt(0).toUpperCase();
+  const fallbackIdentity = getDefaultProfileIdentity(profile?.createdAt?.seconds || "");
+  const displayName = getProfileDisplayName(profile, locale);
+  const activeAvatar = getProfileAvatar(profile?.avatarKey || fallbackIdentity.avatarKey);
   const latestTheme = latestDelivered ? getOrderTheme(latestDelivered) : null;
 
   return (
@@ -215,7 +221,7 @@ export default function ProfilePage({
       <section className="paper-card px-5 py-5">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[rgba(181,120,58,0.35)] bg-[rgba(232,201,154,0.18)]">
-            <span className="font-[var(--font-display)] text-[1.4rem] text-[color:var(--gold)]">{initial}</span>
+            <span className="text-[1.65rem]" aria-label={activeAvatar.label}>{activeAvatar.icon}</span>
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="font-[var(--font-display)] text-[1.55rem] leading-[1.2] text-[color:var(--navy-deep)]">

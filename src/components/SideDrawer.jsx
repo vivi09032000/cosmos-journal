@@ -1,6 +1,13 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../lib/i18n";
+import {
+  PROFILE_AVATARS,
+  PROFILE_NAME_POOL,
+  getDefaultProfileIdentity,
+  getProfileAvatar,
+  getProfileDisplayName,
+} from "../lib/profileIdentity";
 
 const LIFE_PATH_KEYWORDS = {
   "zh-TW": {
@@ -27,12 +34,28 @@ export default function SideDrawer({
   open,
   onClose,
   profile,
+  onSaveProfileIdentity,
   checkinStreak,
   deliveredCount,
 }) {
   const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
   const [closing, setClosing] = useState(false);
+  const fallbackIdentity = getDefaultProfileIdentity(profile?.createdAt?.seconds || "");
+  const displayName = getProfileDisplayName(profile, locale);
+  const activeAvatar = getProfileAvatar(profile?.avatarKey || fallbackIdentity.avatarKey);
+  const [editingIdentity, setEditingIdentity] = useState(false);
+  const [nameDraft, setNameDraft] = useState(displayName);
+  const [avatarDraft, setAvatarDraft] = useState(activeAvatar.key);
+  const [identitySaving, setIdentitySaving] = useState(false);
+  const [identityError, setIdentityError] = useState("");
+
+  useEffect(() => {
+    setNameDraft(displayName);
+    setAvatarDraft(activeAvatar.key);
+    setIdentityError("");
+    setEditingIdentity(false);
+  }, [activeAvatar.key, displayName, open]);
 
   const handleClose = useCallback(() => {
     setClosing(true);
@@ -54,8 +77,6 @@ export default function SideDrawer({
   const lifePathMap = LIFE_PATH_KEYWORDS[locale] || LIFE_PATH_KEYWORDS["zh-TW"];
   const lifePathTheme = lifePathNumber ? lifePathMap[lifePathNumber] : null;
   const daysJoined = daysSinceTimestamp(profile?.createdAt);
-  const displayName = profile?.displayName || (locale === "en" ? "Cosmos Traveler" : "宇宙旅人");
-  const initial = displayName.charAt(0).toUpperCase();
 
   const copy = locale === "en"
     ? {
@@ -71,6 +92,12 @@ export default function SideDrawer({
       journalLink: "Daily Journey",
       signalLink: "Soul codes",
       wallLink: "Achievements",
+      editIdentity: "Edit profile",
+      saveIdentity: "Save profile",
+      cancelIdentity: "Cancel",
+      randomName: "Random",
+      namePlaceholder: "Your cosmos name",
+      identityError: "Profile update failed. Please try again.",
       version: "v2.5 · Cosmos Journal",
     }
     : {
@@ -86,8 +113,42 @@ export default function SideDrawer({
       journalLink: "每日歷程",
       signalLink: "心靈密碼",
       wallLink: "戰績牆",
+      editIdentity: "編輯檔案",
+      saveIdentity: "儲存檔案",
+      cancelIdentity: "取消",
+      randomName: "隨機",
+      namePlaceholder: "你的宇宙名稱",
+      identityError: "檔案更新失敗，請再試一次。",
       version: "v2.5 · Cosmos Journal",
     };
+
+  const handleSaveIdentity = async () => {
+    if (!onSaveProfileIdentity) return;
+
+    setIdentitySaving(true);
+    setIdentityError("");
+
+    try {
+      await onSaveProfileIdentity({
+        displayName: nameDraft,
+        avatarKey: avatarDraft,
+      });
+      setEditingIdentity(false);
+    } catch (saveError) {
+      setIdentityError(saveError.message || copy.identityError);
+    } finally {
+      setIdentitySaving(false);
+    }
+  };
+
+  const handleRandomName = () => {
+    const currentIndex = PROFILE_NAME_POOL.indexOf(nameDraft.trim());
+    const nextIndex = currentIndex >= 0
+      ? (currentIndex + 1) % PROFILE_NAME_POOL.length
+      : Math.floor(Math.random() * PROFILE_NAME_POOL.length);
+
+    setNameDraft(PROFILE_NAME_POOL[nextIndex]);
+  };
 
   if (!open) return null;
 
@@ -106,13 +167,20 @@ export default function SideDrawer({
         {/* Avatar & info */}
         <div className="mt-5 flex flex-col items-center text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[rgba(181,120,58,0.35)] bg-[rgba(25,35,60,0.9)]">
-            <span className="font-[var(--font-display)] text-[1.5rem] text-[color:var(--gold)]">
-              {initial}
+            <span className="text-[1.9rem]" aria-label={activeAvatar.label}>
+              {activeAvatar.icon}
             </span>
           </div>
           <h2 className="mt-3 font-[var(--font-display)] text-[1.4rem] leading-[1.2] text-[color:var(--navy-deep)]">
             {displayName}
           </h2>
+          <button
+            type="button"
+            onClick={() => setEditingIdentity((current) => !current)}
+            className="mt-2 text-[0.68rem] tracking-[0.16em] text-[color:var(--gold)]"
+          >
+            {copy.editIdentity}
+          </button>
           {lifePathTheme ? (
             <p className="mt-1 text-[0.78rem] tracking-[0.08em] text-[color:var(--ink-soft)]">
               {copy.lifePath} {lifePathNumber} · {lifePathTheme}
@@ -122,6 +190,68 @@ export default function SideDrawer({
             {copy.joined}
           </p>
         </div>
+
+        {editingIdentity ? (
+          <div className="mt-4 rounded-2xl border border-[rgba(181,120,58,0.16)] bg-[rgba(250,246,240,0.72)] p-3">
+            <div className="flex gap-2">
+              <input
+                value={nameDraft}
+                onChange={(event) => setNameDraft(event.target.value)}
+                className="cosmos-input min-w-0 flex-1 py-2 text-center text-sm"
+                placeholder={copy.namePlaceholder}
+              />
+              <button
+                type="button"
+                onClick={handleRandomName}
+                className="secondary-button shrink-0 px-3 py-2 text-xs"
+              >
+                {copy.randomName}
+              </button>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {PROFILE_AVATARS.map((avatar) => (
+                <button
+                  key={avatar.key}
+                  type="button"
+                  onClick={() => setAvatarDraft(avatar.key)}
+                  className={`flex h-12 items-center justify-center rounded-2xl border text-xl transition ${
+                    avatarDraft === avatar.key
+                      ? "border-[rgba(181,120,58,0.52)] bg-[rgba(181,120,58,0.12)]"
+                      : "border-[rgba(181,120,58,0.12)] bg-[rgba(255,255,255,0.42)]"
+                  }`}
+                  aria-label={avatar.label}
+                >
+                  {avatar.icon}
+                </button>
+              ))}
+            </div>
+            {identityError ? (
+              <p className="mt-2 text-xs leading-5 text-[color:var(--ink-soft)]">{identityError}</p>
+            ) : null}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingIdentity(false);
+                  setNameDraft(displayName);
+                  setAvatarDraft(activeAvatar.key);
+                  setIdentityError("");
+                }}
+                className="secondary-button py-2 text-xs"
+              >
+                {copy.cancelIdentity}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveIdentity}
+                disabled={identitySaving}
+                className="primary-button py-2 text-xs disabled:opacity-60"
+              >
+                {identitySaving ? "..." : copy.saveIdentity}
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="drawer-divider" />
 

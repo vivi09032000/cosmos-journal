@@ -256,6 +256,7 @@ function AppContent() {
     loading: authLoading,
     error: authError,
     saveBirthday,
+    saveProfileIdentity,
   } = useAuth(locale);
   const {
     orders,
@@ -433,6 +434,7 @@ function AppContent() {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           profile={profile}
+          onSaveProfileIdentity={saveProfileIdentity}
           checkinStreak={checkinStreak}
           deliveredCount={deliveredCount}
         />

@@ -51,7 +51,7 @@ export function useDailyLog(userId) {
     );
   };
 
-  const saveQuestionAnswer = async (questionId, prompt, answer) => {
+  const saveQuestionAnswer = async (questionId, prompt, answer, note = null, category = "") => {
     if (!db || !userId) return;
 
     await setDoc(
@@ -59,8 +59,11 @@ export function useDailyLog(userId) {
       {
         date: getTodayKey(),
         questionId,
+        questionIndex: questionId,
         questionPrompt: prompt,
         questionAnswer: answer,
+        questionNote: note || null,
+        questionCategory: category,
         checkedIn: true,
         updatedAt: serverTimestamp(),
         createdAt: entry?.createdAt || serverTimestamp(),

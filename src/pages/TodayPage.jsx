@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMoonPhaseInfo } from "../angelEngine";
 import {
@@ -171,6 +171,27 @@ const MOOD_OPTIONS = [
   { value: "grateful", labels: { "zh-TW": "感謝", en: "Grateful" } },
 ];
 
+const DAILY_QUESTION_PROMPTS = {
+  "zh-TW": [
+    { category: "氛圍", question: "今天的節奏感覺像什麼音樂？", chips: ["輕爵士", "Lo-fi", "靜默無聲", "熱血搖滾"] },
+    { category: "氛圍", question: "今天最想去哪裡待著？", chips: ["咖啡廳角落", "戶外透透氣", "自己房間", "哪都不想去"] },
+    { category: "宇宙", question: "宇宙今天給你的關鍵字是？", chips: ["流動", "沉澱", "發光", "等待"] },
+    { category: "宇宙", question: "此刻你想接收還是釋放？", chips: ["接收能量", "釋放煩躁", "兩個都要", "靜靜就好"] },
+    { category: "行動", question: "今天適合快還是慢？", chips: ["衝一下", "穩穩來", "先發呆", "走一步算一步"] },
+    { category: "行動", question: "今天最想喝什麼？", chips: ["熱咖啡", "冰拿鐵", "花草茶", "白開水就好"] },
+    { category: "自我", question: "今天想對自己說什麼？", chips: ["你辛苦了", "繼續加油", "放輕鬆", "你很好"] },
+  ],
+  en: [
+    { category: "氛圍", categoryLabel: "Atmosphere", question: "What music does today feel like?", chips: ["Soft jazz", "Lo-fi", "Quiet silence", "Rock anthem"] },
+    { category: "氛圍", categoryLabel: "Atmosphere", question: "Where do you want to be today?", chips: ["Cafe corner", "Fresh air", "My room", "Nowhere"] },
+    { category: "宇宙", categoryLabel: "Cosmos", question: "What keyword is the universe giving you?", chips: ["Flow", "Settle", "Glow", "Wait"] },
+    { category: "宇宙", categoryLabel: "Cosmos", question: "Do you want to receive or release now?", chips: ["Receive energy", "Release tension", "Both", "Stay quiet"] },
+    { category: "行動", categoryLabel: "Action", question: "Does today want speed or slowness?", chips: ["Push a little", "Steady pace", "Zone out first", "One step at a time"] },
+    { category: "行動", categoryLabel: "Action", question: "What do you want to drink today?", chips: ["Hot coffee", "Iced latte", "Herbal tea", "Just water"] },
+    { category: "自我", categoryLabel: "Self", question: "What do you want to tell yourself today?", chips: ["You worked hard", "Keep going", "Relax", "You are enough"] },
+  ],
+};
+
 function formatToday(locale) {
   return new Date().toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
     year: "numeric",
@@ -210,11 +231,55 @@ function getMoonRhythm(moonAge, locale) {
 }
 
 function getDailyQuestion(locale, date = new Date()) {
-  const questionBank = DAILY_QUESTION_BANK[locale] || DAILY_QUESTION_BANK["zh-TW"];
-  const start = new Date("2026-01-01T00:00:00");
-  const diffDays = Math.floor((date - start) / (1000 * 60 * 60 * 24));
+  const questionBank = DAILY_QUESTION_PROMPTS[locale] || DAILY_QUESTION_PROMPTS["zh-TW"];
+  const yearStart = new Date(date.getFullYear(), 0, 0);
+  const diffDays = Math.floor((date - yearStart) / (1000 * 60 * 60 * 24));
   const index = ((diffDays % questionBank.length) + questionBank.length) % questionBank.length;
-  return questionBank[index];
+  return { ...questionBank[index], index };
+}
+
+function getDailyQuestions(locale) {
+  return DAILY_QUESTION_PROMPTS[locale] || DAILY_QUESTION_PROMPTS["zh-TW"];
+}
+
+function RitualBackCard({ label, status, offset, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="absolute inset-x-3 top-4 h-full overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
+      style={{
+        transform: `translateY(${offset}px) scale(${1 - offset * 0.0018}) rotate(${offset % 2 === 0 ? -0.6 : 0.6}deg)`,
+        zIndex: 0,
+      }}
+    >
+      <div className="absolute inset-x-0 top-0 h-12 bg-[linear-gradient(90deg,rgba(232,201,154,0.26),rgba(250,246,240,0.35))]" />
+      <div className="relative flex items-center justify-between px-5 py-4 text-sm font-semibold tracking-[0.12em] text-[color:var(--ink-soft)]">
+        <span className="font-[var(--font-display)] text-[1rem] tracking-[0.08em] text-[color:var(--ink)]">{label}</span>
+        <span className="text-[0.68rem] tracking-[0.12em] text-[color:var(--ink-faint)]">{status}</span>
+      </div>
+    </button>
+  );
+}
+
+function RitualDots({ items, activeId, onSelect }) {
+  return (
+    <div className="mt-5 flex items-center justify-center gap-2">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onSelect(item.id)}
+          aria-label={item.label}
+          className={`h-2.5 rounded-full transition-all duration-300 ${
+            item.id === activeId
+              ? "w-6 bg-[color:var(--gold)]"
+              : "w-2.5 bg-[rgba(181,120,58,0.28)] hover:bg-[rgba(181,120,58,0.45)]"
+          }`}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default function TodayPage({
@@ -234,30 +299,66 @@ export default function TodayPage({
   const moonCopy = moonCopyMap[moonPhase.phase] || moonCopyMap.new;
   const moonLabel = MOON_LABELS[moonPhase.phase]?.[locale] || moonPhase.label;
   const moonRhythm = useMemo(() => getMoonRhythm(moonPhase.moonAge, locale), [locale, moonPhase.moonAge]);
-  const featuredOrder = useMemo(
-    () => orders.find((order) => order.status !== "delivered") || orders[0] || null,
+  const activeOrders = useMemo(
+    () => orders.filter((order) => order.status !== "delivered"),
     [orders],
   );
   const deliveredCount = useMemo(
     () => orders.filter((order) => order.status === "delivered").length,
     [orders],
   );
-  const featuredTheme = featuredOrder ? getOrderTheme(featuredOrder) : null;
   const gratitudeItems = [todayEntry?.item1, todayEntry?.item2, todayEntry?.item3].filter(Boolean);
-  const dailyQuestion = useMemo(() => getDailyQuestion(locale, new Date()), [locale]);
+  const dailyQuestions = useMemo(() => getDailyQuestions(locale), [locale]);
+  const defaultDailyQuestion = useMemo(() => getDailyQuestion(locale, new Date()), [locale]);
   const savedQuestionAnswer = dailyLogEntry?.questionAnswer || "";
-  const [showQuestionForm, setShowQuestionForm] = useState(false);
-  const [questionAnswer, setQuestionAnswer] = useState("");
+  const parsedSavedQuestionIndex = Number(dailyLogEntry?.questionIndex ?? dailyLogEntry?.questionId);
+  const savedQuestionIndex = Number.isInteger(parsedSavedQuestionIndex)
+    ? parsedSavedQuestionIndex
+    : (savedQuestionAnswer ? defaultDailyQuestion.index : undefined);
+  const savedQuestionNote = dailyLogEntry?.questionNote || "";
+  const [activeQuestionIndex, setActiveQuestionIndex] = useState(
+    Number.isInteger(savedQuestionIndex) && savedQuestionIndex >= 0 && savedQuestionIndex < dailyQuestions.length
+      ? savedQuestionIndex
+      : defaultDailyQuestion.index,
+  );
+  const safeActiveQuestionIndex = activeQuestionIndex >= 0 && activeQuestionIndex < dailyQuestions.length
+    ? activeQuestionIndex
+    : defaultDailyQuestion.index;
+  const activeQuestion = {
+    ...dailyQuestions[safeActiveQuestionIndex],
+    index: safeActiveQuestionIndex,
+  };
+  const [questionState, setQuestionState] = useState(savedQuestionAnswer ? "done" : "idle");
+  const [selectedQuestionAnswer, setSelectedQuestionAnswer] = useState(savedQuestionAnswer);
+  const [questionNote, setQuestionNote] = useState(savedQuestionNote);
+  const [questionNoteOpen, setQuestionNoteOpen] = useState(false);
   const [questionSaving, setQuestionSaving] = useState(false);
+  const [questionError, setQuestionError] = useState("");
+  const questionDoneTimerRef = useRef(null);
   const [moodSaving, setMoodSaving] = useState("");
   const [moodError, setMoodError] = useState("");
+  const getDefaultRitual = () => {
+    if (!dailyLogEntry?.mood) return "mood";
+    if (!savedQuestionAnswer) return "question";
+    if (!todayEntry) return "gratitude";
+    return "mood";
+  };
+  const [activeRitual, setActiveRitual] = useState(getDefaultRitual);
+  const [activeOrderIndex, setActiveOrderIndex] = useState(0);
+  const activeOrder = activeOrders[activeOrderIndex] || activeOrders[0] || null;
+  const activeOrderTheme = activeOrder ? getOrderTheme(activeOrder) : null;
+  const ritualProgress = [
+    dailyLogEntry?.mood,
+    savedQuestionAnswer,
+    todayEntry,
+  ].filter(Boolean).length;
 
 
   const copy = locale === "en"
     ? {
       title: "What is the universe saying today?",
       moodTitle: "How are you arriving today?",
-      moodHint: "Pick one to begin. It saves automatically.",
+      moodHint: "",
       moodSaved: "Saved",
       moodError: "Mood could not be saved. Please try again.",
       moonCard: "Moon phase",
@@ -266,16 +367,26 @@ export default function TodayPage({
       noOrderDescription: "Create a new manifest goal and tell the universe what you want most right now.",
       goOrders: "Go to goals",
       dailyQuestion: "Daily question",
-      writeAnswer: "Write your answer →",
-      answerPlaceholder: "Write what is true for you right now...",
-      cancel: "Cancel",
-      savingAnswer: "Saving...",
-      saveAnswer: "Save answer",
-      editAnswer: "Edit again →",
+      questionHint: "Tap once. You can add one short note after.",
+      recordedAnswer: "Logged",
+      addQuestionNote: "Add one short note?",
+      hideQuestionNote: "Hide note",
+      questionNotePlaceholder: "For example: I am still holding up today...",
+      questionError: "Daily question could not be saved. Please try again.",
+      ritualTitle: "Small rituals today",
+      ritualProgress: (count) => `${count}/3 logged`,
+      moodCardTitle: "Mood check-in",
+      questionCardTitle: "Daily question",
+      gratitudeCardTitle: "Gratitude",
+      complete: "Logged",
+      pending: "Whenever you want",
+      skipRitual: "See another ritual →",
+      goalStackTitle: "Today's projection",
+      achievedBanner: (count) => `You have manifested ${count} wish${count === 1 ? "" : "es"} →`,
       gratitude: "Today's gratitude",
       recorded: "✓ Logged",
-      notLogged: "Not logged yet",
-      goGratitude: "Go to gratitude →",
+      notLogged: "What tiny moment is worth thanking today?",
+      goGratitude: "Write three small things →",
       projectToday: "✦ Project today",
       moonProgressPrefix: (label) => `${label} energy is supporting this goal today. It is a good day to project once more.`,
       angelLink: "✦ Seeing a number today? Decode it →",
@@ -284,7 +395,7 @@ export default function TodayPage({
     : {
       title: "今天宇宙說什麼？",
       moodTitle: "今天的你，是什麼狀態？",
-      moodHint: "進來先選一個，會自動記錄。",
+      moodHint: "",
       moodSaved: "已記錄",
       moodError: "心情儲存失敗，請再試一次。",
       moonCard: "今日月相",
@@ -293,16 +404,26 @@ export default function TodayPage({
       noOrderDescription: "建立一個新的顯化目標，讓宇宙知道你此刻最想實現的是什麼。",
       goOrders: "前往目標",
       dailyQuestion: "今日一問",
-      writeAnswer: "寫下回答 →",
-      answerPlaceholder: "寫下你此刻的回答...",
-      cancel: "取消",
-      savingAnswer: "儲存中...",
-      saveAnswer: "存下回答",
-      editAnswer: "重新編輯 →",
+      questionHint: "點一下就完成，想說更多再補一句。",
+      recordedAnswer: "已記錄",
+      addQuestionNote: "想補充一句話？",
+      hideQuestionNote: "收起補充",
+      questionNotePlaceholder: "例如：今天還算撐得住...",
+      questionError: "今日一問儲存失敗，請再試一次。",
+      ritualTitle: "今日小儀式",
+      ritualProgress: (count) => `${count}/3 已記錄`,
+      moodCardTitle: "心情紀錄",
+      questionCardTitle: "今日一問",
+      gratitudeCardTitle: "今日感恩",
+      complete: "已記錄",
+      pending: "想寫再寫",
+      skipRitual: "先看下一張 →",
+      goalStackTitle: "今日投射",
+      achievedBanner: (count) => `你已實現了 ${count} 個願望 →`,
       gratitude: "今日感恩",
       recorded: "✓ 已記錄",
-      notLogged: "今天還沒記錄",
-      goGratitude: "前往感恩 →",
+      notLogged: "今天有哪個小瞬間，值得被謝謝？",
+      goGratitude: "寫三件小事 →",
       projectToday: "✦ 今日投射",
       moonProgressPrefix: (label) => `${label}的能量正在推著這個目標往前，很適合今天再投射一次。`,
       angelLink: "✦ 今天看到什麼數字？查看天使訊號 →",
@@ -310,25 +431,114 @@ export default function TodayPage({
     };
 
   useEffect(() => {
-    setQuestionAnswer(savedQuestionAnswer);
-    setShowQuestionForm(false);
-  }, [savedQuestionAnswer]);
+    setSelectedQuestionAnswer(savedQuestionAnswer);
+    setQuestionNote(savedQuestionNote);
+    if (questionState !== "selected") {
+      setQuestionState(savedQuestionAnswer ? "done" : "idle");
+      setQuestionNoteOpen(false);
+      setActiveQuestionIndex(
+        Number.isInteger(savedQuestionIndex) && savedQuestionIndex >= 0 && savedQuestionIndex < dailyQuestions.length
+          ? savedQuestionIndex
+          : defaultDailyQuestion.index,
+      );
+    }
+  }, [dailyQuestions.length, defaultDailyQuestion.index, savedQuestionAnswer, savedQuestionIndex, savedQuestionNote]);
 
-  const handleSaveDailyQuestion = async () => {
-    if (!questionAnswer.trim()) return;
+  useEffect(() => () => {
+    if (questionDoneTimerRef.current) {
+      window.clearTimeout(questionDoneTimerRef.current);
+    }
+  }, []);
 
+  useEffect(() => {
+    setActiveOrderIndex((index) => {
+      if (!activeOrders.length) return 0;
+      return Math.min(index, activeOrders.length - 1);
+    });
+  }, [activeOrders.length]);
+
+  const handleSelectQuestionAnswer = async (answer) => {
+    if (!onSaveQuestionAnswer || questionSaving) return;
+
+    if (questionDoneTimerRef.current) {
+      window.clearTimeout(questionDoneTimerRef.current);
+    }
+
+    setSelectedQuestionAnswer(answer);
+    setQuestionNoteOpen(false);
+    setQuestionState("selected");
     setQuestionSaving(true);
+    setQuestionError("");
+
     try {
-      const questionBank = DAILY_QUESTION_BANK[locale] || DAILY_QUESTION_BANK["zh-TW"];
-      const start = new Date("2026-01-01T00:00:00");
-      const diffDays = Math.floor((new Date() - start) / (1000 * 60 * 60 * 24));
-      const qIndex = ((diffDays % questionBank.length) + questionBank.length) % questionBank.length;
-      await onSaveQuestionAnswer(qIndex, dailyQuestion, questionAnswer.trim());
+      await onSaveQuestionAnswer(
+        activeQuestion.index,
+        activeQuestion.question,
+        answer,
+        questionNote.trim() || null,
+        activeQuestion.category,
+      );
+      questionDoneTimerRef.current = window.setTimeout(() => {
+        setQuestionState("done");
+        setQuestionSaving(false);
+      }, 400);
     } catch (err) {
       console.error("Save question error:", err);
+      setQuestionError(err.message || copy.questionError);
+      setQuestionState(savedQuestionAnswer ? "done" : "idle");
+      setSelectedQuestionAnswer(savedQuestionAnswer);
+      setQuestionSaving(false);
     }
-    setQuestionSaving(false);
-    setShowQuestionForm(false);
+  };
+
+  const saveQuestionNote = async (nextNote = questionNote) => {
+    if (!onSaveQuestionAnswer || !selectedQuestionAnswer) return;
+
+    try {
+      await onSaveQuestionAnswer(
+        activeQuestion.index,
+        activeQuestion.question,
+        selectedQuestionAnswer,
+        nextNote.trim() || null,
+        activeQuestion.category,
+      );
+      setQuestionError("");
+    } catch (err) {
+      console.error("Save question note error:", err);
+      setQuestionError(err.message || copy.questionError);
+    }
+  };
+
+  const toggleQuestionNote = async () => {
+    if (questionNoteOpen) {
+      await saveQuestionNote();
+    }
+    setQuestionNoteOpen((open) => !open);
+  };
+
+  const handleQuestionDotSelect = (index) => {
+    if (questionSaving || index === safeActiveQuestionIndex) return;
+
+    if (questionDoneTimerRef.current) {
+      window.clearTimeout(questionDoneTimerRef.current);
+    }
+
+    const isSavedQuestion = savedQuestionAnswer
+      && (Number.isInteger(savedQuestionIndex) ? savedQuestionIndex === index : index === safeActiveQuestionIndex);
+
+    setActiveQuestionIndex(index);
+    setQuestionNoteOpen(false);
+    setQuestionError("");
+
+    if (isSavedQuestion) {
+      setSelectedQuestionAnswer(savedQuestionAnswer);
+      setQuestionNote(savedQuestionNote);
+      setQuestionState("done");
+    } else {
+      setSelectedQuestionAnswer("");
+      setQuestionNote("");
+      setQuestionState("idle");
+    }
   };
 
   const handleMoodSelect = async (mood) => {
@@ -346,9 +556,49 @@ export default function TodayPage({
     }
   };
 
+  const ritualItems = [
+    {
+      id: "mood",
+      label: copy.moodCardTitle,
+      status: dailyLogEntry?.mood ? `✓ ${copy.complete}` : copy.pending,
+    },
+    {
+      id: "question",
+      label: copy.questionCardTitle,
+      status: savedQuestionAnswer ? `✓ ${copy.complete}` : copy.pending,
+    },
+    {
+      id: "gratitude",
+      label: copy.gratitudeCardTitle,
+      status: todayEntry ? `✓ ${copy.complete}` : copy.pending,
+    },
+  ];
+  const backRituals = ritualItems.filter((item) => item.id !== activeRitual);
+  const previousOrder = activeOrders.length > 2
+    ? activeOrders[(activeOrderIndex - 1 + activeOrders.length) % activeOrders.length]
+    : null;
+  const nextOrder = activeOrders.length > 1
+    ? activeOrders[(activeOrderIndex + 1) % activeOrders.length]
+    : null;
+  const sideOrders = [
+    previousOrder ? { order: previousOrder, side: "left" } : null,
+    nextOrder ? { order: nextOrder, side: "right" } : null,
+  ].filter(Boolean);
+  const handleNextRitual = () => {
+    const currentIndex = ritualItems.findIndex((item) => item.id === activeRitual);
+    const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % ritualItems.length : 0;
+    setActiveRitual(ritualItems[nextIndex].id);
+  };
+  const openOrderProjection = (order) => {
+    navigate("/orders", {
+      state: { selectedOrderId: order.id },
+    });
+  };
+
   return (
-    <div className="space-y-5">
-      <section className="screen-header">
+    <div className="today-page">
+      <div className="today-first-screen">
+      <section className="screen-header today-header">
         <SunRays size={78} className="absolute -right-3 -top-4" />
         <div>
           <p className="gold-kicker">Cosmos Journal</p>
@@ -360,7 +610,7 @@ export default function TodayPage({
         <WaveDivider className="wave-divider" />
       </section>
 
-      <section className="relative overflow-hidden rounded-[1.55rem] bg-[linear-gradient(145deg,rgba(44,58,80,0.98),rgba(35,48,69,0.98))] px-5 py-5 text-[#f6ead1] shadow-[0_18px_40px_rgba(31,41,72,0.18)]">
+      <section className="today-moon-card relative overflow-hidden rounded-[1.55rem] bg-[linear-gradient(145deg,rgba(44,58,80,0.98),rgba(35,48,69,0.98))] px-5 py-5 text-[#f6ead1] shadow-[0_18px_40px_rgba(31,41,72,0.18)]">
         <div className="absolute inset-0 opacity-70" style={{ backgroundImage: "radial-gradient(circle at 12% 24%, rgba(255,245,220,0.22) 0 1px, transparent 1.4px), radial-gradient(circle at 32% 18%, rgba(255,245,220,0.18) 0 1px, transparent 1.5px), radial-gradient(circle at 78% 22%, rgba(255,245,220,0.22) 0 1px, transparent 1.4px), radial-gradient(circle at 90% 10%, rgba(255,245,220,0.18) 0 1px, transparent 1.5px)" }} />
         <div className="relative flex items-center gap-4">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[rgba(181,120,58,0.28)] bg-[rgba(255,245,220,0.05)]">
@@ -373,9 +623,6 @@ export default function TodayPage({
             </p>
             <p className="mt-2 text-[0.88rem] leading-7 text-[#ecdcbf]">
               {moonCopy.title}
-            </p>
-            <p className="mt-1 text-[0.82rem] leading-6 text-[#cdb995]">
-              {moonCopy.description}
             </p>
           </div>
           <div className="shrink-0 text-right">
@@ -392,246 +639,370 @@ export default function TodayPage({
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <section className="paper-card-soft px-5 py-5">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="section-label">{copy.moodTitle}</p>
-              <p className="mt-2 text-xs leading-6 text-[color:var(--ink-faint)]">
-                {copy.moodHint}
-              </p>
-            </div>
-            {dailyLogEntry?.mood ? (
-              <span className="rounded-full border border-[rgba(181,120,58,0.26)] px-3 py-1 text-[0.68rem] tracking-[0.14em] text-[color:var(--gold)]">
-                ✓ {copy.moodSaved}
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3 sm:grid-cols-2">
-            {MOOD_OPTIONS.map((mood) => {
-              const isSelected = dailyLogEntry?.mood === mood.value;
-              return (
-                <button
-                  key={mood.value}
-                  type="button"
-                  onClick={() => handleMoodSelect(mood.value)}
-                  disabled={Boolean(moodSaving)}
-                  className={`soft-choice-button min-w-0 justify-center ${
-                    isSelected
-                      ? "soft-choice-button-selected"
-                      : ""
-                  } ${moodSaving ? "opacity-60" : ""}`}
-                >
-                  {moodSaving === mood.value ? "..." : mood.labels[locale] || mood.labels["zh-TW"]}
-                </button>
-              );
-            })}
-          </div>
-          {moodError ? (
-            <p className="mt-3 text-xs leading-6 text-[color:var(--danger)]">
-              {moodError}
+      <section className="today-ritual-section">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="section-label">{copy.ritualTitle}</p>
+            <p className="mt-1 text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">
+              {copy.ritualProgress(ritualProgress)}
             </p>
-          ) : null}
-        </section>
-
-        <section className="paper-card relative px-5 py-5">
-          <LeafDecor className="absolute bottom-0 right-0" />
-          {todayEntry ? (
-            <>
-              <p className="section-label">{copy.gratitude}</p>
-              <h2 className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
-                {copy.recorded}
-              </h2>
-              <div className="mt-4 space-y-2">
-                {gratitudeItems.map((item, index) => (
-                  <p key={`${item}-${index}`} className="text-[1.02rem] italic leading-[1.85] text-[color:var(--ink-soft)]">
-                    「{item}」
-                  </p>
-                ))}
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="section-label">{copy.gratitude}</p>
-              <h2 className="mt-4 font-[var(--font-display)] text-[1.55rem] leading-[1.45] text-[color:var(--ink)]">
-                {copy.notLogged}
-              </h2>
-              <button
-                type="button"
-                onClick={() => navigate("/gratitude")}
-                className="text-action-button mt-3"
-              >
-                {copy.goGratitude}
-              </button>
-            </>
-          )}
-        </section>
-      </section>
-
-      <section className="paper-card overflow-hidden px-0 py-0">
-        <div className="flex items-center justify-between gap-3">
-          <div className="sr-only">今日投射</div>
+          </div>
+          <span className="rounded-full border border-[rgba(181,120,58,0.2)] px-3 py-1 text-[0.65rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
+            {ritualItems.find((item) => item.id === activeRitual)?.status}
+          </span>
         </div>
-        {featuredOrder ? (
-          <>
-            <div
-              className="relative h-32 overflow-hidden"
-              style={{ background: featuredTheme?.background }}
-            >
-              <OrderCoverArt
-                order={featuredOrder}
-                loading="eager"
-                fetchPriority="high"
-                sizes="(max-width: 768px) 100vw, 680px"
-              />
-              <div className="absolute inset-0 opacity-80" style={{ backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" }} />
-              <div className="absolute inset-x-0 bottom-0 h-16 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
-              <span className="absolute left-4 top-3 text-[0.58rem] tracking-[0.16em] text-[rgba(255,247,230,0.72)]">
-                {locale === "en"
-                  ? `Day ${daysSince(featuredOrder.createdAt)}`
-                  : `第 ${daysSince(featuredOrder.createdAt)} 天`}
-              </span>
-              <span className="absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)]">
-                {copy.projectionTag}
-              </span>
-            </div>
-            <div className="px-5 py-5">
-              <div className="flex items-center gap-2">
-                <Tag>{featuredOrder.angelNumber ? `#${featuredOrder.angelNumber}` : "Manifest"}</Tag>
-                <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
-                  {getOrderStatusLabel(featuredOrder.status, locale)}
-                </span>
-              </div>
-              <h2 className="mt-3 font-[var(--font-display)] text-[1.55rem] leading-[1.25] text-[color:var(--ink)]">
-                {featuredOrder.title}
-              </h2>
-              {featuredOrder.subtitle ? (
-                <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)] italic">
-                  {featuredOrder.subtitle}
-                </p>
-              ) : null}
-              <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
-                {copy.moonProgressPrefix(moonLabel)}
-              </p>
-              <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
-                <div
-                  className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold-soft),var(--gold))]"
-                  style={{ width: `${getActionProgress(featuredOrder)}%` }}
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/orders", {
-                  state: { selectedOrderId: featuredOrder.id },
-                })
-              }
-              className="primary-button mx-5 mb-5 w-[calc(100%-2.5rem)]"
-            >
-              {copy.projectToday}
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="px-5 py-5">
-              <Tag>今日投射</Tag>
-              <h2 className="mt-3 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
-                {copy.noOrderTitle}
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-                {copy.noOrderDescription}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/orders")}
-              className="primary-button mx-5 mb-5 w-[calc(100%-2.5rem)]"
-            >
-              {copy.goOrders}
-            </button>
-          </>
-        )}
-      </section>
 
-      <section className="paper-card px-5 py-5">
-        <p className="section-label">{copy.dailyQuestion}</p>
-        {!showQuestionForm && !savedQuestionAnswer ? (
-          <>
-            <p className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.55] text-[color:var(--ink)]">
-              {dailyQuestion}
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowQuestionForm(true)}
-              className="text-action-button mt-3"
-            >
-              {copy.writeAnswer}
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="mt-4 font-[var(--font-display)] text-[1.45rem] leading-[1.55] text-[color:var(--ink)]">
-              {dailyQuestion}
-            </p>
-            {showQuestionForm ? (
-              <div className="mt-4">
-                <textarea
-                  value={questionAnswer}
-                  onChange={(event) => setQuestionAnswer(event.target.value)}
-                  rows={4}
-                  className="cosmos-textarea"
-                  placeholder={copy.answerPlaceholder}
-                />
-                <div className="mt-3 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowQuestionForm(false);
-                      setQuestionAnswer(savedQuestionAnswer);
-                    }}
-                    className="secondary-button flex-1"
-                  >
-                    {copy.cancel}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveDailyQuestion}
-                    disabled={!questionAnswer.trim() || questionSaving}
-                    className="primary-button flex-1"
-                  >
-                    {questionSaving ? copy.savingAnswer : copy.saveAnswer}
-                  </button>
-                </div>
-              </div>
-            ) : (
+        <div className="today-ritual-stack relative pb-16">
+          {backRituals.map((item, index) => (
+            <RitualBackCard
+              key={item.id}
+              label={item.label}
+              status={item.status}
+              offset={(index + 1) * 10}
+              onClick={() => setActiveRitual(item.id)}
+            />
+          ))}
+          <article className="paper-card today-ritual-card relative z-10 min-h-[18rem] px-5 py-5">
+            {activeRitual === "mood" ? (
               <>
-                <p className="mt-4 text-sm italic leading-7 text-[color:var(--ink-soft)]">
-                  {savedQuestionAnswer}
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="section-label">{copy.moodCardTitle}</p>
+                    <h2 className="mt-4 font-[var(--font-display)] text-[1.75rem] leading-[1.35] text-[color:var(--ink)]">
+                      {copy.moodTitle}
+                    </h2>
+                  </div>
+                  {dailyLogEntry?.mood ? (
+                    <span className="rounded-full border border-[rgba(181,120,58,0.26)] px-3 py-1 text-[0.68rem] tracking-[0.14em] text-[color:var(--gold)]">
+                      ✓ {copy.moodSaved}
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
+                  {MOOD_OPTIONS.map((mood) => {
+                    const isSelected = dailyLogEntry?.mood === mood.value;
+                    return (
+                      <button
+                        key={mood.value}
+                        type="button"
+                        onClick={() => handleMoodSelect(mood.value)}
+                        disabled={Boolean(moodSaving)}
+                        className={`soft-choice-button min-w-0 justify-center ${
+                          isSelected ? "soft-choice-button-selected" : ""
+                        } ${moodSaving ? "opacity-60" : ""}`}
+                      >
+                        {moodSaving === mood.value ? "..." : mood.labels[locale] || mood.labels["zh-TW"]}
+                      </button>
+                    );
+                  })}
+                </div>
+                {moodError ? (
+                  <p className="mt-3 text-xs leading-6 text-[color:var(--danger)]">
+                    {moodError}
+                  </p>
+                ) : null}
+              </>
+            ) : null}
+
+            {activeRitual === "question" ? (
+              <>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="section-label">{copy.questionCardTitle}</p>
+                    <span className="mt-3 inline-flex rounded-lg bg-[rgba(232,201,154,0.28)] px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-[color:var(--ink-soft)]">
+                      {activeQuestion.categoryLabel || activeQuestion.category}
+                    </span>
+                  </div>
+                  <span className="text-xs tracking-[0.18em] text-[color:var(--ink-faint)]">
+                    {activeQuestion.index + 1}/7
+                  </span>
+                </div>
+                <p className="mt-5 font-[var(--font-display)] text-[1.65rem] leading-[1.45] text-[color:var(--ink)]">
+                  {activeQuestion.question}
                 </p>
+                {questionState === "done" ? (
+                  <>
+                    <div className="mt-4 rounded-2xl border border-[rgba(181,120,58,0.24)] bg-[rgba(240,232,220,0.6)] px-4 py-3 text-sm font-semibold tracking-[0.08em] text-[color:var(--gold)]">
+                      ✓ {copy.recordedAnswer}：{selectedQuestionAnswer}
+                    </div>
+                    {questionNote ? (
+                      <p className="mt-3 text-sm italic leading-7 text-[color:var(--ink-soft)]">
+                        「{questionNote}」
+                      </p>
+                    ) : null}
+                  </>
+                ) : (
+                  <div className="mt-5 flex flex-wrap gap-2.5">
+                    {activeQuestion.chips.map((option) => {
+                      const isSelected = selectedQuestionAnswer === option && questionState === "selected";
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => handleSelectQuestionAnswer(option)}
+                          disabled={questionSaving}
+                          className={`soft-choice-button justify-center transition-all duration-300 ${
+                            isSelected ? "soft-choice-button-selected scale-[0.98]" : ""
+                          } ${questionSaving && !isSelected ? "opacity-50" : ""}`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 <button
                   type="button"
-                  onClick={() => setShowQuestionForm(true)}
-                  className="text-action-button mt-3"
+                  onClick={toggleQuestionNote}
+                  className="text-action-button mt-5"
                 >
-                  {copy.editAnswer}
+                  {questionNoteOpen ? copy.hideQuestionNote : copy.addQuestionNote}
                 </button>
+                {questionNoteOpen ? (
+                  <textarea
+                    value={questionNote}
+                    onChange={(event) => setQuestionNote(event.target.value)}
+                    onBlur={(event) => saveQuestionNote(event.target.value)}
+                    rows={3}
+                    className="cosmos-textarea mt-3"
+                    placeholder={copy.questionNotePlaceholder}
+                  />
+                ) : null}
+                {questionError ? (
+                  <p className="mt-3 text-xs leading-6 text-[color:var(--danger)]">
+                    {questionError}
+                  </p>
+                ) : null}
+                <div className="mt-5 flex items-center justify-center gap-2">
+                  {dailyQuestions.map((question, index) => {
+                    const isActive = index === safeActiveQuestionIndex;
+                    return (
+                      <button
+                        key={`${question.category}-${question.question}`}
+                        type="button"
+                        onClick={() => handleQuestionDotSelect(index)}
+                        disabled={questionSaving}
+                        aria-label={`${copy.dailyQuestion} ${index + 1}`}
+                        className={`h-2.5 rounded-full transition-all duration-300 ${
+                          isActive
+                            ? "w-6 bg-[color:var(--gold)]"
+                            : "w-2.5 bg-[rgba(181,120,58,0.28)] hover:bg-[rgba(181,120,58,0.45)]"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
               </>
-            )}
-          </>
-        )}
+            ) : null}
+
+            {activeRitual === "gratitude" ? (
+              <div className="relative">
+                <LeafDecor className="absolute -bottom-2 -right-2" />
+                {todayEntry ? (
+                  <>
+                    <p className="section-label">{copy.gratitudeCardTitle}</p>
+                    <h2 className="mt-4 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
+                      {copy.recorded}
+                    </h2>
+                    <div className="mt-4 space-y-2">
+                      {gratitudeItems.map((item, index) => (
+                        <p key={`${item}-${index}`} className="text-[1.02rem] italic leading-[1.85] text-[color:var(--ink-soft)]">
+                          「{item}」
+                        </p>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="section-label">{copy.gratitudeCardTitle}</p>
+                    <h2 className="mt-4 font-[var(--font-display)] text-[1.65rem] leading-[1.45] text-[color:var(--ink)]">
+                      {copy.notLogged}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/gratitude")}
+                      className="text-action-button mt-4"
+                    >
+                      {copy.goGratitude}
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : null}
+          </article>
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={handleNextRitual}
+            className="text-action-button"
+          >
+            {copy.skipRitual}
+          </button>
+        </div>
+        <RitualDots items={ritualItems} activeId={activeRitual} onSelect={setActiveRitual} />
       </section>
 
-      {/* Angel signal link */}
-      <div className="flex items-center justify-center py-2">
+      <div className="today-angel-strip flex items-center justify-center py-1">
         <button
           type="button"
           onClick={() => navigate("/angel")}
-          className="text-[0.88rem] tracking-[0.14em] text-[color:var(--gold)] opacity-80 hover:opacity-100 transition-opacity"
+          className="text-[0.88rem] tracking-[0.14em] text-[color:var(--gold)] opacity-80 transition-opacity hover:opacity-100"
         >
           {copy.angelLink}
         </button>
       </div>
+      </div>
+
+      <section className="today-goal-section">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="section-label">{copy.goalStackTitle}</p>
+            <p className="mt-1 text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">
+              {activeOrders.length
+                ? `${activeOrderIndex + 1}/${activeOrders.length}`
+                : "0/0"}
+            </p>
+          </div>
+        </div>
+
+        <div className="relative overflow-visible pb-7 pt-2">
+          {sideOrders.map(({ order, side }) => {
+            return (
+              <button
+                key={order.id}
+                type="button"
+                onClick={() => openOrderProjection(order)}
+                className={`absolute top-8 h-[16.5rem] w-[48%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.9)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition hover:-translate-y-1 ${
+                  side === "left" ? "-left-5 rotate-[-2deg]" : "-right-5 rotate-[2deg]"
+                }`}
+                style={{ zIndex: 0 }}
+              >
+                <div className="relative h-full">
+                  <OrderCoverArt
+                    order={order}
+                    loading="lazy"
+                    sizes="180px"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,28,45,0.08),rgba(20,28,45,0.55))]" />
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <p className="line-clamp-2 font-[var(--font-display)] text-[1.05rem] leading-snug text-[#fff3dd] drop-shadow">
+                      {order.title}
+                    </p>
+                    <p className="mt-1 text-[0.56rem] tracking-[0.16em] text-[rgba(255,243,221,0.78)]">
+                      {getOrderStatusLabel(order.status, locale)}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+
+          {activeOrder ? (
+            <button
+              type="button"
+              onClick={() => openOrderProjection(activeOrder)}
+              className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1"
+            >
+                <div
+                  className="relative h-40 overflow-hidden"
+                  style={{ background: activeOrderTheme?.background }}
+                >
+                  <OrderCoverArt
+                    order={activeOrder}
+                    loading="eager"
+                    fetchPriority="high"
+                    sizes="(max-width: 768px) 100vw, 680px"
+                  />
+                  <div className="absolute inset-0 opacity-80" style={{ backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" }} />
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
+                  <span className="absolute left-4 top-3 text-[0.58rem] tracking-[0.16em] text-[rgba(255,247,230,0.72)]">
+                    {locale === "en"
+                      ? `Day ${daysSince(activeOrder.createdAt)}`
+                      : `第 ${daysSince(activeOrder.createdAt)} 天`}
+                  </span>
+                  <span className="absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)]">
+                    {copy.projectionTag}
+                  </span>
+                </div>
+                <div className="px-5 py-5">
+                  <div className="flex items-center gap-2">
+                    <Tag>{activeOrder.angelNumber ? `#${activeOrder.angelNumber}` : "Manifest"}</Tag>
+                    <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
+                      {getOrderStatusLabel(activeOrder.status, locale)}
+                    </span>
+                  </div>
+                  <h2 className="mt-3 font-[var(--font-display)] text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
+                    {activeOrder.title}
+                  </h2>
+                  {activeOrder.subtitle ? (
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)] italic">
+                      {activeOrder.subtitle}
+                    </p>
+                  ) : null}
+                  <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
+                    {copy.moonProgressPrefix(moonLabel)}
+                  </p>
+                  <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold-soft),var(--gold))]"
+                      style={{ width: `${getActionProgress(activeOrder)}%` }}
+                    />
+                  </div>
+                </div>
+            </button>
+          ) : (
+            <article className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left">
+                <div className="px-5 py-5">
+                  <Tag>今日投射</Tag>
+                  <h2 className="mt-3 font-[var(--font-display)] text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
+                    {copy.noOrderTitle}
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
+                    {copy.noOrderDescription}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/orders")}
+                  className="primary-button mx-5 mb-5 w-[calc(100%-2.5rem)]"
+                >
+                  {copy.goOrders}
+                </button>
+            </article>
+          )}
+        </div>
+
+        {activeOrders.length > 1 ? (
+          <div className="mt-1 flex items-center justify-center gap-2">
+            {activeOrders.map((order, index) => (
+              <button
+                key={order.id}
+                type="button"
+                onClick={() => setActiveOrderIndex(index)}
+                aria-label={order.title}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  index === activeOrderIndex
+                    ? "w-6 bg-[color:var(--gold)]"
+                    : "w-2.5 bg-[rgba(181,120,58,0.28)] hover:bg-[rgba(181,120,58,0.45)]"
+                }`}
+              />
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      {deliveredCount > 0 ? (
+        <button
+          type="button"
+          onClick={() => navigate("/wall")}
+          className="w-full rounded-[1.35rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(240,232,220,0.62)] px-5 py-4 text-left font-[var(--font-display)] text-[1.15rem] text-[color:var(--ink)] shadow-[0_10px_28px_rgba(46,35,24,0.04)]"
+        >
+          {copy.achievedBanner(deliveredCount)}
+        </button>
+      ) : null}
+
     </div>
   );
 }

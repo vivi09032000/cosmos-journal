@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { auth, db, firebaseErrorMessage } from "../firebase";
+import { getDefaultProfileIdentity } from "../lib/profileIdentity";
 
 function reduceToLifePath(value) {
   let current = value;
@@ -60,11 +61,15 @@ export function useAuth(locale = "zh-TW") {
         setUser(nextUser);
         const userRef = doc(db, "users", nextUser.uid);
         const snapshot = await getDoc(userRef);
+        const existingProfile = snapshot.exists() ? snapshot.data() : {};
+        const defaultIdentity = getDefaultProfileIdentity(nextUser.uid);
 
         await setDoc(
           userRef,
           {
             ...(snapshot.exists() ? {} : { createdAt: serverTimestamp() }),
+            ...(!existingProfile.displayName ? { displayName: defaultIdentity.displayName } : {}),
+            ...(!existingProfile.avatarKey ? { avatarKey: defaultIdentity.avatarKey } : {}),
             lastSeen: serverTimestamp(),
           },
           { merge: true },
@@ -117,5 +122,19 @@ export function useAuth(locale = "zh-TW") {
     );
   };
 
-  return { user, profile, loading, error, saveBirthday };
+  const saveProfileIdentity = async ({ displayName, avatarKey }) => {
+    if (!db || !user?.uid) return;
+
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        displayName: displayName?.trim() || getDefaultProfileIdentity(user.uid).displayName,
+        avatarKey: avatarKey || getDefaultProfileIdentity(user.uid).avatarKey,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  };
+
+  return { user, profile, loading, error, saveBirthday, saveProfileIdentity };
 }
