@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSwipe } from "../hooks/useSwipe";
 import { useNavigate } from "react-router-dom";
 import { getMoonPhaseInfo } from "../angelEngine";
 import {
@@ -352,6 +353,7 @@ export default function TodayPage({
     savedQuestionAnswer,
     todayEntry,
   ].filter(Boolean).length;
+  const autoAdvanceTimerRef = useRef(null);
 
 
   const copy = locale === "en"
@@ -584,16 +586,61 @@ export default function TodayPage({
     previousOrder ? { order: previousOrder, side: "left" } : null,
     nextOrder ? { order: nextOrder, side: "right" } : null,
   ].filter(Boolean);
-  const handleNextRitual = () => {
+  const handleNextRitual = useCallback(() => {
     const currentIndex = ritualItems.findIndex((item) => item.id === activeRitual);
     const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % ritualItems.length : 0;
     setActiveRitual(ritualItems[nextIndex].id);
-  };
+  }, [ritualItems, activeRitual]);
+  const handlePrevRitual = useCallback(() => {
+    const currentIndex = ritualItems.findIndex((item) => item.id === activeRitual);
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : ritualItems.length - 1;
+    setActiveRitual(ritualItems[prevIndex].id);
+  }, [ritualItems, activeRitual]);
   const openOrderProjection = (order) => {
     navigate("/orders", {
       state: { selectedOrderId: order.id },
     });
   };
+  const handleOrderSwipeLeft = useCallback(() => {
+    if (activeOrders.length <= 1) return;
+    setActiveOrderIndex((i) => (i + 1) % activeOrders.length);
+  }, [activeOrders.length]);
+  const handleOrderSwipeRight = useCallback(() => {
+    if (activeOrders.length <= 1) return;
+    setActiveOrderIndex((i) => (i - 1 + activeOrders.length) % activeOrders.length);
+  }, [activeOrders.length]);
+
+  // Auto-advance ritual after completing the current one
+  const prevMood = useRef(dailyLogEntry?.mood);
+  const prevAnswer = useRef(savedQuestionAnswer);
+  const prevGratitude = useRef(todayEntry);
+  useEffect(() => {
+    const moodJustSet = !prevMood.current && dailyLogEntry?.mood;
+    const answerJustSet = !prevAnswer.current && savedQuestionAnswer;
+    const gratitudeJustSet = !prevGratitude.current && todayEntry;
+    prevMood.current = dailyLogEntry?.mood;
+    prevAnswer.current = savedQuestionAnswer;
+    prevGratitude.current = todayEntry;
+
+    let shouldAdvance = false;
+    if (activeRitual === "mood" && moodJustSet) shouldAdvance = true;
+    if (activeRitual === "question" && answerJustSet) shouldAdvance = true;
+    if (activeRitual === "gratitude" && gratitudeJustSet) shouldAdvance = true;
+
+    if (shouldAdvance) {
+      if (autoAdvanceTimerRef.current) window.clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = window.setTimeout(() => {
+        handleNextRitual();
+      }, 800);
+    }
+    return () => {
+      if (autoAdvanceTimerRef.current) window.clearTimeout(autoAdvanceTimerRef.current);
+    };
+  }, [dailyLogEntry?.mood, savedQuestionAnswer, todayEntry, activeRitual, handleNextRitual]);
+
+  // Swipe handlers
+  const ritualSwipe = useSwipe({ onSwipeLeft: handleNextRitual, onSwipeRight: handlePrevRitual });
+  const orderSwipe = useSwipe({ onSwipeLeft: handleOrderSwipeLeft, onSwipeRight: handleOrderSwipeRight });
 
   return (
     <div className="today-page">
@@ -652,7 +699,10 @@ export default function TodayPage({
           </span>
         </div>
 
-        <div className="today-ritual-stack relative pb-16">
+        <div
+          className="today-ritual-stack relative pb-16"
+          {...ritualSwipe}
+        >
           {backRituals.map((item, index) => (
             <RitualBackCard
               key={item.id}
@@ -867,7 +917,10 @@ export default function TodayPage({
           </div>
         </div>
 
-        <div className="relative overflow-visible pb-7 pt-2">
+        <div
+          className="relative overflow-visible pb-7 pt-2"
+          {...orderSwipe}
+        >
           {sideOrders.map(({ order, side }) => {
             return (
               <button
