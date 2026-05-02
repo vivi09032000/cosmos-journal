@@ -973,17 +973,18 @@ export default function TodayPage({
           {...orderSwipe}
         >
           {stackOrders.map(({ order, offsetIndex, totalBackCards }) => {
-            const shiftPercent = (offsetIndex / totalBackCards) * 16;
-            const scaleAmount = 1 - (offsetIndex / totalBackCards) * 0.12;
+            // Formula: shiftPercent = 100 - (cardWidth * scaleAmount) to ensure the last card hits the right edge perfectly
+            const shiftPercent = (offsetIndex / totalBackCards) * 18.3;
+            const scaleAmount = 1 - (offsetIndex / totalBackCards) * 0.05;
             return (
               <button
                 key={order.id}
                 type="button"
                 onClick={() => handleOrderSwipeLeft()}
-                className="absolute top-2 bottom-7 w-[78%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition-all duration-300"
+                className="absolute top-2 bottom-7 w-[86%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition-all duration-300"
                 style={{ 
                   zIndex: 10 - offsetIndex,
-                  left: `calc(1.25rem + ${shiftPercent}%)`, // ml-5 base + dynamic shift
+                  left: `${shiftPercent}%`, // flush left + dynamic shift
                   transformOrigin: 'left center',
                   transform: `scale(${scaleAmount})`, // Parallel stack, no rotation
                 }}
@@ -1013,7 +1014,7 @@ export default function TodayPage({
             <button
               type="button"
               onClick={() => openOrderProjection(activeOrder)}
-              className="paper-card relative z-20 ml-5 block w-[78%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1 shadow-[0_15px_35px_rgba(46,35,24,0.12)]"
+              className="paper-card relative z-20 block w-[86%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1 shadow-[0_15px_35px_rgba(46,35,24,0.12)]"
             >
                 <div
                   className="relative h-40 overflow-hidden"
