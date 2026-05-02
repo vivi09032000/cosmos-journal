@@ -1002,15 +1002,7 @@ export default function TodayPage({
         <RitualDots items={ritualItems} activeId={activeRitual} onSelect={switchRitual} />
       </section>
 
-      <div className="today-angel-strip flex items-center justify-center py-1">
-        <button
-          type="button"
-          onClick={() => navigate("/angel")}
-          className="text-[0.88rem] tracking-[0.14em] text-[color:var(--gold)] opacity-80 transition-opacity hover:opacity-100"
-        >
-          {copy.angelLink}
-        </button>
-      </div>
+
       </div>
 
       <section className="today-goal-section">
