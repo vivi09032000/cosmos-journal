@@ -963,7 +963,7 @@ export default function TodayPage({
         </div>
 
         <div
-          className="relative overflow-visible pb-7 pt-2"
+          className="relative overflow-visible pb-7 pt-2 flex items-stretch"
           {...orderSwipe}
         >
           {stackOrders.map(({ order, offsetIndex }) => {
@@ -972,30 +972,27 @@ export default function TodayPage({
                 key={order.id}
                 type="button"
                 onClick={() => handleOrderSwipeLeft()}
-                className="absolute bottom-7 top-2 w-[82%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[10px_10px_30px_rgba(46,35,24,0.06)] transition-all duration-300"
+                className="absolute top-2 bottom-7 w-[72%] overflow-hidden rounded-[1.4rem] border border-[rgba(255,255,255,0.15)] text-left shadow-[0_10px_20px_rgba(0,0,0,0.1)] transition-all duration-300"
                 style={{ 
                   zIndex: 10 - offsetIndex,
-                  left: '1.25rem', // matches ml-5
+                  left: '1.25rem', // ml-5
                   transformOrigin: 'left center',
-                  transform: `translateX(${offsetIndex * 2.8}rem) scale(${1 - offsetIndex * 0.08}) rotate(${offsetIndex * 2}deg)`,
-                  opacity: 1 - offsetIndex * 0.15
+                  transform: `translateX(${offsetIndex * 3.5}rem) scale(${1 - offsetIndex * 0.04})`,
                 }}
               >
-                <div className="relative h-full">
+                <div className="absolute inset-0">
                   <OrderCoverArt
                     order={order}
                     loading="lazy"
                     sizes="180px"
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,28,45,0.08),rgba(20,28,45,0.55))]" />
-                  <div className="absolute inset-x-0 bottom-0 p-4">
-                    <p className="line-clamp-2 font-display text-[1.05rem] leading-snug text-[#fff3dd] drop-shadow">
-                      {order.title}
-                    </p>
-                    <p className="mt-1 text-[0.56rem] tracking-[0.16em] text-[rgba(255,243,221,0.78)]">
-                      {getOrderStatusLabel(order.status, locale)}
-                    </p>
-                  </div>
+                </div>
+                <div className="absolute inset-0 bg-[rgba(20,28,45,0.25)]" />
+                
+                <div className="absolute top-0 right-0 bg-[rgba(240,232,220,0.95)] px-3.5 py-2 backdrop-blur-md rounded-bl-2xl">
+                  <p className="font-display text-[0.8rem] font-medium tracking-[0.12em] text-[color:var(--ink)]">
+                    {order.title}
+                  </p>
                 </div>
               </button>
             );
@@ -1005,54 +1002,55 @@ export default function TodayPage({
             <button
               type="button"
               onClick={() => openOrderProjection(activeOrder)}
-              className="paper-card relative z-20 ml-5 block w-[82%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1 shadow-[0_15px_35px_rgba(46,35,24,0.1)]"
+              className="relative z-20 ml-5 block w-[72%] aspect-[3/4] overflow-hidden rounded-[1.4rem] border border-[rgba(255,255,255,0.15)] text-left transition hover:-translate-y-1 shadow-[0_15px_35px_rgba(46,35,24,0.25)]"
             >
-                <div
-                  className="relative h-40 overflow-hidden"
-                  style={{ background: activeOrderTheme?.background }}
-                >
+               <div className="absolute inset-0">
                   <OrderCoverArt
                     order={activeOrder}
                     loading="eager"
                     fetchPriority="high"
                     sizes="(max-width: 768px) 100vw, 680px"
                   />
-                  <div className="absolute inset-0 opacity-80" style={{ backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" }} />
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
-                  <span className="absolute left-4 top-3 text-[0.58rem] tracking-[0.16em] text-[rgba(255,247,230,0.72)]">
-                    {locale === "en"
-                      ? `Day ${daysSince(activeOrder.createdAt)}`
-                      : `第 ${daysSince(activeOrder.createdAt)} 天`}
-                  </span>
-                  <span className="absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)]">
-                    {copy.projectionTag}
-                  </span>
-                </div>
-                <div className="px-5 py-5">
-                  <div className="flex items-center gap-2">
-                    <Tag>{activeOrder.angelNumber ? `#${activeOrder.angelNumber}` : "Manifest"}</Tag>
-                    <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
-                      {getOrderStatusLabel(activeOrder.status, locale)}
-                    </span>
+               </div>
+               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,28,45,0.1)_0%,rgba(20,28,45,0.5)_45%,rgba(20,28,45,0.95)_100%)]" />
+               
+               <div className="relative h-full flex flex-col justify-between p-5 text-[#fff3dd]">
+                  <div className="text-[rgba(255,255,255,0.8)] opacity-80">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                      <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                    </svg>
                   </div>
-                  <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
-                    {activeOrder.title}
-                  </h2>
-                  {activeOrder.subtitle ? (
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)] italic">
-                      {activeOrder.subtitle}
+
+                  <div className="mt-auto">
+                    <h2 className="font-display text-[2rem] leading-tight drop-shadow-md">
+                      {activeOrder.title}
+                    </h2>
+                    <p className="mt-2 text-[0.85rem] tracking-[0.1em] text-[rgba(255,243,221,0.8)]">
+                      {locale === "en" ? `Day ${daysSince(activeOrder.createdAt)}` : `第 ${daysSince(activeOrder.createdAt)} 天`}
+                      {activeOrder.subtitle ? ` · ${activeOrder.subtitle}` : ""}
                     </p>
-                  ) : null}
-                  <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
-                    {copy.moonProgressPrefix(moonLabel)}
-                  </p>
-                  <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
-                    <div
-                      className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold-soft),var(--gold))]"
-                      style={{ width: `${getActionProgress(activeOrder)}%` }}
-                    />
+                    
+                    <div className="mt-5 flex items-center gap-3">
+                      <div className="h-[6px] w-4/5 rounded-full bg-[rgba(255,255,255,0.2)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[color:var(--gold)]"
+                          style={{ width: `${getActionProgress(activeOrder)}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <p className="mt-3 text-[0.7rem] tracking-[0.12em] text-[rgba(255,243,221,0.6)]">
+                      {activeOrder.actionCount || 0} / 30 {locale === "en" ? "Days" : "天"}
+                    </p>
+                    
+                    <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(20,28,45,0.5)] px-4 py-2 text-[0.75rem] tracking-[0.12em] text-[color:var(--gold)] backdrop-blur-md transition-colors hover:bg-[rgba(20,28,45,0.7)]">
+                      <span className="text-[1.1em]">✦</span> {copy.projectionTag}
+                    </div>
                   </div>
-                </div>
+               </div>
             </button>
           ) : (
             <article className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left">
