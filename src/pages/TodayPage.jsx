@@ -298,8 +298,8 @@ function RitualBackCard({ id, label, status, offset, onClick }) {
       onClick={onClick}
       className="absolute inset-x-3 top-0 h-full overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
       style={{
-        transform: `translateY(${offset}px) translateX(${offset > 40 ? 12 : -12}px) scale(${1 - offset * 0.001})`,
-        zIndex: 10 - Math.floor(offset / 24),
+        transform: `translateY(${offset}px) translateX(${offset > 60 ? 20 : -20}px) scale(${1 - offset * 0.0015})`,
+        zIndex: 10 - Math.floor(offset / 40),
       }}
     >
       <div className="absolute inset-x-0 bottom-0 flex h-[3.2rem] items-center justify-between px-5 text-sm font-semibold tracking-[0.12em] text-[color:var(--ink-soft)]">
@@ -814,7 +814,7 @@ export default function TodayPage({
               id={item.id}
               label={item.label}
               status={item.status}
-              offset={(index + 1) * 24}
+              offset={(index + 1) * 40}
               onClick={() => switchRitual(item.id)}
             />
           ))}
