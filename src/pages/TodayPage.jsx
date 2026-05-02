@@ -1021,10 +1021,7 @@ export default function TodayPage({
               <div className="opacity-0 pointer-events-none relative z-0 block w-[72%] px-0 py-0 pb-2">
                 <div className="relative h-40"></div>
                 <div className="px-5 py-5">
-                  <p className="text-[0.75rem] tracking-[0.15em] text-[#a48464] font-medium">
-                    {getOrderStatusLabel(activeOrder.status, locale)}
-                  </p>
-                  <h2 className="mt-1.5 font-display text-[1.65rem] leading-[1.25]">
+                  <h2 className="font-display text-[1.65rem] leading-[1.25]">
                     {activeOrder.title}
                   </h2>
                   <p className="mt-1 text-[11px] leading-relaxed italic opacity-0">
@@ -1080,7 +1077,7 @@ export default function TodayPage({
                       {/* Active Card Top Tags */}
                       <div className={`absolute left-3 top-3 rounded-full bg-[rgba(20,28,45,0.85)] px-3 py-1 text-[0.7rem] tracking-[0.1em] text-white transition-opacity duration-500 backdrop-blur-md flex items-center gap-1.5 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
                         <span className="inline-block h-[5px] w-[5px] rounded-full border-[1.5px] border-white"></span>
-                        {order.tags?.[0] || 'Manifest'}
+                        {order.category || order.tags?.[0] || 'Manifest'}
                       </div>
                       <div className={`absolute right-3 top-3 rounded-full bg-[rgba(20,28,45,0.85)] px-3 py-1.5 text-[0.7rem] tracking-[0.1em] text-white transition-opacity duration-500 backdrop-blur-md ${isActive ? 'opacity-100' : 'opacity-0'}`}>
                         第 {dayN} 天
@@ -1095,10 +1092,7 @@ export default function TodayPage({
 
                     <div className="bg-[rgba(250,246,240,0.9)] px-5 py-4 h-[calc(100%-10rem)] relative">
                       <div className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                        <p className="text-[0.75rem] tracking-[0.15em] text-[#a48464] font-medium">
-                          {getOrderStatusLabel(order.status, locale)}
-                        </p>
-                        <h2 className="mt-1.5 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
+                        <h2 className="font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
                           {order.title}
                         </h2>
                         <p className="mt-1 text-[11px] leading-relaxed text-[#8a7f76] italic">
