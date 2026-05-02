@@ -151,6 +151,18 @@ export default function OrderDetail({
     [order.journal],
   );
 
+  const hasJournaledToday = useMemo(() => {
+    if (!journalTimeline.length) return false;
+    const latest = journalTimeline[0];
+    const latestTime = latest.recordedAt?.seconds ? latest.recordedAt.seconds * 1000 : (latest.date || 0);
+    if (!latestTime) return false;
+    const today = new Date();
+    const latestDate = new Date(latestTime);
+    return latestDate.getFullYear() === today.getFullYear() &&
+           latestDate.getMonth() === today.getMonth() &&
+           latestDate.getDate() === today.getDate();
+  }, [journalTimeline]);
+
   const handleAnswerChange = (index, value) => {
     const nextAnswers = [...answers];
     nextAnswers[index] = value;
@@ -330,29 +342,40 @@ export default function OrderDetail({
       <section className="paper-card px-5 py-5">
         <p className="section-label">{copy.journalKicker}</p>
         <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.journalTitle}</h3>
-        <div className="mt-4 space-y-4">
-          {questions.slice(0, step + 1).map((question, index) => (
-            <div key={question} className="paper-card-soft px-4 py-4">
-              <p className="text-sm font-medium leading-7 text-[color:var(--ink)]">{question}</p>
-              <textarea
-                value={answers[index]}
-                onChange={(event) => handleAnswerChange(index, event.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={3}
-                className="cosmos-textarea mt-3"
-                placeholder={copy.answerPlaceholder}
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!canSubmit || saving}
-            className="primary-button w-full"
-          >
-            {saving ? copy.sending : copy.send}
-          </button>
-        </div>
+        {hasJournaledToday || journalSent ? (
+          <div className="mt-4 rounded-xl bg-[rgba(181,120,58,0.06)] px-5 py-5 text-center">
+            <p className="text-sm font-medium tracking-[0.1em] text-[color:var(--gold)]">
+              ✦ {locale === "en" ? "Universe has received today's projection" : "宇宙已收到你今天的投射"}
+            </p>
+            <p className="mt-2 text-[0.8rem] leading-6 text-[color:var(--ink-soft)]">
+              {locale === "en" ? "Come back tomorrow. The seed needs time to grow." : "明天再來吧，能量需要一點時間沉澱發芽。"}
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {questions.slice(0, step + 1).map((question, index) => (
+              <div key={question} className="paper-card-soft px-4 py-4">
+                <p className="text-sm font-medium leading-7 text-[color:var(--ink)]">{question}</p>
+                <textarea
+                  value={answers[index]}
+                  onChange={(event) => handleAnswerChange(index, event.target.value)}
+                  onKeyDown={handleKeyDown}
+                  rows={3}
+                  className="cosmos-textarea mt-3"
+                  placeholder={copy.answerPlaceholder}
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!canSubmit || saving}
+              className="primary-button w-full"
+            >
+              {saving ? copy.sending : copy.send}
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="paper-card px-5 py-5">

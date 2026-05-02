@@ -18,9 +18,20 @@ import dayjs from "dayjs";
 const calculateGoalStats = (order) => {
   const validJournal = order.journal || [];
   const thirtyDaysAgo = dayjs().subtract(30, 'day').startOf('day');
-  const recentCount = validJournal.filter(j => dayjs(j.date || j).isAfter(thirtyDaysAgo)).length;
   
-  const uniqueDates = [...new Set(validJournal.map(j => dayjs(j.date || j).startOf('day').valueOf()))].sort((a,b) => b - a);
+  const getEntryDate = (j) => {
+    if (!j) return Date.now();
+    if (j.recordedAt?.toDate) return j.recordedAt.toDate();
+    if (j.recordedAt?.seconds) return j.recordedAt.seconds * 1000;
+    if (j.createdAt?.toDate) return j.createdAt.toDate();
+    return j.date || j;
+  };
+  
+  const recentEntries = validJournal.filter(j => dayjs(getEntryDate(j)).isAfter(thirtyDaysAgo));
+  const uniqueRecentDates = new Set(recentEntries.map(j => dayjs(getEntryDate(j)).startOf('day').valueOf()));
+  const recentCount = uniqueRecentDates.size;
+  
+  const uniqueDates = [...new Set(validJournal.map(j => dayjs(getEntryDate(j)).startOf('day').valueOf()))].sort((a,b) => b - a);
   let streak = 0;
   const today = dayjs().startOf('day').valueOf();
   const yesterday = dayjs().subtract(1, 'day').startOf('day').valueOf();
