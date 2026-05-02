@@ -974,7 +974,13 @@ export default function TodayPage({
               <button
                 key={order.id}
                 type="button"
-                onClick={() => openOrderProjection(order)}
+                onClick={() => {
+                  if (side === "left") {
+                    handleOrderSwipeRight();
+                  } else {
+                    handleOrderSwipeLeft();
+                  }
+                }}
                 className={`absolute top-8 h-[16.5rem] w-[48%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.9)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition hover:-translate-y-1 ${
                   side === "left" ? "-left-5 rotate-[-2deg]" : "-right-5 rotate-[2deg]"
                 }`}
