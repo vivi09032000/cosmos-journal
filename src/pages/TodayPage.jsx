@@ -13,6 +13,38 @@ import OrderCoverArt from "../components/OrderCoverArt";
 import { useI18n } from "../lib/i18n";
 import { getActionProgress } from "../lib/orderActions";
 import { daysSince, getOrderTheme, getOrderStatusLabel } from "../lib/orderTheme";
+import dayjs from "dayjs";
+
+const calculateGoalStats = (order) => {
+  const validJournal = order.journal || [];
+  const thirtyDaysAgo = dayjs().subtract(30, 'day').startOf('day');
+  const recentCount = validJournal.filter(j => dayjs(j.date || j).isAfter(thirtyDaysAgo)).length;
+  
+  const uniqueDates = [...new Set(validJournal.map(j => dayjs(j.date || j).startOf('day').valueOf()))].sort((a,b) => b - a);
+  let streak = 0;
+  const today = dayjs().startOf('day').valueOf();
+  const yesterday = dayjs().subtract(1, 'day').startOf('day').valueOf();
+  
+  if (uniqueDates.includes(today)) {
+    streak = 1;
+    let checkDate = yesterday;
+    while(uniqueDates.includes(checkDate)) {
+      streak++;
+      checkDate = dayjs(checkDate).subtract(1, 'day').valueOf();
+    }
+  } else if (uniqueDates.includes(yesterday)) {
+    let checkDate = yesterday;
+    while(uniqueDates.includes(checkDate)) {
+      streak++;
+      checkDate = dayjs(checkDate).subtract(1, 'day').valueOf();
+    }
+  }
+  
+  const createdAt = order.createdAt?.toDate ? order.createdAt.toDate() : (order.createdAt || Date.now());
+  const dayN = dayjs().startOf('day').diff(dayjs(createdAt).startOf('day'), 'day') + 1;
+
+  return { recentCount, streak, dayN };
+};
 
 const MOON_COPY = {
   "zh-TW": {
@@ -989,24 +1021,24 @@ export default function TodayPage({
               <div className="opacity-0 pointer-events-none relative z-0 block w-[72%] px-0 py-0 pb-2">
                 <div className="relative h-40"></div>
                 <div className="px-5 py-5">
-                  <div className="flex items-center gap-2">
-                    <Tag>{activeOrder.angelNumber ? `#${activeOrder.angelNumber}` : "Manifest"}</Tag>
-                    <span className="text-[0.58rem] tracking-[0.2em]">
-                      {getOrderStatusLabel(activeOrder.status, locale)}
-                    </span>
-                  </div>
-                  <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25]">
+                  <p className="text-[0.75rem] tracking-[0.15em] text-[#a48464] font-medium">
+                    {getOrderStatusLabel(activeOrder.status, locale)}
+                  </p>
+                  <h2 className="mt-1.5 font-display text-[1.65rem] leading-[1.25]">
                     {activeOrder.title}
                   </h2>
-                  {activeOrder.subtitle && (
-                    <p className="mt-2 text-sm leading-7">
-                      {activeOrder.subtitle}
-                    </p>
-                  )}
-                  <p className="mt-3 text-sm leading-7">
-                    {copy.moonProgressPrefix(moonLabel)}
+                  <p className="mt-1 text-[11px] leading-relaxed italic opacity-0">
+                    {activeOrder.keywords?.length ? activeOrder.keywords.join(' · ') : activeOrder.subtitle || " "}
                   </p>
-                  <div className="mt-4 h-[2px]"></div>
+                  <div className="mt-5 flex items-center justify-between text-[0.75rem]">
+                    <span>近 30 天投射</span>
+                    <span>18 / 30 天</span>
+                  </div>
+                  <div className="mt-2 h-[5px] w-full"></div>
+                  <div className="mt-4 flex items-center justify-between border-t border-[rgba(181,120,58,0.15)] pt-3">
+                    <span className="text-[0.75rem]">✦ 連續 8 天</span>
+                    <span className="text-[0.8rem]">›</span>
+                  </div>
                 </div>
               </div>
 
@@ -1018,6 +1050,8 @@ export default function TodayPage({
                 const scaleAmount = 1 - (f * maxScaleDown);
                 // Shift percent formula ensures exact right-edge alignment at 100% of container
                 const shiftPercent = (100 - cardWidth) * f + (cardWidth * (1 - scaleAmount));
+
+                const { recentCount, streak, dayN } = calculateGoalStats(order);
 
                 return (
                   <button
@@ -1043,9 +1077,14 @@ export default function TodayPage({
                       <div className={`absolute inset-0 transition-opacity duration-500 ${isActive ? 'opacity-80' : 'bg-[linear-gradient(180deg,rgba(20,28,45,0.08),rgba(20,28,45,0.55))]'}`} style={isActive ? { backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" } : {}} />
                       {isActive && <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />}
                       
-                      <span className={`absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)] transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                        {copy.projectionTag}
-                      </span>
+                      {/* Active Card Top Tags */}
+                      <div className={`absolute left-3 top-3 rounded-full bg-[rgba(20,28,45,0.85)] px-3 py-1 text-[0.7rem] tracking-[0.1em] text-white transition-opacity duration-500 backdrop-blur-md flex items-center gap-1.5 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                        <span className="inline-block h-[5px] w-[5px] rounded-full border-[1.5px] border-white"></span>
+                        {order.tags?.[0] || 'Manifest'}
+                      </div>
+                      <div className={`absolute right-3 top-3 rounded-full bg-[rgba(20,28,45,0.85)] px-3 py-1.5 text-[0.7rem] tracking-[0.1em] text-white transition-opacity duration-500 backdrop-blur-md ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                        第 {dayN} 天
+                      </div>
 
                       <div className={`absolute top-0 right-0 bg-[rgba(240,232,220,0.95)] px-3 py-1.5 backdrop-blur-md rounded-bl-xl transition-opacity duration-500 ${!isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                         <p className="font-display text-[0.7rem] font-medium tracking-[0.1em] text-[color:var(--ink)]">
@@ -1056,28 +1095,32 @@ export default function TodayPage({
 
                     <div className="bg-[rgba(250,246,240,0.9)] px-5 py-4 h-[calc(100%-10rem)] relative">
                       <div className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                        <div className="flex items-center gap-2">
-                          <Tag>{order.angelNumber ? `#${order.angelNumber}` : "Manifest"}</Tag>
-                          <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
-                            {getOrderStatusLabel(order.status, locale)}
-                          </span>
-                        </div>
-                        <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
+                        <p className="text-[0.75rem] tracking-[0.15em] text-[#a48464] font-medium">
+                          {getOrderStatusLabel(order.status, locale)}
+                        </p>
+                        <h2 className="mt-1.5 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
                           {order.title}
                         </h2>
-                        {order.subtitle ? (
-                          <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)] italic">
-                            {order.subtitle}
-                          </p>
-                        ) : null}
-                        <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
-                          {copy.moonProgressPrefix(moonLabel)}
+                        <p className="mt-1 text-[11px] leading-relaxed text-[#8a7f76] italic">
+                          {order.keywords?.length ? order.keywords.join(' · ') : (order.subtitle || "\u00A0")}
                         </p>
-                        <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
+                        
+                        <div className="mt-5 flex items-center justify-between text-[0.75rem] text-[#8a7f76]">
+                          <span>近 30 天投射</span>
+                          <span className="font-medium text-[color:var(--ink)]">{recentCount >= 30 ? "✦ 本月能量滿格" : `${recentCount} / 30 天`}</span>
+                        </div>
+                        <div className="mt-2 h-[5px] w-full rounded-full bg-[rgba(181,120,58,0.2)] overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold-soft),var(--gold))]"
-                            style={{ width: `${getActionProgress(order)}%` }}
+                            className="h-full rounded-full bg-[#dda365] transition-all duration-700"
+                            style={{ width: `${Math.min(100, (recentCount / 30) * 100)}%` }}
                           />
+                        </div>
+                        
+                        <div className="mt-4 flex items-center justify-between border-t border-[rgba(181,120,58,0.15)] pt-3">
+                          <span className="text-[0.75rem] text-[#8a7f76] flex items-center gap-1 font-medium tracking-wide">
+                            <span className="text-[#a48464] text-xs">✦</span> 連續 {streak} 天
+                          </span>
+                          <span className="text-[0.8rem] text-[#a48464]">›</span>
                         </div>
                       </div>
                     </div>
