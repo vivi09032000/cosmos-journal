@@ -594,12 +594,18 @@ export default function TodayPage({
     },
   ];
   const backRituals = ritualItems.filter((item) => item.id !== activeRitual);
+  const maxBackCards = 4;
+  const totalBackCards = Math.max(1, Math.min(activeOrders.length - 1, maxBackCards));
   const stackOrders = [];
-  if (activeOrders.length > 2) {
-    stackOrders.push({ order: activeOrders[(activeOrderIndex + 2) % activeOrders.length], offsetIndex: 2 });
-  }
   if (activeOrders.length > 1) {
-    stackOrders.push({ order: activeOrders[(activeOrderIndex + 1) % activeOrders.length], offsetIndex: 1 });
+    const numCards = Math.min(activeOrders.length - 1, maxBackCards);
+    for (let i = numCards; i >= 1; i--) {
+      stackOrders.push({
+        order: activeOrders[(activeOrderIndex + i) % activeOrders.length],
+        offsetIndex: i,
+        totalBackCards: totalBackCards
+      });
+    }
   }
   const switchRitual = useCallback((nextId) => {
     if (ritualAnimTimerRef.current) window.clearTimeout(ritualAnimTimerRef.current);
@@ -966,7 +972,9 @@ export default function TodayPage({
           className="relative overflow-visible pb-7 pt-2 flex items-stretch"
           {...orderSwipe}
         >
-          {stackOrders.map(({ order, offsetIndex }) => {
+          {stackOrders.map(({ order, offsetIndex, totalBackCards }) => {
+            const shiftPercent = (offsetIndex / totalBackCards) * 16;
+            const scaleAmount = 1 - (offsetIndex / totalBackCards) * 0.12;
             return (
               <button
                 key={order.id}
@@ -975,9 +983,9 @@ export default function TodayPage({
                 className="absolute top-2 bottom-7 w-[78%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition-all duration-300"
                 style={{ 
                   zIndex: 10 - offsetIndex,
-                  left: '1.25rem', // ml-5
+                  left: `calc(1.25rem + ${shiftPercent}%)`, // ml-5 base + dynamic shift
                   transformOrigin: 'left center',
-                  transform: `translateX(${offsetIndex * 3.2}rem) scale(${1 - offsetIndex * 0.05})`, // Parallel stack, no rotation
+                  transform: `scale(${scaleAmount})`, // Parallel stack, no rotation
                 }}
               >
                 <div className="relative h-40 overflow-hidden">
