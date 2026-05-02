@@ -326,7 +326,7 @@ function AppContent() {
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.9)] shadow-[0_4px_12px_rgba(46,35,24,0.08)] transition hover:bg-[rgba(250,246,240,1)]"
+            className="absolute right-4 top-10 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(181,120,58,0.18)] bg-[rgba(250,246,240,0.9)] shadow-[0_4px_12px_rgba(46,35,24,0.08)] transition hover:bg-[rgba(250,246,240,1)]"
             aria-label="Menu"
           >
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="var(--gold)" strokeWidth="1.8" strokeLinecap="round">

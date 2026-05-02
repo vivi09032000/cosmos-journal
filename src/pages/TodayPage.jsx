@@ -298,7 +298,7 @@ function RitualBackCard({ id, label, status, offset, onClick }) {
       onClick={onClick}
       className="absolute inset-x-3 top-0 h-full overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
       style={{
-        transform: `translateY(${offset}px) scale(${1 - offset * 0.001}) rotate(${offset % 2 === 0 ? -0.4 : 0.4}deg)`,
+        transform: `translateY(${offset}px) scale(${1 - offset * 0.001})`,
         zIndex: 0,
       }}
     >
@@ -312,10 +312,12 @@ function RitualBackCard({ id, label, status, offset, onClick }) {
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          {!isDone && <span className="h-2.5 w-2.5 rounded-full border border-[rgba(181,120,58,0.3)]" />}
-          <span className={`text-[0.65rem] tracking-[0.12em] ${isDone ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"}`}>
-            {status}
-          </span>
+          {!isDone && status && <span className="h-2.5 w-2.5 rounded-full border border-[rgba(181,120,58,0.3)]" />}
+          {status && (
+            <span className={`text-[0.65rem] tracking-[0.12em] ${isDone ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"}`}>
+              {status}
+            </span>
+          )}
         </div>
       </div>
     </button>
@@ -442,7 +444,7 @@ export default function TodayPage({
       questionCardTitle: "Daily question",
       gratitudeCardTitle: "Gratitude",
       complete: "Logged",
-      pending: "Whenever you want",
+      pending: "",
       skipRitual: "See another ritual →",
       goalStackTitle: "Today's projection",
       achievedBanner: (count) => `You have manifested ${count} wish${count === 1 ? "" : "es"} →`,
@@ -479,7 +481,7 @@ export default function TodayPage({
       questionCardTitle: "今日一問",
       gratitudeCardTitle: "今日感恩",
       complete: "已記錄",
-      pending: "想寫再寫",
+      pending: "",
       skipRitual: "先看下一張 →",
       goalStackTitle: "今日投射",
       achievedBanner: (count) => `你已實現了 ${count} 個願望 →`,
@@ -812,7 +814,7 @@ export default function TodayPage({
               id={item.id}
               label={item.label}
               status={item.status}
-              offset={(index + 1) * 44}
+              offset={(index + 1) * 18}
               onClick={() => switchRitual(item.id)}
             />
           ))}
