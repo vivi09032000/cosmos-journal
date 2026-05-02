@@ -594,16 +594,13 @@ export default function TodayPage({
     },
   ];
   const backRituals = ritualItems.filter((item) => item.id !== activeRitual);
-  const previousOrder = activeOrders.length > 2
-    ? activeOrders[(activeOrderIndex - 1 + activeOrders.length) % activeOrders.length]
-    : null;
-  const nextOrder = activeOrders.length > 1
-    ? activeOrders[(activeOrderIndex + 1) % activeOrders.length]
-    : null;
-  const sideOrders = [
-    previousOrder ? { order: previousOrder, side: "left" } : null,
-    nextOrder ? { order: nextOrder, side: "right" } : null,
-  ].filter(Boolean);
+  const stackOrders = [];
+  if (activeOrders.length > 2) {
+    stackOrders.push({ order: activeOrders[(activeOrderIndex + 2) % activeOrders.length], offsetIndex: 2 });
+  }
+  if (activeOrders.length > 1) {
+    stackOrders.push({ order: activeOrders[(activeOrderIndex + 1) % activeOrders.length], offsetIndex: 1 });
+  }
   const switchRitual = useCallback((nextId) => {
     if (ritualAnimTimerRef.current) window.clearTimeout(ritualAnimTimerRef.current);
     setRitualAnimState("exiting");
@@ -969,22 +966,20 @@ export default function TodayPage({
           className="relative overflow-visible pb-7 pt-2"
           {...orderSwipe}
         >
-          {sideOrders.map(({ order, side }) => {
+          {stackOrders.map(({ order, offsetIndex }) => {
             return (
               <button
                 key={order.id}
                 type="button"
-                onClick={() => {
-                  if (side === "left") {
-                    handleOrderSwipeRight();
-                  } else {
-                    handleOrderSwipeLeft();
-                  }
+                onClick={() => handleOrderSwipeLeft()}
+                className="absolute bottom-7 top-2 w-[82%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[10px_10px_30px_rgba(46,35,24,0.06)] transition-all duration-300"
+                style={{ 
+                  zIndex: 10 - offsetIndex,
+                  left: '1.25rem', // matches ml-5
+                  transformOrigin: 'left center',
+                  transform: `translateX(${offsetIndex * 2.8}rem) scale(${1 - offsetIndex * 0.08}) rotate(${offsetIndex * 2}deg)`,
+                  opacity: 1 - offsetIndex * 0.15
                 }}
-                className={`absolute top-8 h-[16.5rem] w-[48%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.9)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition hover:-translate-y-1 ${
-                  side === "left" ? "-left-5 rotate-[-2deg]" : "-right-5 rotate-[2deg]"
-                }`}
-                style={{ zIndex: 0 }}
               >
                 <div className="relative h-full">
                   <OrderCoverArt
@@ -1010,7 +1005,7 @@ export default function TodayPage({
             <button
               type="button"
               onClick={() => openOrderProjection(activeOrder)}
-              className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1"
+              className="paper-card relative z-20 ml-5 block w-[82%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1 shadow-[0_15px_35px_rgba(46,35,24,0.1)]"
             >
                 <div
                   className="relative h-40 overflow-hidden"
