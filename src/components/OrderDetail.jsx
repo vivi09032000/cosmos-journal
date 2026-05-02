@@ -70,6 +70,28 @@ export default function OrderDetail({
     [order],
   );
 
+  const journalTimeline = useMemo(
+    () =>
+      [...(order.journal || [])].sort((left, right) => {
+        const leftTime = left.recordedAt?.seconds || 0;
+        const rightTime = right.recordedAt?.seconds || 0;
+        return rightTime - leftTime;
+      }),
+    [order.journal],
+  );
+
+  const hasJournaledToday = useMemo(() => {
+    if (!journalTimeline.length) return false;
+    const latest = journalTimeline[0];
+    const latestTime = latest.recordedAt?.seconds ? latest.recordedAt.seconds * 1000 : (latest.date || 0);
+    if (!latestTime) return false;
+    const today = new Date();
+    const latestDate = new Date(latestTime);
+    return latestDate.getFullYear() === today.getFullYear() &&
+           latestDate.getMonth() === today.getMonth() &&
+           latestDate.getDate() === today.getDate();
+  }, [journalTimeline]);
+
   const [isEditingToday, setIsEditingToday] = useState(false);
 
   useEffect(() => {
@@ -150,27 +172,7 @@ export default function OrderDetail({
       linkedSignals: "已連結訊號",
     };
 
-  const journalTimeline = useMemo(
-    () =>
-      [...(order.journal || [])].sort((left, right) => {
-        const leftTime = left.recordedAt?.seconds || 0;
-        const rightTime = right.recordedAt?.seconds || 0;
-        return rightTime - leftTime;
-      }),
-    [order.journal],
-  );
 
-  const hasJournaledToday = useMemo(() => {
-    if (!journalTimeline.length) return false;
-    const latest = journalTimeline[0];
-    const latestTime = latest.recordedAt?.seconds ? latest.recordedAt.seconds * 1000 : (latest.date || 0);
-    if (!latestTime) return false;
-    const today = new Date();
-    const latestDate = new Date(latestTime);
-    return latestDate.getFullYear() === today.getFullYear() &&
-           latestDate.getMonth() === today.getMonth() &&
-           latestDate.getDate() === today.getDate();
-  }, [journalTimeline]);
 
   const handleAnswerChange = (index, value) => {
     const nextAnswers = [...answers];
