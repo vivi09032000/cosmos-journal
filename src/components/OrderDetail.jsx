@@ -70,14 +70,23 @@ export default function OrderDetail({
     [order],
   );
 
+  const [isEditingToday, setIsEditingToday] = useState(false);
+
   useEffect(() => {
-    setAnswers(["", "", ""]);
-    setStep(0);
+    if (hasJournaledToday && journalTimeline[0]) {
+      const todayEntry = journalTimeline[0];
+      setAnswers([todayEntry.q1 || "", todayEntry.q2 || "", todayEntry.q3 || ""]);
+      setStep(questions.length - 1);
+    } else {
+      setAnswers(["", "", ""]);
+      setStep(0);
+    }
+    setIsEditingToday(false);
     setCustomAction("");
     setJournalSent(false);
     setImageError("");
     setActionSuggestionIndex(0);
-  }, [order.id]);
+  }, [order.id, hasJournaledToday, journalTimeline.length, questions.length]);
 
   const copy = locale === "en"
     ? {
@@ -188,9 +197,8 @@ export default function OrderDetail({
       q3: answers[2],
       prompts: questions,
     });
-    setAnswers(["", "", ""]);
-    setStep(0);
     setJournalSent(true);
+    setIsEditingToday(false);
     setSaving(false);
   };
 
@@ -342,7 +350,7 @@ export default function OrderDetail({
       <section className="paper-card px-5 py-5">
         <p className="section-label">{copy.journalKicker}</p>
         <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.journalTitle}</h3>
-        {hasJournaledToday || journalSent ? (
+        {(hasJournaledToday || journalSent) && !isEditingToday ? (
           <div className="mt-4 rounded-xl bg-[rgba(181,120,58,0.06)] px-5 py-5 text-center">
             <p className="text-sm font-medium tracking-[0.1em] text-[color:var(--gold)]">
               ✦ {locale === "en" ? "Universe has received today's projection" : "宇宙已收到你今天的投射"}
@@ -350,6 +358,13 @@ export default function OrderDetail({
             <p className="mt-2 text-[0.8rem] leading-6 text-[color:var(--ink-soft)]">
               {locale === "en" ? "Come back tomorrow. The seed needs time to grow." : "明天再來吧，能量需要一點時間沉澱發芽。"}
             </p>
+            <button
+              type="button"
+              onClick={() => setIsEditingToday(true)}
+              className="mt-4 text-[0.75rem] text-[color:var(--gold)] underline underline-offset-2 opacity-80 transition hover:opacity-100"
+            >
+              {locale === "en" ? "Edit today's journal" : "修改今日日記"}
+            </button>
           </div>
         ) : (
           <div className="mt-4 space-y-4">

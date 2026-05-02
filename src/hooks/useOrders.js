@@ -2,6 +2,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
@@ -198,13 +199,41 @@ export function useOrders(userId, locale = "zh-TW") {
 
   const addJournalEntry = async (orderId, entry) => {
     if (!db) return;
-    await updateDoc(doc(db, "users", userId, "orders", orderId), {
-      journal: arrayUnion({
-        ...entry,
-        recordedAt: Timestamp.now(),
-      }),
-      updatedAt: serverTimestamp(),
+    const docRef = doc(db, "users", userId, "orders", orderId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return;
+    
+    const orderData = docSnap.data();
+    const journal = orderData.journal || [];
+    const today = new Date();
+    
+    const todayEntryIndex = journal.findIndex(j => {
+      const jDate = j.recordedAt?.toDate ? j.recordedAt.toDate() : new Date((j.recordedAt?.seconds || 0) * 1000);
+      if (!jDate || isNaN(jDate.getTime())) return false;
+      return jDate.getFullYear() === today.getFullYear() &&
+             jDate.getMonth() === today.getMonth() &&
+             jDate.getDate() === today.getDate();
     });
+
+    if (todayEntryIndex >= 0) {
+      journal[todayEntryIndex] = {
+        ...journal[todayEntryIndex],
+        ...entry,
+        updatedAt: Timestamp.now(),
+      };
+      await updateDoc(docRef, {
+        journal,
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await updateDoc(docRef, {
+        journal: arrayUnion({
+          ...entry,
+          recordedAt: Timestamp.now(),
+        }),
+        updatedAt: serverTimestamp(),
+      });
+    }
   };
 
   const saveActionItems = async (orderId, actionItems) => {
