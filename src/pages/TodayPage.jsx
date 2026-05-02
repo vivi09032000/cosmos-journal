@@ -377,7 +377,7 @@ export default function TodayPage({
       hideQuestionNote: "Hide note",
       questionNotePlaceholder: "For example: I am still holding up today...",
       questionError: "Daily question could not be saved. Please try again.",
-      ritualTitle: "Small rituals today",
+      ritualTitle: "Daily rituals to complete",
       ritualProgress: (count) => `${count}/3 logged`,
       moodCardTitle: "Mood check-in",
       questionCardTitle: "Daily question",
@@ -414,7 +414,7 @@ export default function TodayPage({
       hideQuestionNote: "收起補充",
       questionNotePlaceholder: "例如：今天還算撐得住...",
       questionError: "今日一問儲存失敗，請再試一次。",
-      ritualTitle: "今日小儀式",
+      ritualTitle: "今日待完成的儀式",
       ritualProgress: (count) => `${count}/3 已記錄`,
       moodCardTitle: "心情紀錄",
       questionCardTitle: "今日一問",
@@ -671,29 +671,48 @@ export default function TodayPage({
         <WaveDivider className="wave-divider" />
       </section>
 
-      <section className="today-moon-card relative overflow-hidden rounded-[1.55rem] bg-[linear-gradient(145deg,rgba(44,58,80,0.98),rgba(35,48,69,0.98))] px-5 py-5 text-[#f6ead1] shadow-[0_18px_40px_rgba(31,41,72,0.18)]">
-        <div className="absolute inset-0 opacity-70" style={{ backgroundImage: "radial-gradient(circle at 12% 24%, rgba(255,245,220,0.22) 0 1px, transparent 1.4px), radial-gradient(circle at 32% 18%, rgba(255,245,220,0.18) 0 1px, transparent 1.5px), radial-gradient(circle at 78% 22%, rgba(255,245,220,0.22) 0 1px, transparent 1.4px), radial-gradient(circle at 90% 10%, rgba(255,245,220,0.18) 0 1px, transparent 1.5px)" }} />
-        <div className="relative flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[rgba(181,120,58,0.28)] bg-[rgba(255,245,220,0.05)]">
+      <section className="today-moon-card relative overflow-hidden rounded-[1.25rem] bg-[#1a233b] px-6 py-6 text-[#f6ead1] shadow-[0_20px_40px_rgba(15,23,42,0.3)]">
+        {/* Deep space starlight texture */}
+        <div className="absolute inset-0 opacity-40" style={{ 
+          backgroundImage: `
+            radial-gradient(circle at 12% 24%, #fff 0.5px, transparent 1px),
+            radial-gradient(circle at 32% 18%, #fff 0.5px, transparent 1px),
+            radial-gradient(circle at 78% 22%, #fff 0.5px, transparent 1px),
+            radial-gradient(circle at 90% 10%, #fff 0.5px, transparent 1px),
+            radial-gradient(circle at 45% 65%, #fff 0.5px, transparent 1px),
+            radial-gradient(circle at 15% 85%, #fff 0.5px, transparent 1px)
+          `,
+          backgroundSize: '100% 100%'
+        }} />
+        
+        {/* Subtle glow */}
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-400/5 blur-[60px]" />
+        
+        <div className="relative flex items-center gap-5">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[rgba(232,201,154,0.15)] bg-[rgba(255,255,255,0.03)] shadow-inner">
             <MoonIcon />
           </div>
+          
           <div className="min-w-0 flex-1">
-            <p className="text-[0.58rem] tracking-[0.3em] text-[#d8c5a1]">{copy.moonCard}</p>
-            <p className="mt-2 font-display text-[2rem] leading-none text-[#fff3dd]">
-              {moonLabel}
+            <p className="text-[0.62rem] font-medium tracking-[0.25em] text-[#8e9bb3] uppercase">
+              {copy.moonCard}
             </p>
-            <p className="mt-2 text-[0.88rem] leading-7 text-[#ecdcbf]">
+            <h2 className="mt-1 font-display text-[2.2rem] leading-none text-[#fff3dd]">
+              {moonLabel}
+            </h2>
+            <p className="mt-2 text-[0.82rem] leading-relaxed text-[#b4bdcf] tracking-[0.02em]">
               {moonCopy.title}
             </p>
           </div>
+          
           <div className="shrink-0 text-right">
-            <p className="font-display text-[2.25rem] leading-none text-[color:var(--gold-soft)]">
+            <p className="font-display text-[2.4rem] leading-none text-[#fff3dd]">
               {moonRhythm.shortLabel.replace("Day ", "")}
             </p>
-            <p className="mt-2 text-[0.62rem] tracking-[0.18em] text-[#caa97b]">
+            <p className="mt-1 text-[0.65rem] font-medium tracking-[0.1em] text-[#8e9bb3]">
               {moonRhythm.shortLabel}
             </p>
-            <p className="mt-1 text-[0.62rem] tracking-[0.16em] text-[#b99a71]">
+            <p className="mt-1 text-[0.6rem] tracking-[0.08em] text-[#6b7a99]">
               {moonRhythm.rhythmLabel}
             </p>
           </div>
@@ -701,18 +720,15 @@ export default function TodayPage({
       </section>
 
       <section className="today-ritual-section">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <p className="section-label">{copy.ritualTitle}</p>
-            <p className="mt-1 text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">
-              {copy.ritualProgress(ritualProgress)}
-            </p>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-[color:var(--gold)]">✦</span>
+            <h3 className="section-label !mb-0">{copy.ritualTitle}</h3>
           </div>
-          <span className="rounded-full border border-[rgba(181,120,58,0.2)] px-3 py-1 text-[0.65rem] tracking-[0.14em] text-[color:var(--ink-faint)]">
-            {ritualItems.find((item) => item.id === activeRitual)?.status}
-          </span>
+          <p className="text-[0.76rem] font-medium tracking-[0.15em] text-[color:var(--ink-faint)]">
+            {ritualProgress} / 3
+          </p>
         </div>
-
         <div
           className="today-ritual-stack relative pb-16"
           {...ritualSwipe}
@@ -908,6 +924,58 @@ export default function TodayPage({
         <RitualDots items={ritualItems} activeId={activeRitual} onSelect={switchRitual} />
       </section>
 
+      {/* Ritual status checklist — shows completion at a glance */}
+      <div className="mt-2 space-y-1 px-1">
+        {ritualItems.map((item) => {
+          const isDone = item.status.startsWith("✓");
+          const isActive = activeRitual === item.id;
+          const icons = { mood: "☁", question: "✎", gratitude: "♡" };
+          const doneIcons = { mood: "☁", question: "✎", gratitude: "♥" };
+          
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => switchRitual(item.id)}
+              className={`ritual-status-row group flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 ${
+                isActive
+                  ? "bg-[rgba(181,120,58,0.08)] shadow-[inset_0_0_0_1px_rgba(181,120,58,0.12)]"
+                  : "hover:bg-[rgba(181,120,58,0.04)]"
+              }`}
+            >
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition-all duration-300 ${
+                isDone 
+                  ? "bg-[rgba(181,120,58,0.12)] text-[color:var(--gold)]" 
+                  : "bg-[rgba(181,120,58,0.04)] text-[color:var(--ink-faint)]"
+              } ${isActive ? "scale-110 shadow-sm" : "scale-100"}`}>
+                {isDone ? doneIcons[item.id] : icons[item.id]}
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <p className={`text-[0.92rem] font-medium tracking-[0.02em] transition-colors duration-300 ${
+                  isDone ? "text-[color:var(--ink-soft)]" : "text-[color:var(--ink)]"
+                }`}>
+                  {item.label}
+                </p>
+                <p className={`text-[0.68rem] tracking-[0.1em] transition-colors duration-300 ${
+                  isDone ? "text-[color:var(--gold)] opacity-80" : "text-[color:var(--ink-faint)]"
+                }`}>
+                  {isDone ? item.status : copy.pending}
+                </p>
+              </div>
+              
+              <div className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-300 ${
+                isDone 
+                  ? "border-[color:var(--gold)] bg-[color:var(--gold)] text-white" 
+                  : "border-[rgba(181,120,58,0.2)] text-[rgba(181,120,58,0.2)]"
+              }`}>
+                {isDone ? "✓" : ""}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="today-angel-strip flex items-center justify-center py-1">
         <button
           type="button"
@@ -920,15 +988,16 @@ export default function TodayPage({
       </div>
 
       <section className="today-goal-section">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <p className="section-label">{copy.goalStackTitle}</p>
-            <p className="mt-1 text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">
-              {activeOrders.length
-                ? `${activeOrderIndex + 1}/${activeOrders.length}`
-                : "0/0"}
-            </p>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-[color:var(--gold)]">✦</span>
+            <h3 className="section-label !mb-0">{copy.goalStackTitle}</h3>
           </div>
+          {activeOrders.length > 0 && (
+            <p className="text-[0.76rem] font-medium tracking-[0.15em] text-[color:var(--ink-faint)]">
+              {activeOrderIndex + 1} / {activeOrders.length}
+            </p>
+          )}
         </div>
 
         <div
@@ -1061,13 +1130,33 @@ export default function TodayPage({
       </section>
 
       {deliveredCount > 0 ? (
-        <button
-          type="button"
-          onClick={() => navigate("/wall")}
-          className="w-full rounded-[1.35rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(240,232,220,0.62)] px-5 py-4 text-left font-display text-[1.15rem] text-[color:var(--ink)] shadow-[0_10px_28px_rgba(46,35,24,0.04)]"
-        >
-          {copy.achievedBanner(deliveredCount)}
-        </button>
+        <div className="px-1 mt-6">
+          <button
+            type="button"
+            onClick={() => navigate("/wall")}
+            className="group relative flex w-full items-center justify-between overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.25)] bg-[linear-gradient(145deg,rgba(250,246,240,0.8),rgba(244,236,224,0.9))] px-6 py-5 text-left shadow-[0_10px_30px_rgba(46,35,24,0.06)] transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_35px_rgba(46,35,24,0.1)] active:scale-[0.98]"
+          >
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-full transition-transform duration-1000 group-hover:translate-x-full" />
+            
+            <div className="relative flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(181,120,58,0.12)] text-xl">
+                ✨
+              </div>
+              <div>
+                <p className="font-display text-[1.15rem] leading-tight text-[color:var(--ink)]">
+                  {copy.achievedBanner(deliveredCount)}
+                </p>
+                <p className="mt-1 text-[0.68rem] tracking-[0.14em] text-[color:var(--gold)]">
+                  View your universe collection →
+                </p>
+              </div>
+            </div>
+            
+            <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--gold)] text-white shadow-sm transition-transform group-hover:translate-x-1">
+              →
+            </div>
+          </button>
+        </div>
       ) : null}
 
     </div>
