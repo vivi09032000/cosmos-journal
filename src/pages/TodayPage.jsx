@@ -243,21 +243,37 @@ function getDailyQuestions(locale) {
   return DAILY_QUESTION_PROMPTS[locale] || DAILY_QUESTION_PROMPTS["zh-TW"];
 }
 
-function RitualBackCard({ label, status, offset, onClick }) {
+function RitualBackCard({ id, label, status, offset, onClick }) {
+  const isDone = status.startsWith("✓");
+  const icons = { mood: "☁", question: "✎", gratitude: "♡" };
+  const doneIcons = { mood: "☁", question: "✎", gratitude: "♥" };
+  const icon = isDone ? doneIcons[id] : icons[id];
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="absolute inset-x-3 top-4 h-full overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
+      className="absolute inset-x-3 top-0 h-full overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
       style={{
-        transform: `translateY(${offset}px) scale(${1 - offset * 0.0018}) rotate(${offset % 2 === 0 ? -0.6 : 0.6}deg)`,
+        transform: `translateY(${offset}px) scale(${1 - offset * 0.001}) rotate(${offset % 2 === 0 ? -0.4 : 0.4}deg)`,
         zIndex: 0,
       }}
     >
-      <div className="absolute inset-x-0 top-0 h-12 bg-[linear-gradient(90deg,rgba(232,201,154,0.26),rgba(250,246,240,0.35))]" />
-      <div className="relative flex items-center justify-between px-5 py-4 text-sm font-semibold tracking-[0.12em] text-[color:var(--ink-soft)]">
-        <span className="font-display text-[1rem] tracking-[0.08em] text-[color:var(--ink)]">{label}</span>
-        <span className="text-[0.68rem] tracking-[0.12em] text-[color:var(--ink-faint)]">{status}</span>
+      <div className="absolute inset-x-0 bottom-0 flex h-[3.2rem] items-center justify-between px-5 text-sm font-semibold tracking-[0.12em] text-[color:var(--ink-soft)]">
+        <div className="flex items-center gap-2">
+          <span className={`text-[1.1rem] ${isDone ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"}`}>
+            {icon}
+          </span>
+          <span className="font-display text-[0.95rem] tracking-[0.08em] text-[color:var(--ink-soft)]">
+            {label}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {!isDone && <span className="h-2.5 w-2.5 rounded-full border border-[rgba(181,120,58,0.3)]" />}
+          <span className={`text-[0.65rem] tracking-[0.12em] ${isDone ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"}`}>
+            {status}
+          </span>
+        </div>
       </div>
     </button>
   );
@@ -730,19 +746,20 @@ export default function TodayPage({
           </p>
         </div>
         <div
-          className="today-ritual-stack relative pb-16"
+          className="today-ritual-stack relative pb-28"
           {...ritualSwipe}
         >
           {backRituals.map((item, index) => (
             <RitualBackCard
               key={item.id}
+              id={item.id}
               label={item.label}
               status={item.status}
-              offset={(index + 1) * 10}
+              offset={(index + 1) * 44}
               onClick={() => switchRitual(item.id)}
             />
           ))}
-          <article className={`paper-card today-ritual-card relative z-10 min-h-[18rem] px-5 py-5${ritualAnimState !== "idle" ? ` ritual-${ritualAnimState}` : ""}`}>
+          <article className={`paper-card today-ritual-card relative z-10 min-h-[17rem] px-5 py-5 shadow-[0_8px_30px_rgba(46,35,24,0.08)]${ritualAnimState !== "idle" ? ` ritual-${ritualAnimState}` : ""}`}>
             {activeRitual === "mood" ? (
               <>
                 <div className="flex items-start justify-between gap-3">
@@ -923,58 +940,6 @@ export default function TodayPage({
         </div>
         <RitualDots items={ritualItems} activeId={activeRitual} onSelect={switchRitual} />
       </section>
-
-      {/* Ritual status checklist — shows completion at a glance */}
-      <div className="mt-2 space-y-1 px-1">
-        {ritualItems.map((item) => {
-          const isDone = item.status.startsWith("✓");
-          const isActive = activeRitual === item.id;
-          const icons = { mood: "☁", question: "✎", gratitude: "♡" };
-          const doneIcons = { mood: "☁", question: "✎", gratitude: "♥" };
-          
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => switchRitual(item.id)}
-              className={`ritual-status-row group flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-left transition-all duration-300 ${
-                isActive
-                  ? "bg-[rgba(181,120,58,0.08)] shadow-[inset_0_0_0_1px_rgba(181,120,58,0.12)]"
-                  : "hover:bg-[rgba(181,120,58,0.04)]"
-              }`}
-            >
-              <div className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition-all duration-300 ${
-                isDone 
-                  ? "bg-[rgba(181,120,58,0.12)] text-[color:var(--gold)]" 
-                  : "bg-[rgba(181,120,58,0.04)] text-[color:var(--ink-faint)]"
-              } ${isActive ? "scale-110 shadow-sm" : "scale-100"}`}>
-                {isDone ? doneIcons[item.id] : icons[item.id]}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <p className={`text-[0.92rem] font-medium tracking-[0.02em] transition-colors duration-300 ${
-                  isDone ? "text-[color:var(--ink-soft)]" : "text-[color:var(--ink)]"
-                }`}>
-                  {item.label}
-                </p>
-                <p className={`text-[0.68rem] tracking-[0.1em] transition-colors duration-300 ${
-                  isDone ? "text-[color:var(--gold)] opacity-80" : "text-[color:var(--ink-faint)]"
-                }`}>
-                  {isDone ? item.status : copy.pending}
-                </p>
-              </div>
-              
-              <div className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-300 ${
-                isDone 
-                  ? "border-[color:var(--gold)] bg-[color:var(--gold)] text-white" 
-                  : "border-[rgba(181,120,58,0.2)] text-[rgba(181,120,58,0.2)]"
-              }`}>
-                {isDone ? "✓" : ""}
-              </div>
-            </button>
-          );
-        })}
-      </div>
 
       <div className="today-angel-strip flex items-center justify-center py-1">
         <button
