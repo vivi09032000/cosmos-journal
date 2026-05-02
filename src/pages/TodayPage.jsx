@@ -296,10 +296,10 @@ function RitualBackCard({ id, label, status, offset, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="absolute inset-x-3 top-0 h-full overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
+      className="absolute inset-x-3 top-0 h-[18.5rem] overflow-hidden rounded-[1.35rem] border border-[rgba(181,120,58,0.22)] bg-[linear-gradient(135deg,rgba(250,246,240,0.96),rgba(240,232,220,0.9))] text-left shadow-[0_10px_30px_rgba(46,35,24,0.08)] transition hover:-translate-y-0.5"
       style={{
-        transform: `translateY(${offset}px) translateX(${offset > 60 ? 20 : -20}px) scale(${1 - offset * 0.0015})`,
-        zIndex: 10 - Math.floor(offset / 40),
+        transform: `translateY(${offset}px) scale(${1 - offset * 0.001})`,
+        zIndex: 10 - Math.floor(offset / 32),
       }}
     >
       <div className="absolute inset-x-0 bottom-0 flex h-[3.2rem] items-center justify-between px-5 text-sm font-semibold tracking-[0.12em] text-[color:var(--ink-soft)]">
@@ -814,11 +814,12 @@ export default function TodayPage({
               id={item.id}
               label={item.label}
               status={item.status}
-              offset={(index + 1) * 40}
+              offset={(index + 1) * 36}
               onClick={() => switchRitual(item.id)}
             />
           ))}
-          <article className={`paper-card today-ritual-card relative z-10 min-h-[17rem] px-5 py-5 shadow-[0_8px_30px_rgba(46,35,24,0.08)]${ritualAnimState !== "idle" ? ` ritual-${ritualAnimState}` : ""}`}>
+          <article className={`paper-card today-ritual-card relative z-10 h-[18.5rem] overflow-hidden px-5 py-5 shadow-[0_8px_30px_rgba(46,35,24,0.08)]${ritualAnimState !== "idle" ? ` ritual-${ritualAnimState}` : ""}`}>
+            <div className="h-full overflow-y-auto pr-1">
             {activeRitual === "mood" ? (
               <>
                 <div className="flex items-start justify-between gap-3">
@@ -985,6 +986,7 @@ export default function TodayPage({
                 )}
               </div>
             ) : null}
+            </div>
           </article>
         </div>
 
