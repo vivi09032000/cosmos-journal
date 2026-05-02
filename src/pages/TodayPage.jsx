@@ -595,15 +595,26 @@ export default function TodayPage({
   ];
   const backRituals = ritualItems.filter((item) => item.id !== activeRitual);
   const maxBackCards = 4;
-  const totalBackCards = Math.max(1, Math.min(activeOrders.length - 1, maxBackCards));
-  const stackOrders = [];
+  const numBackCards = Math.min(Math.max(activeOrders.length - 1, 0), maxBackCards);
+  const totalBackCards = Math.max(1, numBackCards);
+  const displayedOrders = [];
+  
+  if (activeOrder) {
+    displayedOrders.push({
+      order: activeOrder,
+      isActive: true,
+      offsetIndex: 0,
+      totalBackCards
+    });
+  }
+  
   if (activeOrders.length > 1) {
-    const numCards = Math.min(activeOrders.length - 1, maxBackCards);
-    for (let i = numCards; i >= 1; i--) {
-      stackOrders.push({
+    for (let i = numBackCards; i >= 1; i--) {
+      displayedOrders.push({
         order: activeOrders[(activeOrderIndex + i) % activeOrders.length],
+        isActive: false,
         offsetIndex: i,
-        totalBackCards: totalBackCards
+        totalBackCards
       });
     }
   }
@@ -972,92 +983,108 @@ export default function TodayPage({
           className="relative overflow-visible pb-7 pt-2 flex items-stretch"
           {...orderSwipe}
         >
-          {stackOrders.map(({ order, offsetIndex, totalBackCards }) => {
-            // Formula: shiftPercent = 100 - (cardWidth * scaleAmount) to ensure the last card hits the right edge perfectly
-            const shiftPercent = (offsetIndex / totalBackCards) * 18.3;
-            const scaleAmount = 1 - (offsetIndex / totalBackCards) * 0.05;
-            return (
-              <button
-                key={order.id}
-                type="button"
-                onClick={() => handleOrderSwipeLeft()}
-                className="absolute top-2 bottom-7 w-[86%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[0_14px_34px_rgba(46,35,24,0.08)] transition-all duration-300"
-                style={{ 
-                  zIndex: 10 - offsetIndex,
-                  left: `${shiftPercent}%`, // flush left + dynamic shift
-                  transformOrigin: 'left center',
-                  transform: `scale(${scaleAmount})`, // Parallel stack, no rotation
-                }}
-              >
-                <div className="relative h-40 overflow-hidden">
-                  <OrderCoverArt
-                    order={order}
-                    loading="lazy"
-                    sizes="180px"
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,28,45,0.08),rgba(20,28,45,0.55))]" />
-                  {/* Top right label for back cards so title is visible when stacked */}
-                  <div className="absolute top-0 right-0 bg-[rgba(240,232,220,0.95)] px-3 py-1.5 backdrop-blur-md rounded-bl-xl">
-                    <p className="font-display text-[0.7rem] font-medium tracking-[0.1em] text-[color:var(--ink)]">
-                      {order.title}
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-[rgba(250,246,240,0.9)] px-5 py-4 h-[calc(100%-10rem)]">
-                  {/* Empty white space to match paper-card design */}
-                </div>
-              </button>
-            );
-          })}
-
           {activeOrder ? (
-            <button
-              type="button"
-              onClick={() => openOrderProjection(activeOrder)}
-              className="paper-card relative z-20 block w-[86%] overflow-hidden px-0 py-0 text-left transition hover:-translate-y-1 shadow-[0_15px_35px_rgba(46,35,24,0.12)]"
-            >
-                <div
-                  className="relative h-40 overflow-hidden"
-                  style={{ background: activeOrderTheme?.background }}
-                >
-                  <OrderCoverArt
-                    order={activeOrder}
-                    loading="eager"
-                    fetchPriority="high"
-                    sizes="(max-width: 768px) 100vw, 680px"
-                  />
-                  <div className="absolute inset-0 opacity-80" style={{ backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" }} />
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />
-                  <span className="absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)]">
-                    {copy.projectionTag}
-                  </span>
-                </div>
+            <>
+              {/* Invisible spacer for dynamic container height */}
+              <div className="opacity-0 pointer-events-none relative z-0 block w-[72%] px-0 py-0 pb-2">
+                <div className="relative h-40"></div>
                 <div className="px-5 py-5">
                   <div className="flex items-center gap-2">
                     <Tag>{activeOrder.angelNumber ? `#${activeOrder.angelNumber}` : "Manifest"}</Tag>
-                    <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
+                    <span className="text-[0.58rem] tracking-[0.2em]">
                       {getOrderStatusLabel(activeOrder.status, locale)}
                     </span>
                   </div>
-                  <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
+                  <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25]">
                     {activeOrder.title}
                   </h2>
-                  {activeOrder.subtitle ? (
-                    <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)] italic">
+                  {activeOrder.subtitle && (
+                    <p className="mt-2 text-sm leading-7">
                       {activeOrder.subtitle}
                     </p>
-                  ) : null}
-                  <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
+                  )}
+                  <p className="mt-3 text-sm leading-7">
                     {copy.moonProgressPrefix(moonLabel)}
                   </p>
-                  <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
-                    <div
-                      className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold-soft),var(--gold))]"
-                      style={{ width: `${getActionProgress(activeOrder)}%` }}
-                    />
-                  </div>
+                  <div className="mt-4 h-[2px]"></div>
                 </div>
-            </button>
+              </div>
+
+              {/* Shared DOM for all animating cards */}
+              {displayedOrders.map(({ order, isActive, offsetIndex, totalBackCards }) => {
+                const f = offsetIndex / totalBackCards;
+                const maxScaleDown = 0.05;
+                const cardWidth = 72; // Narrower width to expose more back cards
+                const scaleAmount = 1 - (f * maxScaleDown);
+                // Shift percent formula ensures exact right-edge alignment at 100% of container
+                const shiftPercent = (100 - cardWidth) * f + (cardWidth * (1 - scaleAmount));
+
+                return (
+                  <button
+                    key={order.id}
+                    type="button"
+                    onClick={() => isActive ? openOrderProjection(order) : handleOrderSwipeLeft()}
+                    className={`absolute top-2 bottom-7 w-[72%] overflow-hidden rounded-[1.4rem] border border-[rgba(181,120,58,0.2)] bg-[rgba(250,246,240,0.95)] text-left shadow-[0_15px_35px_rgba(46,35,24,0.12)] transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isActive ? 'z-20 cursor-pointer' : ''}`}
+                    style={{ 
+                      zIndex: 20 - offsetIndex,
+                      left: `${shiftPercent}%`,
+                      transformOrigin: 'left center',
+                      transform: `scale(${scaleAmount})`,
+                    }}
+                  >
+                    <div className="relative h-40 overflow-hidden shrink-0">
+                      {isActive && <div className="absolute inset-0" style={{ background: activeOrderTheme?.background }} />}
+                      <OrderCoverArt
+                        order={order}
+                        loading={isActive ? "eager" : "lazy"}
+                        fetchPriority={isActive ? "high" : "auto"}
+                        sizes="(max-width: 768px) 100vw, 680px"
+                      />
+                      <div className={`absolute inset-0 transition-opacity duration-500 ${isActive ? 'opacity-80' : 'bg-[linear-gradient(180deg,rgba(20,28,45,0.08),rgba(20,28,45,0.55))]'}`} style={isActive ? { backgroundImage: "radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0 1px, transparent 1.4px), radial-gradient(circle at 68% 10%, rgba(255,255,255,0.3) 0 1px, transparent 1.5px), radial-gradient(circle at 85% 24%, rgba(255,255,255,0.45) 0 1px, transparent 1.5px), radial-gradient(circle at 38% 34%, rgba(255,255,255,0.28) 0 0.8px, transparent 1.4px), radial-gradient(circle at 72% 41%, rgba(255,255,255,0.34) 0 1.2px, transparent 1.6px)" } : {}} />
+                      {isActive && <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(245,239,230,0),rgba(245,239,230,0.98))]" />}
+                      
+                      <span className={`absolute right-4 top-3 rounded-full border border-[rgba(181,120,58,0.4)] bg-[rgba(245,239,230,0.88)] px-3 py-1 text-[0.58rem] tracking-[0.2em] text-[color:var(--gold)] transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                        {copy.projectionTag}
+                      </span>
+
+                      <div className={`absolute top-0 right-0 bg-[rgba(240,232,220,0.95)] px-3 py-1.5 backdrop-blur-md rounded-bl-xl transition-opacity duration-500 ${!isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                        <p className="font-display text-[0.7rem] font-medium tracking-[0.1em] text-[color:var(--ink)]">
+                          {order.title}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-[rgba(250,246,240,0.9)] px-5 py-4 h-[calc(100%-10rem)] relative">
+                      <div className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                        <div className="flex items-center gap-2">
+                          <Tag>{order.angelNumber ? `#${order.angelNumber}` : "Manifest"}</Tag>
+                          <span className="text-[0.58rem] tracking-[0.2em] text-[color:var(--ink-faint)]">
+                            {getOrderStatusLabel(order.status, locale)}
+                          </span>
+                        </div>
+                        <h2 className="mt-3 font-display text-[1.65rem] leading-[1.25] text-[color:var(--ink)]">
+                          {order.title}
+                        </h2>
+                        {order.subtitle ? (
+                          <p className="mt-2 text-sm leading-7 text-[color:var(--ink-soft)] italic">
+                            {order.subtitle}
+                          </p>
+                        ) : null}
+                        <p className="mt-3 text-sm leading-7 text-[color:var(--ink-faint)]">
+                          {copy.moonProgressPrefix(moonLabel)}
+                        </p>
+                        <div className="mt-4 h-[2px] rounded-full bg-[rgba(181,120,58,0.15)]">
+                          <div
+                            className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold-soft),var(--gold))]"
+                            style={{ width: `${getActionProgress(order)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </>
           ) : (
             <article className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left">
                 <div className="px-5 py-5">
