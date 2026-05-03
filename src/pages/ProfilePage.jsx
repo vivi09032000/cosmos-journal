@@ -95,7 +95,7 @@ function MoodBarChart({ allDailyLogs, locale }) {
           <div className="bar-chart-track">
             <div
               className="bar-chart-bar"
-              style={{ width: `${Math.round((count / maxCount) * 100)}%` }}
+              style={{ transform: `scaleX(${count / maxCount})` }}
             />
           </div>
           <span className="bar-chart-count">{count}</span>

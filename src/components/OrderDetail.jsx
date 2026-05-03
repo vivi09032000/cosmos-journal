@@ -465,13 +465,13 @@ export default function OrderDetail({
         <p className="gold-kicker">{copy.journalKicker}</p>
         <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.journalCardTitle}</h3>
 
-        <div className="mt-6 rounded-[1.55rem] bg-[linear-gradient(145deg,#203456,#1d2e4d)] px-5 py-5 text-[#f7ebd2] shadow-[0_16px_34px_rgba(31,41,72,0.18)]">
+        <div className="mt-6 rounded-[1.55rem] bg-[linear-gradient(145deg,#3d2b1f,#2a1d15)] px-5 py-5 text-[#f7ebd2] shadow-[0_16px_34px_rgba(61,43,31,0.18)]">
           {(hasJournaledToday || journalSent) && !isEditingToday ? (
             <div className="py-5 text-center">
               <p className="text-sm font-semibold tracking-[0.12em] text-[color:var(--gold-soft)]">
                 ✦ {copy.projectedToday}
               </p>
-              <p className="mx-auto mt-3 max-w-[22rem] text-sm leading-7 text-[#b9c6dc]">
+              <p className="mx-auto mt-3 max-w-[22rem] text-sm leading-7 text-[#d9c5a7]">
                 {copy.projectedTodayHint}
               </p>
               <button
@@ -485,7 +485,7 @@ export default function OrderDetail({
           ) : (
             <>
               <div className="flex items-start justify-between gap-4">
-                <p className="text-sm font-semibold tracking-[0.08em] text-[#8fa2c1]">{copy.sensoryPrompt}</p>
+                <p className="text-sm font-semibold tracking-[0.08em] text-[#b5a48d]">{copy.sensoryPrompt}</p>
                 <p className="shrink-0 text-sm font-semibold tracking-[0.06em] text-[color:var(--gold-soft)]">
                   {copy.projectionStreak(projectionStats.streak)}
                 </p>
@@ -506,7 +506,7 @@ export default function OrderDetail({
                       className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                         selected
                           ? "border-[rgba(232,201,154,0.8)] bg-[rgba(232,201,154,0.22)] text-[#ffe5ad]"
-                          : "border-[rgba(221,232,255,0.18)] bg-[rgba(255,255,255,0.06)] text-[#d6e1f4]"
+                          : "border-[rgba(232,201,154,0.12)] bg-[rgba(255,255,255,0.04)] text-[#e8dcc8]"
                       }`}
                     >
                       {chip}
@@ -518,7 +518,7 @@ export default function OrderDetail({
               <button
                 type="button"
                 onClick={() => setShowProjectionNote((current) => !current)}
-                className="mt-6 text-sm tracking-[0.08em] text-[#89a3ca]"
+                className="mt-6 text-sm tracking-[0.08em] text-[#b5a48d]"
               >
                 ✎ {copy.moreNote}
               </button>
@@ -529,7 +529,7 @@ export default function OrderDetail({
                   onChange={(event) => handleAnswerChange(step, event.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={3}
-                  className="mt-4 w-full resize-none rounded-2xl border border-[rgba(221,232,255,0.16)] bg-[rgba(255,255,255,0.06)] px-4 py-3 text-sm leading-7 text-[#fff2d2] outline-none placeholder:text-[#8fa2c1]"
+                  className="mt-4 w-full resize-none rounded-2xl border border-[rgba(232,201,154,0.14)] bg-[rgba(255,255,255,0.04)] px-4 py-3 text-sm leading-7 text-[#fff2d2] outline-none placeholder:text-[#b5a48d]"
                   placeholder={copy.answerPlaceholder}
                 />
               ) : null}
@@ -541,7 +541,7 @@ export default function OrderDetail({
                     type="button"
                     onClick={() => setStep(index)}
                     className={`h-2 flex-1 rounded-full transition ${
-                      index === step ? "bg-[color:var(--gold-soft)]" : "bg-[rgba(255,255,255,0.14)]"
+                      index === step ? "bg-[color:var(--gold-soft)]" : "bg-[rgba(255,255,255,0.12)]"
                     }`}
                     aria-label={`${copy.journalTitle} ${index + 1}`}
                   />
@@ -552,7 +552,7 @@ export default function OrderDetail({
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canSubmit || saving}
-                className="mt-5 w-full rounded-2xl border border-[rgba(232,201,154,0.18)] bg-[rgba(14,26,48,0.38)] px-4 py-3 font-display text-[1.2rem] text-[#f2d39c] transition disabled:opacity-45"
+                className="mt-5 w-full rounded-2xl border border-[rgba(232,201,154,0.18)] bg-[rgba(42,29,21,0.38)] px-4 py-3 font-display text-[1.2rem] text-[#f2d39c] transition disabled:opacity-45"
               >
                 {saving ? copy.sending : copy.projectionButton}
               </button>
@@ -561,11 +561,19 @@ export default function OrderDetail({
         </div>
       </section>
 
-      <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-6 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
-        <p className="gold-kicker">{copy.statusKicker}</p>
-        <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.statusTitle}</h3>
+      <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-5 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="gold-kicker">{copy.statusKicker}</p>
+            <h3 className="mt-1 font-display text-[1.4rem] leading-none text-[color:var(--ink)]">{copy.statusTitle}</h3>
+          </div>
+          <div className="text-right">
+            <p className="text-[0.65rem] tracking-[0.1em] text-[color:var(--ink-faint)] uppercase">{copy.projectionFrequency}</p>
+            <p className="mt-0.5 text-sm font-semibold text-[color:var(--ink)]">{projectionStats.last30Count} / 30 天</p>
+          </div>
+        </div>
 
-        <div className="mt-7 grid grid-cols-4 items-start gap-2">
+        <div className="mt-5 flex items-center gap-2">
           {[
             copy.stageIntent,
             copy.stageAligning,
@@ -576,22 +584,14 @@ export default function OrderDetail({
             const isCurrent = MANIFEST_STAGES[computedStatus] === stage;
             const isPassed = MANIFEST_STAGES[computedStatus] >= stage;
             return (
-              <div key={label} className="text-center">
-                <div className="relative mb-3 flex items-center justify-center">
-                  <span className={`relative z-[1] h-4 w-4 rounded-full border-2 ${
-                    isCurrent
-                      ? "border-[color:var(--gold)] bg-[color:var(--gold)] shadow-[0_0_0_8px_rgba(181,120,58,0.16)]"
-                      : isPassed
-                        ? "border-[color:var(--gold)] bg-[color:var(--gold)]"
-                        : "border-[rgba(181,120,58,0.34)] bg-[rgba(250,246,240,0.8)]"
-                  }`} />
-                  {index < 3 ? (
-                    <span className={`absolute left-1/2 top-1/2 h-[2px] w-full -translate-y-1/2 ${
-                      isPassed ? "bg-[color:var(--gold)]" : "bg-[rgba(181,120,58,0.2)]"
-                    }`} />
-                  ) : null}
-                </div>
-                <p className={`text-[0.7rem] font-semibold leading-5 tracking-[0.06em] ${
+              <div key={label} className="relative flex-1">
+                <div className={`h-1.5 w-full rounded-full transition-colors duration-500 ${
+                  isPassed ? "bg-[color:var(--gold)]" : "bg-[rgba(181,120,58,0.12)]"
+                }`} />
+                {isCurrent && (
+                  <div className="absolute -top-1 left-0 h-3.5 w-1 rounded-full bg-[color:var(--gold)] shadow-[0_0_8px_rgba(181,120,58,0.4)]" />
+                )}
+                <p className={`mt-2 text-[0.6rem] font-bold leading-tight tracking-[0.02em] ${
                   isCurrent ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"
                 }`}>
                   {label}
@@ -601,17 +601,7 @@ export default function OrderDetail({
           })}
         </div>
 
-        <div className="mt-7 flex items-center justify-between gap-4 text-sm font-semibold text-[color:var(--ink-soft)]">
-          <span>{copy.projectionFrequency}</span>
-          <span className="text-[1.05rem] text-[color:var(--ink)]">{projectionStats.last30Count} / 30 天</span>
-        </div>
-        <div className="mt-3 h-2 rounded-full bg-[rgba(181,120,58,0.18)]">
-          <div
-            className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold),var(--gold-soft))]"
-            style={{ width: `${Math.min(100, (projectionStats.last30Count / 30) * 100)}%` }}
-          />
-        </div>
-        <p className="mt-4 text-sm leading-7 text-[color:var(--ink-soft)]">
+        <p className="mt-4 text-[0.7rem] font-medium tracking-[0.04em] text-[color:var(--ink-soft)] opacity-80">
           {copy.continuedAlignment(projectionStats.streak)}
         </p>
 
@@ -619,7 +609,7 @@ export default function OrderDetail({
           <button
             type="button"
             onClick={() => onUpdateStatus("delivered")}
-            className="secondary-button mt-5 w-full"
+            className="secondary-button mt-4 w-full py-2.5 text-xs"
           >
             {markDeliveredCopy[locale] || markDeliveredCopy["zh-TW"]}
           </button>
