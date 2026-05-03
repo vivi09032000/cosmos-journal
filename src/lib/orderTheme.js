@@ -18,19 +18,75 @@ const orderThemes = [
 
 const ORDER_STATUS_LABELS = {
   "zh-TW": {
-    packing: "打包中",
-    aligning: "對準中",
-    delivered: "已送達",
+    packing: "意圖送出",
+    aligning: "對齊中",
+    resonating: "強烈共振中",
+    delivered: "✦ 已實現",
   },
   en: {
-    packing: "Packing",
+    packing: "Intent Sent",
     aligning: "Aligning",
-    delivered: "Delivered",
+    resonating: "Strongly Resonating",
+    delivered: "✦ Fulfilled",
   },
 };
 
 export function getOrderStatusLabel(status, locale = "zh-TW") {
   return ORDER_STATUS_LABELS[locale]?.[status] || ORDER_STATUS_LABELS["zh-TW"][status] || status;
+}
+
+export function getOrderComputedStatus(order) {
+  if (order.status === "delivered") return "delivered";
+
+  const journal = order.journal || [];
+  if (journal.length === 0) return "packing";
+
+  const uniqueDates = new Set();
+  for (const entry of journal) {
+    const rawTime = entry.recordedAt?.seconds
+      ? entry.recordedAt.seconds * 1000
+      : entry.date;
+    if (!rawTime) continue;
+
+    const date = new Date(rawTime);
+    const key = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ].join("-");
+    uniqueDates.add(key);
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let streak = 0;
+  const cursor = new Date(today);
+  
+  const todayKey = [
+    cursor.getFullYear(),
+    String(cursor.getMonth() + 1).padStart(2, "0"),
+    String(cursor.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  if (!uniqueDates.has(todayKey)) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  while (true) {
+    const key = [
+      cursor.getFullYear(),
+      String(cursor.getMonth() + 1).padStart(2, "0"),
+      String(cursor.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    if (!uniqueDates.has(key)) break;
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  if (streak >= 7) return "resonating";
+  return "aligning";
 }
 
 export function daysSince(timestamp) {

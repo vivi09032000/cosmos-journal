@@ -342,7 +342,7 @@ export default function OrdersPage({
   );
 
   const activeOrders = useMemo(
-    () => ordersWithLinkedSignals.filter((order) => order.status === "packing" || order.status === "aligning"),
+    () => ordersWithLinkedSignals.filter((order) => order.status !== "delivered"),
     [ordersWithLinkedSignals],
   );
 

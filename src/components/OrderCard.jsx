@@ -3,6 +3,7 @@ import {
   formatOrderMonth,
   getOrderTheme,
   getOrderStatusLabel,
+  getOrderComputedStatus,
 } from "../lib/orderTheme";
 import { getActionProgress } from "../lib/orderActions";
 import { useI18n } from "../lib/i18n";
@@ -13,6 +14,7 @@ export default function OrderCard({ order, onClick }) {
   const { locale } = useI18n();
   const theme = getOrderTheme(order);
   const progress = getActionProgress(order);
+  const computedStatus = getOrderComputedStatus(order);
   const allLinkedNumbers = [
     ...new Set((order.linkedAngelLogs || []).map((log) => log.number).filter(Boolean)),
   ];
@@ -47,7 +49,7 @@ export default function OrderCard({ order, onClick }) {
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <p className="text-[0.62rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-              {formatOrderMonth(order.createdAt)} · {getOrderStatusLabel(order.status, locale)}
+              {formatOrderMonth(order.createdAt)} · {getOrderStatusLabel(computedStatus, locale)}
             </p>
             {order.subtitle ? (
               <p className="mt-1 text-sm text-[color:var(--ink-soft)]">{order.subtitle}</p>
@@ -66,7 +68,7 @@ export default function OrderCard({ order, onClick }) {
             />
           </div>
           <div className="text-[0.62rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-            {getOrderStatusLabel(order.status, locale)}
+            {getOrderStatusLabel(computedStatus, locale)}
           </div>
         </div>
         {linkedNumbers.length > 0 ? (

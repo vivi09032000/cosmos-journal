@@ -4,6 +4,7 @@ import {
   formatOrderMonth,
   getOrderTheme,
   getOrderStatusLabel,
+  getOrderComputedStatus,
 } from "../lib/orderTheme";
 import OrderCoverArt from "./OrderCoverArt";
 import {
@@ -13,15 +14,9 @@ import {
 import { getOrderQuestions } from "../lib/orderQuestions";
 import { useI18n } from "../lib/i18n";
 
-const statusActions = {
-  "zh-TW": {
-    packing: { label: "我正在靠近這個目標", next: "aligning" },
-    aligning: { label: "✨ 已實現，加入戰績牆", next: "delivered" },
-  },
-  en: {
-    packing: { label: "Mark as in progress", next: "aligning" },
-    aligning: { label: "✨ Mark as fulfilled", next: "delivered" },
-  },
+const markDeliveredCopy = {
+  "zh-TW": "✦ 標記為已實現",
+  en: "✦ Mark as fulfilled",
 };
 
 function formatDate(timestamp, locale) {
@@ -41,7 +36,8 @@ const PROJECTION_CHIPS = {
 const MANIFEST_STAGES = {
   packing: 1,
   aligning: 2,
-  delivered: 3,
+  resonating: 3,
+  delivered: 4,
 };
 
 function getProjectionStats(journalTimeline) {
@@ -124,8 +120,8 @@ export default function OrderDetail({
   const [imageError, setImageError] = useState("");
   const [actionSuggestionIndex, setActionSuggestionIndex] = useState(0);
   const imageInputRef = useRef(null);
-  const statusCopy = statusActions[locale] || statusActions["zh-TW"];
-  const action = statusCopy[order.status];
+  const computedStatus = getOrderComputedStatus(order);
+  const canMarkDelivered = computedStatus !== "delivered";
   const canSubmit = answers.some((answer) => answer.trim().length > 0);
   const theme = getOrderTheme(order);
   const questions = useMemo(
@@ -266,9 +262,9 @@ export default function OrderDetail({
       noActions: "還沒有小行動。先加一件最容易開始的事，讓目標更靠近一點。",
       statusKicker: "目標狀態",
       statusTitle: "目標進度",
-      stageIntent: "已開始",
-      stageAligning: "靠近中",
-      stageResonance: "越來越清楚",
+      stageIntent: "意圖送出",
+      stageAligning: "對齊中",
+      stageResonance: "強烈共振中",
       stageDelivered: "✦ 已實現",
       projectionFrequency: "近 30 天想像次數",
       continuedAlignment: (days) => `連續 ${days} 天有紀錄`,
@@ -438,7 +434,7 @@ export default function OrderDetail({
             <span className="status-pill">
               {order.angelNumber ? `#${order.angelNumber}` : locale === "en" ? "Goal" : "目標"}
             </span>
-            <span className="status-pill">{getOrderStatusLabel(order.status, locale)}</span>
+            <span className="status-pill">{getOrderStatusLabel(computedStatus, locale)}</span>
           </div>
           <p className="mt-4 text-[0.78rem] uppercase tracking-[0.24em] text-[#efd7b6]">
             {formatOrderMonth(order.createdAt)} · {locale === "en" ? `Day ${daysSince(order.createdAt)}` : `第 ${daysSince(order.createdAt)} 天`}
@@ -577,8 +573,8 @@ export default function OrderDetail({
             copy.stageDelivered,
           ].map((label, index) => {
             const stage = index + 1;
-            const isCurrent = MANIFEST_STAGES[order.status] === stage;
-            const isPassed = MANIFEST_STAGES[order.status] >= stage;
+            const isCurrent = MANIFEST_STAGES[computedStatus] === stage;
+            const isPassed = MANIFEST_STAGES[computedStatus] >= stage;
             return (
               <div key={label} className="text-center">
                 <div className="relative mb-3 flex items-center justify-center">
@@ -619,13 +615,13 @@ export default function OrderDetail({
           {copy.continuedAlignment(projectionStats.streak)}
         </p>
 
-        {action ? (
+        {canMarkDelivered ? (
           <button
             type="button"
-            onClick={() => onUpdateStatus(action.next)}
+            onClick={() => onUpdateStatus("delivered")}
             className="secondary-button mt-5 w-full"
           >
-            {action.label}
+            {markDeliveredCopy[locale] || markDeliveredCopy["zh-TW"]}
           </button>
         ) : null}
       </section>
