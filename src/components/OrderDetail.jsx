@@ -664,37 +664,35 @@ export default function OrderDetail({
         </div>
 
         {showActionComposer ? (
-          <div className="mt-4 rounded-2xl border border-[rgba(181,120,58,0.18)] px-4 py-4">
-            <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
-              {activeSuggestion || copy.actionBeforeJournal}
-            </p>
-            <input
-              value={customAction}
-              onChange={(event) => setCustomAction(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handleAddActionItem(customAction);
-                }
-              }}
-              className="cosmos-input mt-3"
-              placeholder={copy.customActionPlaceholder}
-            />
-            <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="mt-5 space-y-4 rounded-2xl border border-[rgba(181,120,58,0.12)] bg-[rgba(250,246,240,0.4)] p-4">
+            <div className="flex items-start gap-2">
+              <span className="mt-0.5 text-[0.8rem] text-[color:var(--gold)]">✦</span>
+              <p className="text-sm leading-6 text-[color:var(--ink-soft)]">
+                {activeSuggestion || copy.actionBeforeJournal}
+              </p>
+            </div>
+            
+            <div className="relative">
+              <input
+                value={customAction}
+                onChange={(event) => setCustomAction(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && customAction.trim()) {
+                    event.preventDefault();
+                    handleAddActionItem(customAction);
+                  }
+                }}
+                className="cosmos-input pr-16"
+                placeholder={copy.customActionPlaceholder}
+                autoFocus
+              />
               <button
                 type="button"
-                onClick={() => setActionSuggestionIndex((current) => (current + 1) % suggestedActions.length)}
-                className="secondary-button"
+                onClick={() => handleAddActionItem(customAction)}
+                disabled={!customAction.trim() || actionSaving}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-[color:var(--gold)] px-3 py-1.5 text-xs font-medium tracking-wide text-white transition disabled:opacity-0"
               >
-                {copy.nextSuggestion}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleAddActionItem(customAction || activeSuggestion)}
-                disabled={(!customAction.trim() && !activeSuggestion) || actionSaving}
-                className="primary-button disabled:opacity-50"
-              >
-                {copy.addAction}
+                {locale === "en" ? "ADD" : "加入"}
               </button>
             </div>
           </div>
