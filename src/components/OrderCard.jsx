@@ -34,7 +34,7 @@ export default function OrderCard({ order, onClick }) {
           <div className="absolute bottom-4 right-3 h-24 w-24 rounded-full border" style={{ borderColor: "rgba(240, 214, 167, 0.2)" }} />
         </div>
         <div className="absolute right-3 top-3">
-          <Tag>{order.angelNumber ? `#${order.angelNumber}` : "Manifest"}</Tag>
+          <Tag>{order.angelNumber ? `#${order.angelNumber}` : locale === "en" ? "Goal" : "目標"}</Tag>
         </div>
         <div className="absolute bottom-3 left-4 right-4">
           <div className="font-display text-[1.7rem] leading-none text-[color:var(--ink)]">

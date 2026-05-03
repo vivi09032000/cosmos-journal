@@ -15,18 +15,91 @@ import { useI18n } from "../lib/i18n";
 
 const statusActions = {
   "zh-TW": {
-    packing: { label: "對準中，繼續投射", next: "aligning" },
-    aligning: { label: "✨ 已實現，點此收貨", next: "delivered" },
+    packing: { label: "我正在靠近這個目標", next: "aligning" },
+    aligning: { label: "✨ 已實現，加入戰績牆", next: "delivered" },
   },
   en: {
-    packing: { label: "Move into alignment", next: "aligning" },
-    aligning: { label: "✨ It manifested. Mark delivered", next: "delivered" },
+    packing: { label: "Mark as in progress", next: "aligning" },
+    aligning: { label: "✨ Mark as fulfilled", next: "delivered" },
   },
 };
 
 function formatDate(timestamp, locale) {
   if (!timestamp?.toDate) return "";
-  return timestamp.toDate().toLocaleString(locale === "en" ? "en-US" : "zh-TW");
+  return timestamp.toDate().toLocaleDateString(locale === "en" ? "en-US" : "zh-TW", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+const PROJECTION_CHIPS = {
+  "zh-TW": ["空氣的清涼", "心跳加速", "整個人放鬆了", "難以置信的真實"],
+  en: ["Clear air", "Heart racing", "Body relaxed", "Almost too real"],
+};
+
+const MANIFEST_STAGES = {
+  packing: 1,
+  aligning: 2,
+  delivered: 3,
+};
+
+function getProjectionStats(journalTimeline) {
+  const today = new Date();
+  const last30Start = new Date(today);
+  last30Start.setDate(today.getDate() - 29);
+  last30Start.setHours(0, 0, 0, 0);
+
+  const uniqueDates = new Set();
+  const last30Dates = new Set();
+
+  for (const entry of journalTimeline) {
+    const rawTime = entry.recordedAt?.seconds
+      ? entry.recordedAt.seconds * 1000
+      : entry.date;
+    if (!rawTime) continue;
+
+    const date = new Date(rawTime);
+    const key = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ].join("-");
+    uniqueDates.add(key);
+
+    if (date >= last30Start) {
+      last30Dates.add(key);
+    }
+  }
+
+  let streak = 0;
+  const cursor = new Date(today);
+  cursor.setHours(0, 0, 0, 0);
+
+  while (true) {
+    const key = [
+      cursor.getFullYear(),
+      String(cursor.getMonth() + 1).padStart(2, "0"),
+      String(cursor.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    if (!uniqueDates.has(key)) break;
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return {
+    last30Count: last30Dates.size,
+    streak,
+  };
+}
+
+function getJournalLine(entry) {
+  return [entry?.q1, entry?.q2, entry?.q3]
+    .filter(Boolean)
+    .map((item) => String(item).trim())
+    .filter(Boolean)
+    .join(" ");
 }
 
 export default function OrderDetail({
@@ -45,13 +118,15 @@ export default function OrderDetail({
   const [customAction, setCustomAction] = useState("");
   const [actionSaving, setActionSaving] = useState(false);
   const [journalSent, setJournalSent] = useState(false);
+  const [showProjectionNote, setShowProjectionNote] = useState(false);
+  const [showActionComposer, setShowActionComposer] = useState(false);
   const [imageSaving, setImageSaving] = useState(false);
   const [imageError, setImageError] = useState("");
   const [actionSuggestionIndex, setActionSuggestionIndex] = useState(0);
   const imageInputRef = useRef(null);
   const statusCopy = statusActions[locale] || statusActions["zh-TW"];
   const action = statusCopy[order.status];
-  const canSubmit = answers.every((answer) => answer.trim().length > 0);
+  const canSubmit = answers.some((answer) => answer.trim().length > 0);
   const theme = getOrderTheme(order);
   const questions = useMemo(
     () => getOrderQuestions(order, locale),
@@ -92,6 +167,11 @@ export default function OrderDetail({
            latestDate.getDate() === today.getDate();
   }, [journalTimeline]);
 
+  const projectionStats = useMemo(
+    () => getProjectionStats(journalTimeline),
+    [journalTimeline],
+  );
+
   const [isEditingToday, setIsEditingToday] = useState(false);
 
   useEffect(() => {
@@ -106,6 +186,8 @@ export default function OrderDetail({
     setIsEditingToday(false);
     setCustomAction("");
     setJournalSent(false);
+    setShowProjectionNote(false);
+    setShowActionComposer(false);
     setImageError("");
     setActionSuggestionIndex(0);
   }, [order.id, hasJournaledToday, journalTimeline.length, questions.length]);
@@ -114,60 +196,86 @@ export default function OrderDetail({
     ? {
       back: "Back to goals",
       changeImage: "Change goal image",
-      journalKicker: "Journal Prompt",
-      journalTitle: "Sensory projection",
+      journalKicker: "Imagine",
+      journalTitle: "Imagine today",
+      journalCardTitle: "Imagine today",
+      sensoryPrompt: "One question each day",
+      projectionStreak: (days) => `✦ ${days} day streak`,
+      moreNote: "Add one sentence?",
+      projectionButton: "Save this reflection",
+      projectedToday: "Today's reflection is saved",
+      projectedTodayHint: "Come back tomorrow and imagine it again from a new angle.",
       answerPlaceholder: "Write what this feels like...",
       sending: "Sending...",
-      send: "Send to universe",
-      actionKicker: "Inspired Action",
-      actionTitle: "What is the next inspired action?",
-      actionAfterJournal: "The universe received your projection. Now do one small real thing so the wish can enter reality.",
-      actionBeforeJournal: "When you take one small real step, the path becomes easier for the universe to reveal.",
-      suggestionSaved: "Added to your progress",
-      suggestionSave: "Receive this prompt",
-      nextSuggestion: "Next idea →",
-      customActionLabel: "Write down the action you received",
+      send: "Save reflection",
+      actionKicker: "Small Action",
+      actionTitle: "Small action",
+      actionAfterJournal: "Choose one small real step so this goal can move closer to real life.",
+      actionBeforeJournal: "A small step makes this goal easier to approach.",
+      suggestionSaved: "Added",
+      suggestionSave: "Use this action",
+      nextSuggestion: "Another idea →",
+      customActionLabel: "Write one small action",
       customActionPlaceholder: "For example: check snow pass and flight prices...",
-      addAction: "Add to my progress",
-      activeActions: "Small aligned actions",
-      aligned: (done, total) => `Aligned ${done}/${total}`,
-      noActions: "There are no action prompts saved yet. Choose the lightest one and let the wish have a first step.",
-      statusKicker: "Manifest Status",
-      statusTitle: "Status update",
+      addAction: "Add action",
+      activeActions: "Small actions",
+      aligned: (done, total) => `${done}/${total} done`,
+      noActions: "No small actions yet. Add one easy step to make this goal feel closer.",
+      statusKicker: "Goal Status",
+      statusTitle: "Goal progress",
+      stageIntent: "Started",
+      stageAligning: "In progress",
+      stageResonance: "Getting clearer",
+      stageDelivered: "✦ Fulfilled",
+      projectionFrequency: "Reflections in the last 30 days",
+      continuedAlignment: (days) => `${days} day${days === 1 ? "" : "s"} in a row`,
       completed: "This goal has already been completed.",
-      historyKicker: "Past Entries",
-      historyTitle: "Journal history",
-      noHistory: "There are no journal entries yet.",
+      historyKicker: "Past Notes",
+      historyTitle: "Past notes",
+      noHistory: "No notes yet.",
       uploadFailed: "Image upload failed: ",
       linkedSignals: "Linked signals",
     }
     : {
       back: "返回目標列表",
       changeImage: "更換願景圖片",
-      journalKicker: "Journal Prompt",
-      journalTitle: "感官日記對話",
+      journalKicker: "想像",
+      journalTitle: "今天想像一下",
+      journalCardTitle: "今天想像一下",
+      sensoryPrompt: "每天一題",
+      projectionStreak: (days) => `✦ 連續 ${days} 天`,
+      moreNote: "想多說一句話？",
+      projectionButton: "記錄這次想像",
+      projectedToday: "今天的想像已記錄",
+      projectedTodayHint: "明天可以再回來，從新的角度想像一次。",
       answerPlaceholder: "寫下你的感受...",
       sending: "發送中...",
-      send: "發送給宇宙",
-      actionKicker: "Inspired Action",
-      actionTitle: "你的下一個靈感行動是什麼？",
-      actionAfterJournal: "宇宙收到你的投射了，現在邀請你做一件很小但很真的事，讓願望開始落進現實。",
-      actionBeforeJournal: "當你願意為願望做一個微小而真實的動作，宇宙會更容易把路徑推到你面前。",
-      suggestionSaved: "已收進你的進度",
-      suggestionSave: "收下這個提示",
-      nextSuggestion: "換一個靈感 →",
-      customActionLabel: "把你收到的行動靈感寫下來",
+      send: "記錄想像",
+      actionKicker: "小行動",
+      actionTitle: "小行動",
+      actionAfterJournal: "接著做一件很小但真實的事，讓這個願望更靠近現實。",
+      actionBeforeJournal: "先做一件小事，這個目標會變得更容易靠近。",
+      suggestionSaved: "已加入",
+      suggestionSave: "使用這個小行動",
+      nextSuggestion: "換一個建議 →",
+      customActionLabel: "寫下一個小行動",
       customActionPlaceholder: "例如：去看一下雪票和機票的價格...",
-      addAction: "收進我的進度",
-      activeActions: "顯化中的微小行動",
-      aligned: (done, total) => `已對齊 ${done}/${total}`,
-      noActions: "還沒有收進任何行動靈感。先挑一個最輕、最容易開始的提示，讓願望有第一步。",
-      statusKicker: "Manifest Status",
-      statusTitle: "狀態更新",
-      completed: "這個目標已完成收貨。",
-      historyKicker: "Past Entries",
-      historyTitle: "過去的日記紀錄",
-      noHistory: "還沒有日記紀錄。",
+      addAction: "加入小行動",
+      activeActions: "小行動",
+      aligned: (done, total) => `已完成 ${done}/${total}`,
+      noActions: "還沒有小行動。先加一件最容易開始的事，讓目標更靠近一點。",
+      statusKicker: "目標狀態",
+      statusTitle: "目標進度",
+      stageIntent: "已開始",
+      stageAligning: "靠近中",
+      stageResonance: "越來越清楚",
+      stageDelivered: "✦ 已實現",
+      projectionFrequency: "近 30 天想像次數",
+      continuedAlignment: (days) => `連續 ${days} 天有紀錄`,
+      completed: "這個目標已實現。",
+      historyKicker: "過去紀錄",
+      historyTitle: "過去紀錄",
+      noHistory: "還沒有紀錄。",
       uploadFailed: "圖片上傳失敗：",
       linkedSignals: "已連結訊號",
     };
@@ -191,7 +299,15 @@ export default function OrderDetail({
     }
   };
 
+  const handleProjectionChip = (value) => {
+    const nextAnswers = [...answers];
+    nextAnswers[step] = value;
+    setAnswers(nextAnswers);
+  };
+
   const handleSubmit = async () => {
+    if (!canSubmit || saving) return;
+
     setSaving(true);
     await onSubmitJournal({
       q1: answers[0],
@@ -320,7 +436,7 @@ export default function OrderDetail({
         <div className="relative z-[1]">
           <div className="flex flex-wrap items-center gap-2 text-sm text-[#f2ddbb]">
             <span className="status-pill">
-              {order.angelNumber ? `#${order.angelNumber}` : "Manifest"}
+              {order.angelNumber ? `#${order.angelNumber}` : locale === "en" ? "Goal" : "目標"}
             </span>
             <span className="status-pill">{getOrderStatusLabel(order.status, locale)}</span>
           </div>
@@ -349,208 +465,274 @@ export default function OrderDetail({
         </div>
       </section>
 
-      <section className="paper-card px-5 py-5">
-        <p className="section-label">{copy.journalKicker}</p>
-        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.journalTitle}</h3>
-        {(hasJournaledToday || journalSent) && !isEditingToday ? (
-          <div className="mt-4 rounded-xl bg-[rgba(181,120,58,0.06)] px-5 py-5 text-center">
-            <p className="text-sm font-medium tracking-[0.1em] text-[color:var(--gold)]">
-              ✦ {locale === "en" ? "Universe has received today's projection" : "宇宙已收到你今天的投射"}
-            </p>
-            <p className="mt-2 text-[0.8rem] leading-6 text-[color:var(--ink-soft)]">
-              {locale === "en" ? "Come back tomorrow. The seed needs time to grow." : "明天再來吧，能量需要一點時間沉澱發芽。"}
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsEditingToday(true)}
-              className="mt-4 text-[0.75rem] text-[color:var(--gold)] underline underline-offset-2 opacity-80 transition hover:opacity-100"
-            >
-              {locale === "en" ? "Edit today's journal" : "修改今日日記"}
-            </button>
-          </div>
-        ) : (
-          <div className="mt-4 space-y-4">
-            {questions.slice(0, step + 1).map((question, index) => (
-              <div key={question} className="paper-card-soft px-4 py-4">
-                <p className="text-sm font-medium leading-7 text-[color:var(--ink)]">{question}</p>
+      <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-6 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
+        <p className="gold-kicker">{copy.journalKicker}</p>
+        <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.journalCardTitle}</h3>
+
+        <div className="mt-6 rounded-[1.55rem] bg-[linear-gradient(145deg,#203456,#1d2e4d)] px-5 py-5 text-[#f7ebd2] shadow-[0_16px_34px_rgba(31,41,72,0.18)]">
+          {(hasJournaledToday || journalSent) && !isEditingToday ? (
+            <div className="py-5 text-center">
+              <p className="text-sm font-semibold tracking-[0.12em] text-[color:var(--gold-soft)]">
+                ✦ {copy.projectedToday}
+              </p>
+              <p className="mx-auto mt-3 max-w-[22rem] text-sm leading-7 text-[#b9c6dc]">
+                {copy.projectedTodayHint}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsEditingToday(true)}
+                className="mt-5 rounded-full border border-[rgba(232,201,154,0.32)] px-4 py-2 text-xs tracking-[0.14em] text-[#f2d39c]"
+              >
+                {locale === "en" ? "Edit today's journal" : "修改今日日記"}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-start justify-between gap-4">
+                <p className="text-sm font-semibold tracking-[0.08em] text-[#8fa2c1]">{copy.sensoryPrompt}</p>
+                <p className="shrink-0 text-sm font-semibold tracking-[0.06em] text-[color:var(--gold-soft)]">
+                  {copy.projectionStreak(projectionStats.streak)}
+                </p>
+              </div>
+
+              <p className="mt-7 font-display text-[1.65rem] leading-[1.5] text-[#fff2d2]">
+                {questions[step]}
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                {(PROJECTION_CHIPS[locale] || PROJECTION_CHIPS["zh-TW"]).map((chip) => {
+                  const selected = answers[step] === chip;
+                  return (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => handleProjectionChip(chip)}
+                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        selected
+                          ? "border-[rgba(232,201,154,0.8)] bg-[rgba(232,201,154,0.22)] text-[#ffe5ad]"
+                          : "border-[rgba(221,232,255,0.18)] bg-[rgba(255,255,255,0.06)] text-[#d6e1f4]"
+                      }`}
+                    >
+                      {chip}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowProjectionNote((current) => !current)}
+                className="mt-6 text-sm tracking-[0.08em] text-[#89a3ca]"
+              >
+                ✎ {copy.moreNote}
+              </button>
+
+              {showProjectionNote ? (
                 <textarea
-                  value={answers[index]}
-                  onChange={(event) => handleAnswerChange(index, event.target.value)}
+                  value={answers[step]}
+                  onChange={(event) => handleAnswerChange(step, event.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={3}
-                  className="cosmos-textarea mt-3"
+                  className="mt-4 w-full resize-none rounded-2xl border border-[rgba(221,232,255,0.16)] bg-[rgba(255,255,255,0.06)] px-4 py-3 text-sm leading-7 text-[#fff2d2] outline-none placeholder:text-[#8fa2c1]"
                   placeholder={copy.answerPlaceholder}
                 />
+              ) : null}
+
+              <div className="mt-6 flex gap-2">
+                {questions.map((question, index) => (
+                  <button
+                    key={question}
+                    type="button"
+                    onClick={() => setStep(index)}
+                    className={`h-2 flex-1 rounded-full transition ${
+                      index === step ? "bg-[color:var(--gold-soft)]" : "bg-[rgba(255,255,255,0.14)]"
+                    }`}
+                    aria-label={`${copy.journalTitle} ${index + 1}`}
+                  />
+                ))}
               </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!canSubmit || saving}
-              className="primary-button w-full"
-            >
-              {saving ? copy.sending : copy.send}
-            </button>
-          </div>
-        )}
-      </section>
 
-      <section className="paper-card px-5 py-5">
-        <p className="section-label">{copy.actionKicker}</p>
-        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.actionTitle}</h3>
-        <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-          {journalSent || journalTimeline.length > 0
-            ? copy.actionAfterJournal
-            : copy.actionBeforeJournal}
-        </p>
-
-        <div className="mt-4 space-y-3">
-          {activeSuggestion ? (
-            <button
-              type="button"
-              onClick={() => handleAddActionItem(activeSuggestion)}
-              disabled={
-                actionSaving ||
-                actionItems.some(
-                  (item) => item.text.trim().toLowerCase() === activeSuggestion.toLowerCase(),
-                )
-              }
-              className="paper-card-soft w-full px-4 py-4 text-left transition disabled:opacity-60"
-            >
-              <p className="text-sm leading-7 text-[color:var(--ink)]">
-                {activeSuggestion}
-              </p>
-              <div className="mt-3 flex items-center justify-between gap-3">
-                <p className="text-[0.68rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-                  {actionItems.some(
-                    (item) => item.text.trim().toLowerCase() === activeSuggestion.toLowerCase(),
-                  )
-                    ? copy.suggestionSaved
-                    : copy.suggestionSave}
-                </p>
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setActionSuggestionIndex((current) => (current + 1) % suggestedActions.length);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      setActionSuggestionIndex((current) => (current + 1) % suggestedActions.length);
-                    }
-                  }}
-                  className="text-[0.72rem] tracking-[0.08em] text-[color:var(--gold)]"
-                >
-                  {copy.nextSuggestion}
-                </span>
-              </div>
-            </button>
-          ) : null}
-        </div>
-
-        <div className="mt-4 paper-card-soft px-4 py-4">
-          <label className="text-sm font-medium text-[color:var(--ink)]">{copy.customActionLabel}</label>
-          <input
-            value={customAction}
-            onChange={(event) => setCustomAction(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                handleAddActionItem(customAction);
-              }
-            }}
-            className="cosmos-input mt-3"
-            placeholder={copy.customActionPlaceholder}
-          />
-          <button
-            type="button"
-            onClick={() => handleAddActionItem(customAction)}
-            disabled={!customAction.trim() || actionSaving}
-            className="secondary-button mt-3 w-full disabled:opacity-50"
-          >
-            {copy.addAction}
-          </button>
-        </div>
-
-        <div className="mt-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-medium text-[color:var(--ink)]">{copy.activeActions}</p>
-            <p className="text-[0.68rem] tracking-[0.16em] text-[color:var(--ink-faint)]">
-              {copy.aligned(actionSummary.completed, actionSummary.total)}
-            </p>
-          </div>
-
-          {actionItems.length === 0 ? (
-            <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">
-              {copy.noActions}
-            </p>
-          ) : (
-            <div className="mt-3 space-y-3">
-              {actionItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleToggleActionItem(item.id)}
-                  disabled={actionSaving}
-                  className="paper-card-soft flex w-full items-start gap-3 px-4 py-4 text-left transition disabled:opacity-70"
-                >
-                  <span className="mt-1 text-lg leading-none text-[color:var(--gold)]">
-                    {item.completed ? "✓" : "○"}
-                  </span>
-                  <span className="flex-1 text-sm leading-7 text-[color:var(--ink)]">
-                    {item.text}
-                  </span>
-                </button>
-              ))}
-            </div>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canSubmit || saving}
+                className="mt-5 w-full rounded-2xl border border-[rgba(232,201,154,0.18)] bg-[rgba(14,26,48,0.38)] px-4 py-3 font-display text-[1.2rem] text-[#f2d39c] transition disabled:opacity-45"
+              >
+                {saving ? copy.sending : copy.projectionButton}
+              </button>
+            </>
           )}
         </div>
       </section>
 
-      <section className="paper-card px-5 py-5">
-        <p className="section-label">{copy.statusKicker}</p>
-        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.statusTitle}</h3>
+      <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-6 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
+        <p className="gold-kicker">{copy.statusKicker}</p>
+        <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.statusTitle}</h3>
+
+        <div className="mt-7 grid grid-cols-4 items-start gap-2">
+          {[
+            copy.stageIntent,
+            copy.stageAligning,
+            copy.stageResonance,
+            copy.stageDelivered,
+          ].map((label, index) => {
+            const stage = index + 1;
+            const isCurrent = MANIFEST_STAGES[order.status] === stage;
+            const isPassed = MANIFEST_STAGES[order.status] >= stage;
+            return (
+              <div key={label} className="text-center">
+                <div className="relative mb-3 flex items-center justify-center">
+                  <span className={`relative z-[1] h-4 w-4 rounded-full border-2 ${
+                    isCurrent
+                      ? "border-[color:var(--gold)] bg-[color:var(--gold)] shadow-[0_0_0_8px_rgba(181,120,58,0.16)]"
+                      : isPassed
+                        ? "border-[color:var(--gold)] bg-[color:var(--gold)]"
+                        : "border-[rgba(181,120,58,0.34)] bg-[rgba(250,246,240,0.8)]"
+                  }`} />
+                  {index < 3 ? (
+                    <span className={`absolute left-1/2 top-1/2 h-[2px] w-full -translate-y-1/2 ${
+                      isPassed ? "bg-[color:var(--gold)]" : "bg-[rgba(181,120,58,0.2)]"
+                    }`} />
+                  ) : null}
+                </div>
+                <p className={`text-[0.7rem] font-semibold leading-5 tracking-[0.06em] ${
+                  isCurrent ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"
+                }`}>
+                  {label}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-7 flex items-center justify-between gap-4 text-sm font-semibold text-[color:var(--ink-soft)]">
+          <span>{copy.projectionFrequency}</span>
+          <span className="text-[1.05rem] text-[color:var(--ink)]">{projectionStats.last30Count} / 30 天</span>
+        </div>
+        <div className="mt-3 h-2 rounded-full bg-[rgba(181,120,58,0.18)]">
+          <div
+            className="h-full rounded-full bg-[linear-gradient(to_right,var(--gold),var(--gold-soft))]"
+            style={{ width: `${Math.min(100, (projectionStats.last30Count / 30) * 100)}%` }}
+          />
+        </div>
+        <p className="mt-4 text-sm leading-7 text-[color:var(--ink-soft)]">
+          {copy.continuedAlignment(projectionStats.streak)}
+        </p>
+
         {action ? (
           <button
             type="button"
             onClick={() => onUpdateStatus(action.next)}
-            className="primary-button mt-4 w-full"
+            className="secondary-button mt-5 w-full"
           >
             {action.label}
           </button>
-        ) : (
-          <p className="mt-3 text-sm leading-7 text-[color:var(--ink-soft)]">{copy.completed}</p>
-        )}
+        ) : null}
       </section>
 
-      <section className="paper-card px-5 py-5">
-        <p className="section-label">{copy.historyKicker}</p>
-        <h3 className="mt-2 font-display text-2xl text-[color:var(--navy-deep)]">{copy.historyTitle}</h3>
-        <div className="timeline-rail mt-4 space-y-4">
+      <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-6 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
+        <p className="gold-kicker">{copy.actionKicker}</p>
+        <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.actionTitle}</h3>
+
+        <div className="mt-6 divide-y divide-[rgba(181,120,58,0.14)]">
+          {actionItems.length === 0 ? (
+            <p className="py-2 text-sm leading-7 text-[color:var(--ink-soft)]">{copy.noActions}</p>
+          ) : (
+            actionItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleToggleActionItem(item.id)}
+                disabled={actionSaving}
+                className="flex w-full items-start gap-4 py-4 text-left transition disabled:opacity-60"
+              >
+                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold ${
+                  item.completed
+                    ? "border-[color:var(--gold)] bg-[color:var(--gold)] text-white"
+                    : "border-[color:var(--gold)] text-[color:var(--gold)]"
+                }`}>
+                  {item.completed ? "✓" : ""}
+                </span>
+                <span className={`text-base leading-7 ${
+                  item.completed ? "text-[color:var(--ink-faint)] line-through" : "text-[color:var(--ink)]"
+                }`}>
+                  {item.text}
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+
+        {showActionComposer ? (
+          <div className="mt-4 rounded-2xl border border-[rgba(181,120,58,0.18)] px-4 py-4">
+            <p className="text-sm leading-7 text-[color:var(--ink-soft)]">
+              {activeSuggestion || copy.actionBeforeJournal}
+            </p>
+            <input
+              value={customAction}
+              onChange={(event) => setCustomAction(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleAddActionItem(customAction);
+                }
+              }}
+              className="cosmos-input mt-3"
+              placeholder={copy.customActionPlaceholder}
+            />
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setActionSuggestionIndex((current) => (current + 1) % suggestedActions.length)}
+                className="secondary-button"
+              >
+                {copy.nextSuggestion}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAddActionItem(customAction || activeSuggestion)}
+                disabled={(!customAction.trim() && !activeSuggestion) || actionSaving}
+                className="primary-button disabled:opacity-50"
+              >
+                {copy.addAction}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={() => setShowActionComposer((current) => !current)}
+          className="secondary-button mt-5 w-full"
+        >
+          + {locale === "en" ? "Add a small action" : "新增一個小行動"}
+        </button>
+      </section>
+
+      <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-6 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
+        <p className="gold-kicker">{copy.historyKicker}</p>
+        <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.historyTitle}</h3>
+        <div className="timeline-rail mt-6 space-y-6">
           {journalTimeline.length === 0 ? (
             <p className="text-sm leading-7 text-[color:var(--ink-soft)]">{copy.noHistory}</p>
           ) : (
-            journalTimeline.map((entry, index) => (
-              <article key={`${entry.recordedAt?.seconds || "entry"}-${index}`} className="relative pl-10">
-                <span className="timeline-dot absolute left-0 top-1">✦</span>
-                <div className="paper-card-soft px-4 py-4">
-                  <p className="text-xs tracking-[0.16em] text-[color:var(--ink-faint)]">{formatDate(entry.recordedAt, locale)}</p>
-                  <p className="mt-2 text-sm leading-7 text-[color:var(--ink)]">
-                    {entry.prompts?.[0] ? `1. ${entry.prompts[0]}` : "1."} {entry.q1}
+            journalTimeline.map((entry, index) => {
+              const line = getJournalLine(entry);
+              return (
+                <article key={`${entry.recordedAt?.seconds || "entry"}-${index}`} className="relative pl-10">
+                  <span className="timeline-dot absolute left-0 top-1">●</span>
+                  <p className="text-sm font-semibold tracking-[0.08em] text-[color:var(--ink-soft)]">
+                    {formatDate(entry.recordedAt, locale)}
                   </p>
-                  <p className="mt-2 text-sm leading-7 text-[color:var(--ink)]">
-                    {entry.prompts?.[1] ? `2. ${entry.prompts[1]}` : "2."} {entry.q2}
+                  <p className="mt-2 text-base leading-8 text-[color:var(--ink)]">
+                    {line || copy.noHistory}
                   </p>
-                  <p className="mt-2 text-sm leading-7 text-[color:var(--ink)]">
-                    {entry.prompts?.[2] ? `3. ${entry.prompts[2]}` : "3."} {entry.q3}
-                  </p>
-                </div>
-              </article>
-            ))
+                  <span className="mt-3 inline-flex rounded-lg bg-[rgba(232,201,154,0.26)] px-3 py-1 text-xs tracking-[0.08em] text-[color:var(--ink-soft)]">
+                    {locale === "en" ? "Reflection" : "想像紀錄"}
+                  </span>
+                </article>
+              );
+            })
           )}
         </div>
       </section>

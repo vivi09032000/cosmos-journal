@@ -86,7 +86,7 @@ function CreateOrderModal({ onClose, onCreate }) {
 
   const copy = locale === "en"
     ? {
-      kicker: "New Manifest",
+      kicker: "New Goal",
       title: "Create Goal",
       titleLabel: "Goal title",
       subtitleLabel: "Subtitle",
@@ -97,12 +97,12 @@ function CreateOrderModal({ onClose, onCreate }) {
       submit: "Create",
     }
     : {
-      kicker: "New Manifest",
+      kicker: "新增目標",
       title: "新增目標",
       titleLabel: "目標標題",
       subtitleLabel: "副標題",
       imageLabel: "目標圖片",
-      helper: "沒有上傳也沒關係，系統會先用目標類型的插畫陪你顯化。",
+      helper: "沒有上傳也沒關係，系統會先用目標類型的插畫陪你記錄。",
       previewAlt: "目標預覽",
       cancel: "取消",
       submit: "建立",
@@ -238,8 +238,8 @@ function DeliveredOrderCard({ order, onOpenCapsule }) {
                   day: "numeric",
                 })} · ${locale === "en" ? `${journeyDays} days from goal to fulfillment` : `從建立到實現 ${journeyDays} 天`}`
                 : locale === "en"
-                  ? "Received by the universe"
-                  : "宇宙已簽收"}
+                  ? "Marked as fulfilled"
+                  : "已記錄為實現"}
             </p>
           </div>
           <button
@@ -276,7 +276,7 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
           <p className="font-display text-[1.9rem] leading-none text-[color:var(--gold)]">
             {projectionDays}
           </p>
-          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "Projection days" : "累計投射天數"}</p>
+          <p className="mt-3 text-[0.72rem] tracking-[0.16em] text-[color:var(--ink-soft)]">{locale === "en" ? "Days tracked" : "累計紀錄天數"}</p>
         </div>
       </div>
 
@@ -285,7 +285,7 @@ function DeliveredEmptyState({ deliveredCount, activeCount, projectionDays }) {
           ✦
         </div>
         <p className="mx-auto mt-8 max-w-[20rem] font-display text-[1.9rem] leading-[1.45] text-[color:var(--navy-deep)]">
-          {locale === "en" ? "Your first manifestation is on its way" : "第一個顯化正在路上"}
+          {locale === "en" ? "Your first fulfilled goal is on its way" : "第一個實現的願望正在路上"}
         </p>
         <p className="mx-auto mt-5 max-w-[22rem] text-[1rem] leading-[2] text-[color:var(--ink-soft)]">
           {locale === "en"
@@ -408,7 +408,7 @@ export default function OrdersPage({
           <section className="screen-header">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="gold-kicker">Manifest Goals</p>
+                <p className="gold-kicker">Goals</p>
                 <h1 className="section-title mt-2 text-[2rem]">{locale === "en" ? "Goals" : "目標"}</h1>
               </div>
               <OrdersModeToggle mode={mode} onChange={handleModeChange} />
