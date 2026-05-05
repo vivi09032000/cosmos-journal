@@ -52,11 +52,6 @@
   --ls-normal:  0.02em;
   --ls-wide:    0.12em;
   --ls-caps:    0.22em;
-}cing scale — 4 stops only */
-  --ls-tight:  -0.01em;  /* display serif headings */
-  --ls-normal:  0.04em;  /* body, general purpose */
-  --ls-wide:    0.14em;  /* labels, secondary info */
-  --ls-caps:    0.26em;  /* uppercase kickers, badge text */
 }
 
 * {
