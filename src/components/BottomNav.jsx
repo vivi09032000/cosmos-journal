@@ -99,7 +99,7 @@ export default function BottomNav() {
             key={tab.to}
             to={tab.to}
             end={tab.to === "/"}
-            className={({ isActive }) => `flex flex-col items-center gap-1 rounded-2xl py-3 text-[0.68rem] ${isActive ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"}`}
+            className={({ isActive }) => `flex flex-col items-center gap-1 rounded-2xl py-3 text-[0.68rem] font-medium tracking-[0.04em] [font-family:var(--font-ui)] ${isActive ? "text-[color:var(--gold)]" : "text-[color:var(--ink-faint)]"}`}
           >
             {({ isActive }) => (
               <>

@@ -1,9 +1,11 @@
 /* ── Web fonts ─────────────────────────────────────────────────
-   Cormorant Garamond — high-contrast display serif (Latin)
+   Cormorant Garamond — display serif (Latin)
    Noto Serif TC      — CJK serif (Chinese)
-   Unified serif stack across all text roles.
+   Montserrat         — geometric UI sans (Latin)
+   Noto Sans TC       — CJK sans (Chinese)
+   La Belle Aurore    — handwritten script (Latin)
 ──────────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=La+Belle+Aurore&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -27,22 +29,30 @@
   --olive: #7a8c6e;
   --danger: #9f4f34;
   --shadow: 0 18px 40px rgba(46, 35, 24, 0.08);
-  --font-display: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
-  --font-body: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
-  --font-ui: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
-  /* Typography scale — serif needs slightly larger sizes for legibility */
-  --text-xs:   0.76rem;   /* 12.2px — minimum for labels */
-  --text-sm:   0.86rem;   /* 13.8px — secondary text, captions */
-  --text-base: 0.95rem;   /* 15.2px — body, form text */
-  --text-md:   1rem;      /* 16px   — default body */
-  --text-lg:   1.15rem;   /* 18.4px — card titles, emphasis */
-  --text-xl:   1.35rem;   /* 21.6px — section headings */
-  --text-2xl:  1.7rem;    /* 27.2px — display numbers */
-  --text-3xl:  2rem;      /* 32px   — page titles */
+  /* New Multi-layered Font System */
+  --font-display: "Cormorant Garamond", "Noto Serif TC", serif;
+  --font-body:    "Cormorant Garamond", "Noto Serif TC", serif;
+  --font-ui:      "Montserrat", "Noto Sans TC", sans-serif;
+  --font-accent:  "La Belle Aurore", cursive;
+  --font-mono:    "JetBrains Mono", monospace;
 
-  /* Letter-spacing scale — 4 stops only */
+  /* Typography scale */
+  --text-xs:   0.74rem;
+  --text-sm:   0.84rem;
+  --text-base: 0.95rem;
+  --text-md:   1rem;
+  --text-lg:   1.15rem;
+  --text-xl:   1.35rem;
+  --text-2xl:  1.75rem;
+  --text-3xl:  2.1rem;
+
+  /* Letter-spacing scale */
+  --ls-tight:  -0.015em;
+  --ls-normal:  0.02em;
+  --ls-wide:    0.12em;
+  --ls-caps:    0.22em;
+}cing scale — 4 stops only */
   --ls-tight:  -0.01em;  /* display serif headings */
   --ls-normal:  0.04em;  /* body, general purpose */
   --ls-wide:    0.14em;  /* labels, secondary info */
@@ -58,6 +68,7 @@ a,
 input,
 textarea,
 select {
+  font-family: var(--font-ui);
   -webkit-tap-highlight-color: rgba(181, 120, 58, 0.14);
 }
 
@@ -286,12 +297,12 @@ body::after {
 }
 
 .section-label {
-  color: var(--ink-faint);
   font-family: var(--font-ui);
-  font-size: var(--text-xs);
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: var(--ls-caps);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
 .section-title {
@@ -315,12 +326,13 @@ body::after {
 }
 
 .gold-kicker {
-  color: var(--ink-faint);
-  font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  letter-spacing: var(--ls-caps);
-  text-transform: uppercase;
+  color: var(--gold);
+  font-family: var(--font-accent);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.85;
 }
 
 .cosmos-card {
@@ -458,8 +470,10 @@ body::after {
   gap: 0.35rem;
   border-radius: 999px;
   padding: 0.3rem 0.75rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   color: rgba(255, 242, 216, 0.94);
   background: rgba(217, 190, 145, 0.18);
   border: 1px solid rgba(234, 205, 159, 0.22);
@@ -852,8 +866,10 @@ body::after {
   align-items: center;
   border-radius: 999px;
   padding: 0.22rem 0.6rem;
+  font-family: var(--font-ui);
   font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   border: 1px solid rgba(181, 120, 58, 0.22);
   background: rgba(232, 201, 154, 0.16);
   color: var(--gold);
@@ -879,8 +895,10 @@ body::after {
 
 .profile-stat-label {
   margin-top: 0.5rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   color: var(--ink-soft);
 }
 
@@ -896,8 +914,10 @@ body::after {
 .bar-chart-label {
   width: 3rem;
   flex-shrink: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--ink-soft);
   text-align: right;
 }
@@ -922,7 +942,9 @@ body::after {
 .bar-chart-count {
   width: 1.6rem;
   flex-shrink: 0;
-  font-size: 0.72rem;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 500;
   color: var(--ink-faint);
   text-align: left;
 }
@@ -953,8 +975,10 @@ body::after {
 }
 
 .signal-badge-count {
+  font-family: var(--font-ui);
   font-size: 0.62rem;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   color: var(--ink-faint);
 }
 
@@ -1017,8 +1041,10 @@ body::after {
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 0;
-  font-size: 0.92rem;
-  letter-spacing: 0.06em;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--ink);
   border-bottom: 1px solid rgba(181, 120, 58, 0.07);
   transition: color 160ms ease, transform 160ms ease;

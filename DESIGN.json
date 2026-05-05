@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-03T00:00:00+07:00",
+  "title": "Design System: Cosmos Journal",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Parchment Ground",
+        "canonical": "#f5efe6",
+        "tonalRamp": ["oklch(18% 0.018 75)", "oklch(28% 0.025 75)", "oklch(40% 0.03 75)", "oklch(54% 0.035 75)", "oklch(68% 0.035 75)", "oklch(80% 0.03 75)", "oklch(90% 0.024 75)", "oklch(96% 0.018 75)"]
+      },
+      "paper-card": {
+        "role": "neutral",
+        "displayName": "Cream Card",
+        "canonical": "#faf6f0",
+        "tonalRamp": ["oklch(18% 0.012 75)", "oklch(30% 0.018 75)", "oklch(42% 0.022 75)", "oklch(56% 0.024 75)", "oklch(70% 0.024 75)", "oklch(82% 0.02 75)", "oklch(92% 0.014 75)", "oklch(98% 0.01 75)"]
+      },
+      "gold": {
+        "role": "primary",
+        "displayName": "Amber Ink",
+        "canonical": "#b5783a",
+        "tonalRamp": ["oklch(18% 0.045 65)", "oklch(28% 0.06 65)", "oklch(40% 0.075 65)", "oklch(52% 0.09 65)", "oklch(64% 0.085 65)", "oklch(76% 0.065 65)", "oklch(86% 0.042 65)", "oklch(94% 0.025 65)"]
+      },
+      "navy": {
+        "role": "primary",
+        "displayName": "Moonlit Navy",
+        "canonical": "#25314d",
+        "tonalRamp": ["oklch(15% 0.04 265)", "oklch(22% 0.055 265)", "oklch(30% 0.065 265)", "oklch(40% 0.06 265)", "oklch(54% 0.05 265)", "oklch(68% 0.035 265)", "oklch(82% 0.02 265)", "oklch(94% 0.01 265)"]
+      },
+      "olive": {
+        "role": "secondary",
+        "displayName": "Sage Balance",
+        "canonical": "#7a8c6e",
+        "tonalRamp": ["oklch(18% 0.035 130)", "oklch(30% 0.045 130)", "oklch(42% 0.055 130)", "oklch(54% 0.06 130)", "oklch(66% 0.052 130)", "oklch(78% 0.038 130)", "oklch(88% 0.024 130)", "oklch(95% 0.014 130)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Literary Display",
+        "purpose": "Page titles and the largest ritual moments."
+      },
+      "headline": {
+        "displayName": "Ritual Headline",
+        "purpose": "Goal titles, question prompts, and important card titles."
+      },
+      "body": {
+        "displayName": "Journal Body",
+        "purpose": "Readable prose, form text, entries, and explanatory copy."
+      },
+      "label": {
+        "displayName": "Spaced Kicker",
+        "purpose": "Metadata, tabs, tags, section labels, and quiet UI captions."
+      }
+    },
+    "shadows": [
+      {
+        "name": "paper-lift",
+        "value": "0 8px 24px rgba(46, 35, 24, 0.08)",
+        "purpose": "Default card elevation."
+      },
+      {
+        "name": "screen-frame",
+        "value": "0 18px 48px rgba(46, 35, 24, 0.08)",
+        "purpose": "Desktop app shell frame."
+      },
+      {
+        "name": "cosmic-feature",
+        "value": "0 18px 34px rgba(24, 31, 53, 0.22)",
+        "purpose": "Navy moon, angel, and goal feature cards."
+      },
+      {
+        "name": "bottom-sheet",
+        "value": "0 -12px 40px rgba(46, 35, 24, 0.14)",
+        "purpose": "Bottom sheet surfaces."
+      },
+      {
+        "name": "drawer",
+        "value": "-8px 0 40px rgba(46, 35, 24, 0.12)",
+        "purpose": "Right side drawer."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "180ms ease",
+        "purpose": "Buttons, inputs, chips, hover and focus states."
+      },
+      {
+        "name": "sheet-enter",
+        "value": "280ms cubic-bezier(0.22, 0.68, 0.36, 1)",
+        "purpose": "Bottom sheet and drawer entrance."
+      },
+      {
+        "name": "ritual-card-enter",
+        "value": "340ms cubic-bezier(0.22, 0.68, 0.36, 1.08)",
+        "purpose": "Ritual card stack replacement."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "max-width: 767px"
+      },
+      {
+        "name": "shell-desktop",
+        "value": "min-width: 768px"
+      },
+      {
+        "name": "nav-contained",
+        "value": "min-width: 640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Calm amber action button used for saves and primary confirmations.",
+      "html": "<button class=\"ds-button-primary\">記錄這次想像</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.95rem;padding:0 1.25rem;border:1px solid rgba(181,120,58,.5);border-radius:.5rem;background:linear-gradient(180deg,rgba(240,232,220,.98),rgba(235,224,208,.98));color:#b5783a;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif;font-size:.86rem;font-weight:500;letter-spacing:.14em;box-shadow:0 8px 18px rgba(46,35,24,.06);transition:transform 180ms ease,box-shadow 180ms ease,opacity 180ms ease}.ds-button-primary:hover{transform:translateY(-1px)}.ds-button-primary:focus-visible{outline:2px solid rgba(181,120,58,.55);outline-offset:3px}.ds-button-primary:disabled{opacity:.5;transform:none}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet paper button for alternate actions and progressive reveals.",
+      "html": "<button class=\"ds-button-secondary\">新增一個小行動</button>",
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.9rem;padding:0 1rem;border:1px solid rgba(181,120,58,.2);border-radius:.5rem;background:linear-gradient(180deg,rgba(255,252,247,.95),rgba(243,233,219,.98));color:#2e2318;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif;font-size:.86rem;font-weight:500;letter-spacing:.14em;transition:transform 180ms ease,opacity 180ms ease}.ds-button-secondary:hover{transform:translateY(-1px)}.ds-button-secondary:focus-visible{outline:2px solid rgba(181,120,58,.55);outline-offset:3px}.ds-button-secondary:disabled{opacity:.5;transform:none}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Cream field with a soft amber focus ring for journal and profile entry.",
+      "html": "<input class=\"ds-input\" placeholder=\"寫下你的感受...\" />",
+      "css": ".ds-input{width:100%;height:2.9rem;padding:0 1rem;border:1px solid rgba(181,120,58,.2);border-radius:.5rem;background:rgba(255,251,246,.88);color:#2e2318;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif;font-size:.95rem;outline:none;transition:border-color 180ms ease,box-shadow 180ms ease}.ds-input:focus{border-color:rgba(123,96,61,.45);box-shadow:0 0 0 4px rgba(214,184,141,.18)}.ds-input::placeholder{color:#a08870}"
+    },
+    {
+      "name": "Paper Card",
+      "kind": "card",
+      "refersTo": "card-paper",
+      "description": "Default warm card for journal entries, forms, lists, and empty states.",
+      "html": "<article class=\"ds-paper-card\"><p class=\"ds-kicker\">今日小儀式</p><h3>今天想像一下</h3><p>選一個感受，讓目標更靠近現實。</p></article>",
+      "css": ".ds-paper-card{border:1px solid rgba(181,120,58,.2);border-radius:.85rem;background:linear-gradient(180deg,rgba(250,246,240,.96),rgba(244,236,224,.98));box-shadow:0 8px 24px rgba(46,35,24,.08);padding:1rem;color:#2e2318;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif}.ds-paper-card h3{margin:.4rem 0 .5rem;font-size:1.35rem;line-height:1.35;font-weight:500}.ds-paper-card p{margin:0;color:#6b5540;line-height:1.6}.ds-kicker{font-size:.76rem;letter-spacing:.26em;text-transform:uppercase;color:#a08870}"
+    },
+    {
+      "name": "Signal Chip",
+      "kind": "chip",
+      "refersTo": "chip-signal",
+      "description": "Small linked signal or status badge.",
+      "html": "<span class=\"ds-chip\">777</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;border-radius:999px;padding:.22rem .6rem;border:1px solid rgba(181,120,58,.22);background:rgba(232,201,154,.16);color:#b5783a;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif;font-size:.68rem;letter-spacing:.1em}.ds-chip:focus-visible{outline:2px solid rgba(181,120,58,.55);outline-offset:3px}"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "refersTo": "bottom-navigation",
+      "description": "Fixed mobile navigation for the four daily-use sections.",
+      "html": "<nav class=\"ds-bottom-nav\"><a class=\"ds-nav-item ds-active\">☼<span>今日</span></a><a class=\"ds-nav-item\">□<span>目標</span></a><a class=\"ds-nav-item\">✧<span>天使</span></a><a class=\"ds-nav-item\">♡<span>感恩</span></a></nav>",
+      "css": ".ds-bottom-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(141,116,82,.14);background:rgba(245,239,230,.95);padding:.25rem .5rem;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif}.ds-nav-item{display:flex;min-height:3.5rem;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;border-radius:1rem;color:#a08870;text-decoration:none;font-size:1.1rem}.ds-nav-item span{font-size:.68rem;letter-spacing:.18em}.ds-nav-item.ds-active{color:#b5783a}.ds-nav-item.ds-active::after{content:\"\";width:1rem;height:1px;border-radius:999px;background:#b5783a}"
+    },
+    {
+      "name": "Cosmic Feature Card",
+      "kind": "custom",
+      "refersTo": "cosmic-feature-card",
+      "description": "Deep navy card reserved for moon phase, angel number, and goal hero moments.",
+      "html": "<section class=\"ds-cosmic-card\"><p class=\"ds-cosmic-kicker\">今日月相</p><h2>盈凸月</h2><p>今天適合微調，靠近結果。</p></section>",
+      "css": ".ds-cosmic-card{position:relative;overflow:hidden;border-radius:.85rem;border:1px solid rgba(234,205,159,.2);background:radial-gradient(circle at 16% 20%,rgba(244,217,160,.65) 0 1px,transparent 1.4px),radial-gradient(circle at 78% 18%,rgba(244,217,160,.72) 0 1px,transparent 1.4px),linear-gradient(145deg,rgba(35,46,77,.98),rgba(18,26,46,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 34px rgba(24,31,53,.22);padding:1.25rem;color:#f6ead1;font-family:\"Cormorant Garamond\",\"Noto Serif TC\",Georgia,serif}.ds-cosmic-card h2{margin:.35rem 0;font-size:2rem;line-height:1.1;font-weight:500}.ds-cosmic-card p{margin:0;line-height:1.6}.ds-cosmic-kicker{color:#e8c99a;font-size:.76rem;letter-spacing:.26em}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Lunar Paper Companion",
+    "overview": "Cosmos Journal should feel like a private paper ritual that happens to live in a browser. The interface carries the warmth of a handwritten journal, the quiet contrast of night-sky cards, and the light ornament of astrology. It is a product UI, so the ritual atmosphere must never hide the next action.",
+    "keyCharacteristics": [
+      "Single-column mobile-first app shell with a fixed bottom navigation.",
+      "Parchment surfaces with thin amber borders and low ambient shadows.",
+      "Deep navy is reserved for moon phase, angel decode, and goal imagery.",
+      "Serif typography is the product voice, not only decoration.",
+      "Motion is short and state-driven: cards, drawers, sheets, and selected chips."
+    ],
+    "rules": [
+      {
+        "name": "The One Night Sky Rule",
+        "body": "Each screen may have one dominant navy feature surface. If everything is cosmic, nothing is important.",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Neutral Rule",
+        "body": "Never introduce pure white, pure black, cool gray, neon, or purple AI gradients. Every neutral must lean toward paper, brown, or cream.",
+        "section": "colors"
+      },
+      {
+        "name": "The Serif Product Rule",
+        "body": "Serif is allowed in UI controls here because it is the product voice. Keep it legible with larger sizes and generous line-height.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Label Rule",
+        "body": "Labels should be small, spaced, and calm. Do not shout with heavy weights or saturated color.",
+        "section": "typography"
+      },
+      {
+        "name": "The Paper Stack Rule",
+        "body": "Shadows must be soft and brown-tinted. If the shadow looks like a generic app modal, reduce opacity or replace it with a border and tonal layer.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use parchment, cream, brown ink, amber, sage, and deep navy as the core vocabulary.",
+      "Do reserve navy for the most important cosmic information on the screen.",
+      "Do make mobile the primary design target with clear 44px touch zones.",
+      "Do keep bottom navigation to four high-frequency tabs.",
+      "Do use empty states that explain the next gentle action, not just \"nothing here.\"",
+      "Do keep motion between 150ms and 280ms for state transitions.",
+      "Do show loading skeletons for images and content that may arrive late."
+    ],
+    "donts": [
+      "Don't use fake phone frames, fake status bars, or portfolio-style app mockups.",
+      "Don't make the interface feel like a SaaS dashboard, productivity tool, or cold database system.",
+      "Don't use neon, purple AI default gradients, glassmorphism, pure white, pure black, or cool gray UI.",
+      "Don't put thick colored side stripes on cards or list items.",
+      "Don't use gradient text.",
+      "Don't create nested card stacks unless the stack itself is the interaction pattern.",
+      "Don't use a modal as the first solution when inline editing, bottom sheets, or progressive reveal would work."
+    ]
+  }
+}
