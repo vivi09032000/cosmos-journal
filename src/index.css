@@ -3,9 +3,9 @@
    Noto Serif TC      — CJK serif (Chinese)
    Montserrat         — geometric UI sans (Latin)
    Noto Sans TC       — CJK sans (Chinese)
-   La Belle Aurore    — handwritten script (Latin)
+   Playfair Display   — elegant italic accent (Latin)
 ──────────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=La+Belle+Aurore&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Noto+Serif+TC:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -34,7 +34,7 @@
   --font-display: "Cormorant Garamond", "Noto Serif TC", serif;
   --font-body:    "Cormorant Garamond", "Noto Serif TC", serif;
   --font-ui:      "Montserrat", "Noto Sans TC", sans-serif;
-  --font-accent:  "La Belle Aurore", cursive;
+  --font-accent:  "Playfair Display", "Noto Serif TC", serif;
   --font-mono:    "JetBrains Mono", monospace;
 
   /* Typography scale */
@@ -323,9 +323,10 @@ body::after {
 .gold-kicker {
   color: var(--gold);
   font-family: var(--font-accent);
-  font-size: 1rem;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 0.12em;
   text-transform: none;
   opacity: 0.85;
 }
