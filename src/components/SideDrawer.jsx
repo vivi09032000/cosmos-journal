@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useI18n } from "../lib/i18n";
 import {
   PROFILE_AVATARS,
-  PROFILE_NAME_POOL,
+  PROFILE_NAME_POOL_BY_LOCALE,
   getDefaultProfileIdentity,
   getProfileAvatar,
+  getProfileAvatarLabel,
   getProfileDisplayName,
 } from "../lib/profileIdentity";
 
@@ -41,7 +42,7 @@ export default function SideDrawer({
   const { locale, setLocale } = useI18n();
   const navigate = useNavigate();
   const [closing, setClosing] = useState(false);
-  const fallbackIdentity = getDefaultProfileIdentity(profile?.createdAt?.seconds || "");
+  const fallbackIdentity = getDefaultProfileIdentity(profile?.createdAt?.seconds || "", locale);
   const displayName = getProfileDisplayName(profile, locale);
   const activeAvatar = getProfileAvatar(profile?.avatarKey || fallbackIdentity.avatarKey);
   const [editingIdentity, setEditingIdentity] = useState(false);
@@ -142,12 +143,13 @@ export default function SideDrawer({
   };
 
   const handleRandomName = () => {
-    const currentIndex = PROFILE_NAME_POOL.indexOf(nameDraft.trim());
+    const namePool = PROFILE_NAME_POOL_BY_LOCALE[locale] || PROFILE_NAME_POOL_BY_LOCALE["zh-TW"];
+    const currentIndex = namePool.indexOf(nameDraft.trim());
     const nextIndex = currentIndex >= 0
-      ? (currentIndex + 1) % PROFILE_NAME_POOL.length
-      : Math.floor(Math.random() * PROFILE_NAME_POOL.length);
+      ? (currentIndex + 1) % namePool.length
+      : Math.floor(Math.random() * namePool.length);
 
-    setNameDraft(PROFILE_NAME_POOL[nextIndex]);
+    setNameDraft(namePool[nextIndex]);
   };
 
   if (!open) return null;
@@ -167,7 +169,7 @@ export default function SideDrawer({
         {/* Avatar & info */}
         <div className="mt-5 flex flex-col items-center text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[rgba(181,120,58,0.35)] bg-[rgba(25,35,60,0.9)]">
-            <span className="text-[1.9rem]" aria-label={activeAvatar.label}>
+            <span className="text-[1.9rem]" aria-label={getProfileAvatarLabel(activeAvatar, locale)}>
               {activeAvatar.icon}
             </span>
           </div>
@@ -219,7 +221,7 @@ export default function SideDrawer({
                       ? "border-[rgba(181,120,58,0.52)] bg-[rgba(181,120,58,0.12)]"
                       : "border-[rgba(181,120,58,0.12)] bg-[rgba(255,255,255,0.42)]"
                   }`}
-                  aria-label={avatar.label}
+                  aria-label={getProfileAvatarLabel(avatar, locale)}
                 >
                   {avatar.icon}
                 </button>

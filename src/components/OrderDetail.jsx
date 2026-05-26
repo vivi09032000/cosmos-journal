@@ -28,11 +28,6 @@ function formatDate(timestamp, locale) {
   });
 }
 
-const PROJECTION_CHIPS = {
-  "zh-TW": ["空氣的清涼", "心跳加速", "整個人放鬆了", "難以置信的真實"],
-  en: ["Clear air", "Heart racing", "Body relaxed", "Almost too real"],
-};
-
 const MANIFEST_STAGES = {
   packing: 1,
   aligning: 2,
@@ -126,8 +121,15 @@ export default function OrderDetail({
   const theme = getOrderTheme(order);
   const questions = useMemo(
     () => getOrderQuestions(order, locale),
-    [locale, order.id],
+    [locale, order.id, order.title, order.subtitle],
   );
+  const activeQuestion = questions[step] || questions[0] || {
+    question: "",
+    theme: "default",
+    themeLabel: locale === "en" ? "Goal" : "願望",
+    chips: [],
+    actionPrompt: "",
+  };
   const suggestedActions = useMemo(
     () => getSuggestedActionPrompts(order, locale),
     [locale, order.id],
@@ -194,8 +196,9 @@ export default function OrderDetail({
       changeImage: "Change goal image",
       journalKicker: "Imagine",
       journalTitle: "Imagine today",
-      journalCardTitle: "Imagine today",
-      sensoryPrompt: "One question each day",
+      journalCardTitle: (title) => `Imagine "${title}" as already real`,
+      sensoryPrompt: "For this goal",
+      actionPromptLabel: "One small step",
       projectionStreak: (days) => `✦ ${days} day streak`,
       moreNote: "Add one sentence?",
       projectionButton: "Save this reflection",
@@ -224,6 +227,7 @@ export default function OrderDetail({
       stageResonance: "Getting clearer",
       stageDelivered: "✦ Fulfilled",
       projectionFrequency: "Reflections in the last 30 days",
+      projectionFrequencyValue: (count) => `${count} / 30 days`,
       continuedAlignment: (days) => `${days} day${days === 1 ? "" : "s"} in a row`,
       completed: "This goal has already been completed.",
       historyKicker: "Past Notes",
@@ -237,8 +241,9 @@ export default function OrderDetail({
       changeImage: "更換願景圖片",
       journalKicker: "想像",
       journalTitle: "今天想像一下",
-      journalCardTitle: "今天想像一下",
-      sensoryPrompt: "每天一題",
+      journalCardTitle: (title) => `想像「${title}」已經發生`,
+      sensoryPrompt: "依這個目標生成",
+      actionPromptLabel: "今天的小靠近",
       projectionStreak: (days) => `✦ 連續 ${days} 天`,
       moreNote: "想多說一句話？",
       projectionButton: "記錄這次想像",
@@ -267,6 +272,7 @@ export default function OrderDetail({
       stageResonance: "強烈共振中",
       stageDelivered: "✦ 已實現",
       projectionFrequency: "近 30 天想像次數",
+      projectionFrequencyValue: (count) => `${count} / 30 天`,
       continuedAlignment: (days) => `連續 ${days} 天有紀錄`,
       completed: "這個目標已實現。",
       historyKicker: "過去紀錄",
@@ -309,7 +315,11 @@ export default function OrderDetail({
       q1: answers[0],
       q2: answers[1],
       q3: answers[2],
-      prompts: questions,
+      prompts: questions.map((question) => question.question),
+      selectedChips: answers,
+      questionTheme: questions[0]?.theme || "default",
+      questionThemeLabel: questions[0]?.themeLabel || "",
+      actionPrompts: questions.map((question) => question.actionPrompt),
     });
     setJournalSent(true);
     setIsEditingToday(false);
@@ -463,7 +473,7 @@ export default function OrderDetail({
 
       <section className="rounded-[2rem] bg-[rgba(250,246,240,0.82)] px-5 py-6 shadow-[0_14px_36px_rgba(46,35,24,0.06)]">
         <p className="gold-kicker">{copy.journalKicker}</p>
-        <h3 className="mt-2 font-display text-[1.8rem] leading-none text-[color:var(--ink)]">{copy.journalCardTitle}</h3>
+        <h3 className="mt-2 font-display text-[1.8rem] leading-tight text-[color:var(--ink)]">{copy.journalCardTitle(order.title)}</h3>
 
         <div className="mt-6 rounded-[1.55rem] bg-[linear-gradient(145deg,#3d2b1f,#2a1d15)] px-5 py-5 text-[#f7ebd2] shadow-[0_16px_34px_rgba(61,43,31,0.18)]">
           {(hasJournaledToday || journalSent) && !isEditingToday ? (
@@ -485,18 +495,23 @@ export default function OrderDetail({
           ) : (
             <>
               <div className="flex items-start justify-between gap-4">
-                <p className="text-sm font-semibold tracking-[0.08em] text-[#b5a48d]">{copy.sensoryPrompt}</p>
+                <div>
+                  <p className="text-sm font-semibold tracking-[0.08em] text-[#b5a48d]">{copy.sensoryPrompt}</p>
+                  <p className="mt-1 text-xs tracking-[0.12em] text-[color:var(--gold-soft)]">
+                    {activeQuestion.themeLabel}
+                  </p>
+                </div>
                 <p className="shrink-0 text-sm font-semibold tracking-[0.06em] text-[color:var(--gold-soft)]">
                   {copy.projectionStreak(projectionStats.streak)}
                 </p>
               </div>
 
               <p className="mt-7 font-display text-[1.65rem] leading-[1.5] text-[#fff2d2]">
-                {questions[step]}
+                {activeQuestion.question}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                {(PROJECTION_CHIPS[locale] || PROJECTION_CHIPS["zh-TW"]).map((chip) => {
+                {activeQuestion.chips.map((chip) => {
                   const selected = answers[step] === chip;
                   return (
                     <button
@@ -514,6 +529,17 @@ export default function OrderDetail({
                   );
                 })}
               </div>
+
+              {activeQuestion.actionPrompt ? (
+                <div className="mt-5 rounded-2xl border border-[rgba(232,201,154,0.14)] bg-[rgba(255,255,255,0.04)] px-4 py-3">
+                  <p className="text-xs font-semibold tracking-[0.16em] text-[#b5a48d]">
+                    {copy.actionPromptLabel}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[#f0dfc2]">
+                    {activeQuestion.actionPrompt}
+                  </p>
+                </div>
+              ) : null}
 
               <button
                 type="button"
@@ -537,7 +563,7 @@ export default function OrderDetail({
               <div className="mt-6 flex gap-2">
                 {questions.map((question, index) => (
                   <button
-                    key={question}
+                    key={question.question}
                     type="button"
                     onClick={() => setStep(index)}
                     className={`h-2 flex-1 rounded-full transition ${
@@ -569,7 +595,9 @@ export default function OrderDetail({
           </div>
           <div className="text-right">
             <p className="text-[0.65rem] tracking-[0.1em] text-[color:var(--ink-faint)] uppercase">{copy.projectionFrequency}</p>
-            <p className="mt-0.5 text-sm font-semibold text-[color:var(--ink)]">{projectionStats.last30Count} / 30 天</p>
+            <p className="mt-0.5 text-sm font-semibold text-[color:var(--ink)]">
+              {copy.projectionFrequencyValue(projectionStats.last30Count)}
+            </p>
           </div>
         </div>
 

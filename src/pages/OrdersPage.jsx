@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import OrdersModeToggle from "../components/OrdersModeToggle";
@@ -44,6 +44,7 @@ function formatDeliveredDate(timestamp) {
 
 function CreateOrderModal({ onClose, onCreate }) {
   const { locale } = useI18n();
+  const imageInputRef = useRef(null);
   const [form, setForm] = useState({
     title: "",
     subtitle: "",
@@ -93,6 +94,8 @@ function CreateOrderModal({ onClose, onCreate }) {
       imageLabel: "Goal image",
       helper: "You can skip the upload. The app will start with an illustrated cover for this goal.",
       previewAlt: "Goal preview",
+      chooseFile: "Choose file",
+      noFile: "No file selected",
       cancel: "Cancel",
       submit: "Create",
     }
@@ -104,6 +107,8 @@ function CreateOrderModal({ onClose, onCreate }) {
       imageLabel: "目標圖片",
       helper: "沒有上傳也沒關係，系統會先用目標類型的插畫陪你記錄。",
       previewAlt: "目標預覽",
+      chooseFile: "選擇檔案",
+      noFile: "尚未選取檔案",
       cancel: "取消",
       submit: "建立",
     };
@@ -137,11 +142,24 @@ function CreateOrderModal({ onClose, onCreate }) {
           <div>
             <label className="text-sm font-medium text-[color:var(--ink-soft)]">{copy.imageLabel}</label>
             <input
+              ref={imageInputRef}
               type="file"
               accept="image/*"
               onChange={(event) => updateField("imageFile", event.target.files?.[0] || null)}
-              className="cosmos-input mt-2 file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(181,120,58,0.12)] file:px-4 file:py-2 file:text-sm file:text-[color:var(--gold)]"
+              className="sr-only"
             />
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className="cosmos-input mt-2 flex min-h-[3.4rem] w-full items-center gap-3 text-left"
+            >
+              <span className="rounded-full bg-[rgba(181,120,58,0.12)] px-4 py-2 text-sm text-[color:var(--gold)]">
+                {copy.chooseFile}
+              </span>
+              <span className="min-w-0 truncate text-[color:var(--ink)]">
+                {form.imageFile?.name || copy.noFile}
+              </span>
+            </button>
             <p className="mt-2 text-xs leading-6 text-[color:var(--ink-faint)]">
               {copy.helper}
             </p>

@@ -346,12 +346,14 @@ function RitualDots({ items, activeId, onSelect }) {
 
 export default function TodayPage({
   orders,
+  profile,
   todayEntry,
   dailyLogEntry,
   onSaveDailyMood,
   onSaveQuestionAnswer,
   onCreateAngelLog,
   onSaveNumberSignal,
+  onDismissOnboardingGuide,
   userId,
 }) {
   const { locale } = useI18n();
@@ -417,11 +419,18 @@ export default function TodayPage({
     todayEntry,
   ].filter(Boolean).length;
   const autoAdvanceTimerRef = useRef(null);
+  const showOnboardingGuide = Boolean(
+    profile?.onboardingSeedVersion && !profile?.onboardingGuideDismissedAt,
+  );
 
 
   const copy = locale === "en"
     ? {
       title: "What is the universe saying today?",
+      guideKicker: "First visit",
+      guideTitle: "Start with the sample cards, then make them yours.",
+      guideBody: "Open a goal to try one projection, finish today's gratitude, or replace the starter goals with your own wishes.",
+      guideDismiss: "Got it",
       moodTitle: "How are you arriving today?",
       moodHint: "",
       moodSaved: "Saved",
@@ -453,12 +462,20 @@ export default function TodayPage({
       notLogged: "What tiny moment is worth thanking today?",
       goGratitude: "Write three small things →",
       projectToday: "✦ Project today",
+      recentProjectionLabel: "Last 30 days",
+      fullEnergy: "✦ Full energy this month",
+      streakLabel: (days) => `✦ ${days} day${days === 1 ? "" : "s"} streak`,
       moonProgressPrefix: (label) => `${label} energy is supporting this goal today. It is a good day to project once more.`,
       angelLink: "✦ Seeing a number today? Decode it →",
       day: "Day",
+      dayLabel: (day) => `Day ${day}`,
     }
     : {
       title: "今天宇宙說什麼？",
+      guideKicker: "第一次來",
+      guideTitle: "先用示範卡試一次，再慢慢換成你的願望。",
+      guideBody: "點開目標練習一則投射，完成今日感恩，或直接把示範目標改成你真正想靠近的事。",
+      guideDismiss: "我知道了",
       moodTitle: "今天的你，是什麼狀態？",
       moodHint: "",
       moodSaved: "已記錄",
@@ -490,9 +507,13 @@ export default function TodayPage({
       notLogged: "今天有哪個小瞬間，值得被謝謝？",
       goGratitude: "寫三件小事 →",
       projectToday: "✦ 今日投射",
+      recentProjectionLabel: "近 30 天投射",
+      fullEnergy: "✦ 本月能量滿格",
+      streakLabel: (days) => `✦ 連續 ${days} 天`,
       moonProgressPrefix: (label) => `${label}的能量正在推著這個目標往前，很適合今天再投射一次。`,
       angelLink: "✦ 今天看到什麼數字？查看天使訊號 →",
       day: "第",
+      dayLabel: (day) => `第 ${day} 天`,
     };
 
   useEffect(() => {
@@ -745,6 +766,26 @@ export default function TodayPage({
         </div>
         <WaveDivider className="wave-divider" />
       </section>
+
+      {showOnboardingGuide ? (
+        <section className="paper-card-soft relative overflow-hidden px-5 py-5">
+          <div className="absolute right-4 top-4 text-[color:var(--gold)]">✦</div>
+          <p className="section-label">{copy.guideKicker}</p>
+          <h2 className="mt-3 font-display text-[1.65rem] leading-[1.35] text-[color:var(--ink)]">
+            {copy.guideTitle}
+          </h2>
+          <p className="mt-3 max-w-[28rem] text-sm leading-7 text-[color:var(--ink-soft)]">
+            {copy.guideBody}
+          </p>
+          <button
+            type="button"
+            onClick={onDismissOnboardingGuide}
+            className="text-action-button mt-4"
+          >
+            {copy.guideDismiss}
+          </button>
+        </section>
+      ) : null}
 
       <section className="today-moon-card relative overflow-hidden rounded-[1.25rem] bg-[#1a233b] px-6 py-6 text-[#f6ead1] shadow-[0_20px_40px_rgba(15,23,42,0.3)]">
         {/* Deep space starlight texture */}
@@ -1035,12 +1076,12 @@ export default function TodayPage({
                     {activeOrder.keywords?.length ? activeOrder.keywords.join(' · ') : activeOrder.subtitle || " "}
                   </p>
                   <div className="mt-5 flex items-center justify-between text-[0.75rem]">
-                    <span>近 30 天投射</span>
-                    <span>18 / 30 天</span>
+                    <span>{copy.recentProjectionLabel}</span>
+                    <span>{locale === "en" ? "18 / 30 days" : "18 / 30 天"}</span>
                   </div>
                   <div className="mt-2 h-[5px] w-full"></div>
                   <div className="mt-4 flex items-center justify-between border-t border-[rgba(181,120,58,0.15)] pt-3">
-                    <span className="text-[0.75rem]">✦ 連續 8 天</span>
+                    <span className="text-[0.75rem]">{copy.streakLabel(8)}</span>
                     <span className="text-[0.8rem]">›</span>
                   </div>
                 </div>
@@ -1087,7 +1128,7 @@ export default function TodayPage({
                         {order.category || order.tags?.[0] || 'Manifest'}
                       </div>
                       <div className={`absolute right-3 top-3 rounded-full bg-[rgba(20,28,45,0.85)] px-3 py-1.5 text-[0.7rem] tracking-[0.1em] text-white transition-opacity duration-500 backdrop-blur-md ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                        第 {dayN} 天
+                        {copy.dayLabel(dayN)}
                       </div>
 
                       <div className={`absolute top-0 right-0 bg-[rgba(240,232,220,0.95)] px-3 py-1.5 backdrop-blur-md rounded-bl-xl transition-opacity duration-500 ${!isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -1107,8 +1148,14 @@ export default function TodayPage({
                         </p>
                         
                         <div className="mt-5 flex items-center justify-between text-[0.75rem] text-[#8a7f76]">
-                          <span>近 30 天投射</span>
-                          <span className="font-medium text-[color:var(--ink)]">{recentCount >= 30 ? "✦ 本月能量滿格" : `${recentCount} / 30 天`}</span>
+                          <span>{copy.recentProjectionLabel}</span>
+                          <span className="font-medium text-[color:var(--ink)]">
+                            {recentCount >= 30
+                              ? copy.fullEnergy
+                              : locale === "en"
+                                ? `${recentCount} / 30 days`
+                                : `${recentCount} / 30 天`}
+                          </span>
                         </div>
                         <div className="mt-2 h-[5px] w-full rounded-full bg-[rgba(181,120,58,0.2)] overflow-hidden">
                           <div
@@ -1119,7 +1166,7 @@ export default function TodayPage({
                         
                         <div className="mt-4 flex items-center justify-between border-t border-[rgba(181,120,58,0.15)] pt-3">
                           <span className="text-[0.75rem] text-[#8a7f76] flex items-center gap-1 font-medium tracking-wide">
-                            <span className="text-[#a48464] text-xs">✦</span> 連續 {streak} 天
+                            <span className="text-[#a48464] text-xs">✦</span> {copy.streakLabel(streak).replace(/^✦\s*/, "")}
                           </span>
                           <span className="text-[0.8rem] text-[#a48464]">›</span>
                         </div>
@@ -1132,7 +1179,7 @@ export default function TodayPage({
           ) : (
             <article className="paper-card relative z-10 mx-auto block w-[88%] overflow-hidden px-0 py-0 text-left">
                 <div className="px-5 py-5">
-                  <Tag>今日投射</Tag>
+                  <Tag>{copy.projectToday.replace(/^✦\s*/, "")}</Tag>
                   <h2 className="mt-3 font-display text-[1.7rem] leading-[1.35] text-[color:var(--ink)]">
                     {copy.noOrderTitle}
                   </h2>

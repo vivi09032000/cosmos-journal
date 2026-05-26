@@ -159,14 +159,147 @@ const QUESTION_BANK = {
   },
 };
 
-function sampleQuestions(questions, count = 3) {
+const QUESTION_CHIPS = {
+  "zh-TW": {
+    travel: ["空氣很清楚", "身體放鬆了", "想深呼吸", "有點不敢相信"],
+    career: ["時間是自己的", "節奏很穩", "被信任了", "成果很清楚"],
+    wealth: ["安心變多了", "選擇更多了", "手心很穩", "可以慢慢來"],
+    relationship: ["被接住了", "心裡很暖", "很自然", "可以做自己"],
+    home: ["空間很安靜", "光線剛剛好", "身體想停下", "有歸屬感"],
+    health: ["呼吸變順了", "肩膀放鬆", "身體很輕", "心裡安穩"],
+    default: ["畫面更清楚", "身體有感覺", "心裡變穩", "更像真的"],
+  },
+  en: {
+    travel: ["The air is clear", "My body relaxes", "I want to breathe in", "It feels almost unreal"],
+    career: ["Time feels mine", "The pace is steady", "I feel trusted", "The result is clear"],
+    wealth: ["I feel safer", "I have more choice", "My hands feel steady", "I can move slowly"],
+    relationship: ["I feel held", "My heart feels warm", "It feels natural", "I can be myself"],
+    home: ["The space is quiet", "The light feels right", "My body wants to stay", "I feel at home"],
+    health: ["Breathing feels easier", "My shoulders soften", "My body feels light", "My heart feels steady"],
+    default: ["The scene is clearer", "My body feels it", "My heart steadies", "It feels more real"],
+  },
+};
+
+const ACTION_PROMPTS = {
+  "zh-TW": {
+    travel: [
+      "今天可以查一個地點、路線或價格，讓這趟旅程更有輪廓。",
+      "找一張接近這個畫面的照片，先把它存進你的願景裡。",
+      "寫下一個你願意準備的小東西，例如行李、預算或時間。",
+    ],
+    career: [
+      "今天可以整理一個作品、履歷或服務說明，讓機會更容易找到你。",
+      "列出一個你想合作的人或客戶類型，讓方向更清楚。",
+      "做一件 10 分鐘內能完成的小事，讓工作願景往前一格。",
+    ],
+    wealth: [
+      "今天可以看一眼收支或存款目標，讓安全感有一個真實座標。",
+      "寫下一個你想讓錢支持的生活選擇，讓豐盛有具體方向。",
+      "找出一個可以減少消耗的小決定，讓餘裕慢慢長出來。",
+    ],
+    relationship: [
+      "今天可以做一個更靠近愛的小動作，例如傳訊息、說謝謝或照顧自己。",
+      "寫下一個你在關係裡想感受到的具體畫面。",
+      "留意今天讓你感到被理解的一個瞬間。",
+    ],
+    home: [
+      "今天可以整理一個角落，讓理想空間先在現在的生活裡出現一點。",
+      "找一張接近理想家的圖片，觀察你最被哪個細節吸引。",
+      "記下一個未來空間必須擁有的感受，例如安靜、光線或香氣。",
+    ],
+    health: [
+      "今天可以做一個讓身體更舒服的小選擇，例如喝水、伸展或早點休息。",
+      "留意身體哪裡正在變好，哪怕只是很小的變化。",
+      "安排一段 5 分鐘的安靜時間，讓身體知道你在聽它。",
+    ],
+    default: [
+      "今天可以做一件很小但真實的事，讓這個願望更靠近現實。",
+      "找一個能代表這個目標的畫面、文字或物品，先把它留下來。",
+      "寫下一個你願意在本週完成的小步驟。",
+    ],
+  },
+  en: {
+    travel: [
+      "Today, check one place, route, or price so the trip gains a clearer shape.",
+      "Save one image that feels close to this scene.",
+      "Write one small thing you are willing to prepare: budget, timing, or packing.",
+    ],
+    career: [
+      "Today, refine one portfolio piece, resume line, or service description.",
+      "Name one person or client type you want to work with.",
+      "Do one 10-minute task that moves this work vision forward.",
+    ],
+    wealth: [
+      "Today, look at one money number so safety has a real coordinate.",
+      "Write one life choice you want abundance to support.",
+      "Find one small decision that reduces unnecessary drain.",
+    ],
+    relationship: [
+      "Today, make one small move toward love: message, thank, or care for yourself.",
+      "Write one concrete relationship scene you want to feel.",
+      "Notice one moment today where you feel understood.",
+    ],
+    home: [
+      "Today, clear one corner so your future space appears a little in the present.",
+      "Save one home image and notice which detail pulls you in.",
+      "Write one feeling your future space must hold: quiet, light, or scent.",
+    ],
+    health: [
+      "Today, choose one small thing that helps your body: water, stretching, or rest.",
+      "Notice one place where your body is already improving.",
+      "Give yourself five quiet minutes so your body knows you are listening.",
+    ],
+    default: [
+      "Today, do one small real thing that makes this goal closer to reality.",
+      "Save one image, phrase, or object that represents this goal.",
+      "Write one small step you are willing to complete this week.",
+    ],
+  },
+};
+
+const THEME_LABELS = {
+  "zh-TW": {
+    travel: "旅程",
+    career: "工作",
+    wealth: "豐盛",
+    relationship: "關係",
+    home: "空間",
+    health: "身體",
+    default: "願望",
+  },
+  en: {
+    travel: "Travel",
+    career: "Work",
+    wealth: "Abundance",
+    relationship: "Relationship",
+    home: "Home",
+    health: "Body",
+    default: "Goal",
+  },
+};
+
+function getTodayKey(date = new Date()) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+function hashSeed(seed = "") {
+  return [...String(seed)].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+}
+
+function sampleQuestions(questions, count = 3, seed = "") {
   const pool = [...questions];
   const picked = [];
+  let cursor = hashSeed(seed);
 
   while (pool.length > 0 && picked.length < count) {
-    const index = Math.floor(Math.random() * pool.length);
+    const index = cursor % pool.length;
     picked.push(pool[index]);
     pool.splice(index, 1);
+    cursor = Math.floor(cursor / 2) + index + 7;
   }
 
   return picked;
@@ -205,5 +338,16 @@ export function detectOrderQuestionTheme(order) {
 export function getOrderQuestions(order, locale = "zh-TW") {
   const theme = detectOrderQuestionTheme(order);
   const questionSet = QUESTION_BANK[locale] || QUESTION_BANK["zh-TW"];
-  return sampleQuestions(questionSet[theme] || questionSet.default, 3);
+  const chipSet = QUESTION_CHIPS[locale] || QUESTION_CHIPS["zh-TW"];
+  const actionSet = ACTION_PROMPTS[locale] || ACTION_PROMPTS["zh-TW"];
+  const labelSet = THEME_LABELS[locale] || THEME_LABELS["zh-TW"];
+  const seed = `${order.id || order.title || ""}-${getTodayKey()}`;
+
+  return sampleQuestions(questionSet[theme] || questionSet.default, 3, seed).map((question, index) => ({
+    question,
+    theme,
+    themeLabel: labelSet[theme] || labelSet.default,
+    chips: chipSet[theme] || chipSet.default,
+    actionPrompt: (actionSet[theme] || actionSet.default)[index % (actionSet[theme] || actionSet.default).length],
+  }));
 }

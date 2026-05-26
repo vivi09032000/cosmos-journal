@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { auth, db, firebaseErrorMessage } from "../firebase";
+import { createOnboardingSeed } from "../lib/onboardingSeed";
 import { getDefaultProfileIdentity } from "../lib/profileIdentity";
 
 function reduceToLifePath(value) {
@@ -58,34 +59,42 @@ export function useAuth(locale = "zh-TW") {
       unsubscribeProfile();
 
       if (nextUser) {
-        setUser(nextUser);
-        const userRef = doc(db, "users", nextUser.uid);
-        const snapshot = await getDoc(userRef);
-        const existingProfile = snapshot.exists() ? snapshot.data() : {};
-        const defaultIdentity = getDefaultProfileIdentity(nextUser.uid);
+        try {
+          setUser(nextUser);
+          const userRef = doc(db, "users", nextUser.uid);
+          const snapshot = await getDoc(userRef);
+          const existingProfile = snapshot.exists() ? snapshot.data() : {};
+          const defaultIdentity = getDefaultProfileIdentity(nextUser.uid, locale);
 
-        await setDoc(
-          userRef,
-          {
-            ...(snapshot.exists() ? {} : { createdAt: serverTimestamp() }),
-            ...(!existingProfile.displayName ? { displayName: defaultIdentity.displayName } : {}),
-            ...(!existingProfile.avatarKey ? { avatarKey: defaultIdentity.avatarKey } : {}),
-            lastSeen: serverTimestamp(),
-          },
-          { merge: true },
-        );
+          if (snapshot.exists()) {
+            await setDoc(
+              userRef,
+              {
+                ...(!existingProfile.displayName ? { displayName: defaultIdentity.displayName } : {}),
+                ...(!existingProfile.avatarKey ? { avatarKey: defaultIdentity.avatarKey } : {}),
+                lastSeen: serverTimestamp(),
+              },
+              { merge: true },
+            );
+          } else {
+            await createOnboardingSeed(db, nextUser.uid, defaultIdentity, locale);
+          }
 
-        unsubscribeProfile = onSnapshot(
-          userRef,
-          (userSnapshot) => {
-            setProfile(userSnapshot.exists() ? userSnapshot.data() : null);
-            setLoading(false);
-          },
-          (profileError) => {
-            setError(profileError.message);
-            setLoading(false);
-          },
-        );
+          unsubscribeProfile = onSnapshot(
+            userRef,
+            (userSnapshot) => {
+              setProfile(userSnapshot.exists() ? userSnapshot.data() : null);
+              setLoading(false);
+            },
+            (profileError) => {
+              setError(profileError.message);
+              setLoading(false);
+            },
+          );
+        } catch (profileError) {
+          setError(profileError.message);
+          setLoading(false);
+        }
         return;
       }
 
@@ -128,13 +137,34 @@ export function useAuth(locale = "zh-TW") {
     await setDoc(
       doc(db, "users", user.uid),
       {
-        displayName: displayName?.trim() || getDefaultProfileIdentity(user.uid).displayName,
-        avatarKey: avatarKey || getDefaultProfileIdentity(user.uid).avatarKey,
+        displayName: displayName?.trim() || getDefaultProfileIdentity(user.uid, locale).displayName,
+        avatarKey: avatarKey || getDefaultProfileIdentity(user.uid, locale).avatarKey,
         updatedAt: serverTimestamp(),
       },
       { merge: true },
     );
   };
 
-  return { user, profile, loading, error, saveBirthday, saveProfileIdentity };
+  const dismissOnboardingGuide = async () => {
+    if (!db || !user?.uid) return;
+
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        onboardingGuideDismissedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  };
+
+  return {
+    user,
+    profile,
+    loading,
+    error,
+    saveBirthday,
+    saveProfileIdentity,
+    dismissOnboardingGuide,
+  };
 }

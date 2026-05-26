@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 const LOCALE_STORAGE_KEY = "cosmos-journal-locale";
 const DEFAULT_LOCALE = "zh-TW";
@@ -27,15 +27,34 @@ export function I18nProvider({ children }) {
     }
 
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    document.documentElement.lang = normalizeLocale(locale);
+  }, [locale]);
+
+  const changeLocale = useCallback((nextLocale) => {
+    if (nextLocale !== "en" && nextLocale !== "zh-TW") {
+      return;
+    }
+
+    if (nextLocale === locale) {
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      setLocale(nextLocale);
+      return;
+    }
+
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+    window.location.reload();
   }, [locale]);
 
   const value = useMemo(
     () => ({
       locale,
-      setLocale,
+      setLocale: changeLocale,
       isEnglish: locale === "en",
     }),
-    [locale],
+    [changeLocale, locale],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

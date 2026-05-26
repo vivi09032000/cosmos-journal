@@ -257,6 +257,7 @@ function AppContent() {
     error: authError,
     saveBirthday,
     saveProfileIdentity,
+    dismissOnboardingGuide,
   } = useAuth(locale);
   const {
     orders,
@@ -349,12 +350,14 @@ function AppContent() {
                   element={
                     <TodayPage
                       orders={orders}
+                      profile={profile}
                       todayEntry={todayEntry}
                       dailyLogEntry={dailyLogEntry}
                       onSaveDailyMood={saveDailyMood}
                       onSaveQuestionAnswer={saveDailyQuestionAnswer}
                       onCreateAngelLog={createAngelLog}
                       onSaveNumberSignal={saveDailyNumberSignal}
+                      onDismissOnboardingGuide={dismissOnboardingGuide}
                       userId={user?.uid || ""}
                     />
                   }
